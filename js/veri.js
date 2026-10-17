@@ -4,8 +4,9 @@
 window.OYUN_VERI = {
   // Oyuncunun yönettiği karakterler.
   // resim: temizlenmiş PNG, boy: ekranın önünde piksel boyu.
+  // parcalar: araclar/parcala.py ile bölünmüş hareketli parçalar (isteğe bağlı).
   karakterler: [
-    { id: "kedi", ad: "Kedi", resim: "cizimler/kedi.png", boy: 250, soz: "Miyav! Merhaba!" },
+    { id: "kedi", ad: "Kedi", resim: "cizimler/kedi.png", parcalar: "kedi", boy: 300, soz: "Miyav! Merhaba!" },
   ],
 
   // Mekanlar. "gecici" alanı, çizim gelene kadar kodla çizilen geçici resmi seçer.
