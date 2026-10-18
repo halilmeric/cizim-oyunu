@@ -26,6 +26,10 @@ Her dükkanda, okulda, hastanede, parkta ve oyun alanında mesleğine göre giyi
 Karakter gelince selam verir: doktor "Ne rahatsızlığınız vardı?", kuaför "Saçınızı nasıl kesmemi istersiniz?" der.
 Çalışana dokununca mesleğiyle ilgili başka bir şey söyler.
 
+Oyunda sesler var: düşme, cam şıngırtısı, ocak, TV müziği, korna, araba, şehir ve kuş sesleri, su, sifon,
+ısırma, giyinme, kaydırak, köpek havlaması ve çalışanların konuşması. Sesler dosya değildir, `js/ses.js` tarayıcıda üretir.
+Sol alttaki hoparlör düğmesi sesi kapatır ve açar.
+
 ## Mekanlar
 Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`ev` alanı).
 
@@ -50,6 +54,7 @@ Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py`, `e
 - `js/veri.js`: karakterler, eşyalar, mekanlar, kapılar, haritadaki yerler ve başlangıç hali. Yeni içerik buraya eklenir.
 - `js/oyun.js`: mekan geçişleri, harita kamerası, sürükle-bırak, düşme, dokun-yürü, oturma, yatma, salıncak, kaydırak ve kayıt.
 - `js/karakter.js`: parçalı karakter kurma ve canlandırma.
+- `js/ses.js`: ses efektleri, TV müziği ve ortam sesleri (Web Audio ile üretilir).
 - `js/gecici.js`: efektler (su, köpük, nota, kalp, Z, parıltı) ve resmi olmayan mekanlar için yedek şekiller.
 - `araclar/uret.py`: çizimlere ışık verir, eşyaları, ilk evin odalarını üretir, karakterleri böler.
 - `araclar/dunya.py`: harita zemini, bina önleri, süsler ve yer simgeleri.

@@ -62,14 +62,14 @@ window.OYUN_VERI = {
     //   at: fırlatır. sur: yerde sürer. Diğerleri elde oynanır:
     //   konus, oku, ic, fircala, yaz, yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
     //   giy: karakter üstüne giyer. giy değeri yeridir: govde, alt (pantolon) ya da bas.
-    // ocak: ocağın gözüne konabilir.
+    // ocak: ocağın gözüne konabilir. kirilir: hızlı düşünce cam sesi çıkarır.
     top: { resim: "cizimler/esya/top.png", boy: 74, eylem: "at" },
     telefon: { resim: "cizimler/esya/telefon.png", boy: 62, eylem: "konus" },
     kitap: { resim: "cizimler/esya/kitap.png", boy: 58, eylem: "oku" },
     tahin: { resim: "cizimler/esya/tahin.png", boy: 70, yenir: [200, 160, 90] },
     elma: { resim: "cizimler/esya/elma.png", boy: 50, yenir: [235, 225, 180] },
     sut: { resim: "cizimler/esya/sut.png", boy: 84, yenir: [250, 250, 255] },
-    kupa: { resim: "cizimler/esya/kupa.png", boy: 48, eylem: "ic" },
+    kupa: { resim: "cizimler/esya/kupa.png", boy: 48, eylem: "ic", kirilir: true },
     ordek: { resim: "cizimler/esya/ordek.png", boy: 60, eylem: "sik" },
     sabun: { resim: "cizimler/esya/sabun.png", boy: 34, eylem: "yika" },
     sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82, eylem: "yika" },
@@ -98,7 +98,7 @@ window.OYUN_VERI = {
     cicek: { resim: "cizimler/esya/cicek.png", boy: 70, eylem: "kokla" },
     tencere: { resim: "cizimler/esya/tencere.png", boy: 60, eylem: "karistir", ocak: true },
     tava: { resim: "cizimler/esya/tava.png", boy: 34, eylem: "karistir", ocak: true },
-    bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic" },
+    bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic", kirilir: true },
     kumanda: { resim: "cizimler/esya/kumanda.png", boy: 50, eylem: "kumanda" },
     // boya: giyince karakterin kendi kıyafetinin hangi bölgeleri bu renge boyanır (karakterin "kiyafet" verisi).
     elbise: { resim: "cizimler/esya/elbise.png", boy: 150, eylem: "giy", giy: "govde", boya: ["ust", "alt"], renk: [245, 120, 170] },
