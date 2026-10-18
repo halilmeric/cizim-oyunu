@@ -97,6 +97,7 @@ window.OYUN_VERI = {
     kova: { resim: "cizimler/esya/kova.png", boy: 52, eylem: "kaz" },
     cicek: { resim: "cizimler/esya/cicek.png", boy: 70, eylem: "kokla" },
     tencere: { resim: "cizimler/esya/tencere.png", boy: 60, eylem: "karistir", ocak: true },
+    "tencere-gri": { resim: "cizimler/esya/tencere-gri.png", boy: 60, eylem: "karistir", ocak: true },
     tava: { resim: "cizimler/esya/tava.png", boy: 34, eylem: "karistir", ocak: true },
     bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic", kirilir: true },
     kumanda: { resim: "cizimler/esya/kumanda.png", boy: 50, eylem: "kumanda" },
@@ -234,30 +235,33 @@ window.OYUN_VERI = {
       ad: "Mutfak", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/mutfak.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "oda", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "banyo", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "oda", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "banyo", giris: GIRIS_SOL },
       ],
       noktalar: [
         {
-          tur: "dolap", x: 225, y: 140, w: 160, h: 318,
-          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 146, y0: 122,
+          tur: "dolap", x: 225, y: 173, w: 183, h: 314,
+          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 160, y0: 170,
           raflar: [
-            { sablon: "sut", x: 270, y: 214 }, { sablon: "portakal-suyu", x: 335, y: 214 },
-            { sablon: "peynir", x: 265, y: 284 }, { sablon: "cilek", x: 312, y: 284 }, { sablon: "havuc", x: 350, y: 284 },
-            { sablon: "karpuz", x: 270, y: 354 }, { sablon: "dondurma", x: 340, y: 354 },
+            { sablon: "sut", x: 270, y: 251 }, { sablon: "portakal-suyu", x: 340, y: 251 },
+            { sablon: "peynir", x: 262, y: 326 }, { sablon: "cilek", x: 308, y: 326 }, { sablon: "havuc", x: 352, y: 326 },
+            { sablon: "karpuz", x: 275, y: 401 }, { sablon: "dondurma", x: 345, y: 401 },
           ],
         },
-        { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
-        { tur: "ocak", x: 750, y: 300, w: 140, h: 60, gozler: [{ x: 785, y: 345 }, { x: 850, y: 345 }] },
-        { tur: "tezgah", x: 390, y: 250, w: 530, h: 106, ust: 346 },
+        { tur: "musluk", x: 645, y: 318, w: 70, h: 50, su: { x: 690, y: 342, boy: 20 } },
+        { tur: "ocak", x: 755, y: 340, w: 140, h: 48, gozler: [{ x: 793, y: 372 }, { x: 857, y: 372 }] },
+        { tur: "tezgah", x: 395, y: 270, w: 523, h: 115, ust: 372 },
         // Tezgahın altındaki beş dolap. Hepsi aynı açık dolap resmini kullanır.
-        ...[["bardak", "tencere"], ["bardak", "tava"], ["kupa", "tencere"], ["bardak", "tava"], ["kupa", "tencere"]].map(([ust, alt], i) => ({
-          tur: "dolap", x: 410 + i * 100, y: 362, w: 92, h: 86,
-          resim: "cizimler/mekan/mutfak-dolap-acik.png", x0: 358 + i * 100, y0: 350,
-          raflar: [{ sablon: ust, x: 456 + i * 100, y: 401 }, { sablon: alt, x: 456 + i * 100, y: 444 }],
+        ...[["bardak", "tencere"], ["bardak", "tava"], ["kupa", "tencere-gri"], ["bardak", "tava"], ["kupa", "tencere"]].map(([ust, alt], i) => ({
+          tur: "dolap", x: 410 + i * 100, y: 393, w: 90, h: 82,
+          resim: "cizimler/mekan/mutfak-dolap-acik.png", x0: 358 + i * 100, y0: 385,
+          raflar: [{ sablon: ust, x: 455 + i * 100, y: 431 }, { sablon: alt, x: 455 + i * 100, y: 470 }],
         })),
+        // Sağ alttaki tabure: karakter üstüne bırakılınca oturur.
+        sandalye(1200, 662),
       ],
     },
+
     banyo: {
       ad: "Banyo", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/banyo.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
