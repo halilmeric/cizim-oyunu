@@ -154,6 +154,164 @@ def esya_sampuan():
     return kirp(t.bitir())
 
 
+def esya_muz():
+    t = Tuval(200, 120)
+    t.cokgen([(15, 40), (60, 85), (120, 95), (175, 60), (190, 30), (170, 45), (120, 70), (65, 62), (25, 30)], (250, 215, 60, 255))
+    t.kutu(8, 26, 26, 44, (110, 80, 40, 255), r=4, cizgi=2)
+    t.kutu(182, 22, 196, 38, (90, 70, 40, 255), r=3, cizgi=2)
+    return kirp(t.bitir())
+
+
+def esya_havuc():
+    t = Tuval(90, 220)
+    for x, a in [(30, -1), (45, 0), (60, 1)]:
+        t.cokgen([(45, 60), (x + 15 * a - 8, 8), (x + 15 * a + 8, 8)], (90, 170, 60, 255), cizgi=2)
+    t.cokgen([(18, 55), (72, 55), (50, 212), (40, 212)], (245, 140, 40, 255))
+    for y in (90, 125, 160):
+        t.cizgi([(30, y), (42, y + 4)], (180, 90, 30, 255), 2)
+    return kirp(t.bitir())
+
+
+def esya_ekmek():
+    t = Tuval(220, 130)
+    t.kutu(10, 40, 210, 120, (215, 150, 80, 255), r=40)
+    t.elips(10, 10, 210, 90, (230, 170, 95, 255))
+    for x in (60, 105, 150):
+        t.cizgi([(x - 12, 35), (x + 12, 60)], (170, 105, 50, 255), 4)
+    return kirp(t.bitir())
+
+
+def esya_peynir():
+    t = Tuval(180, 130)
+    t.cokgen([(10, 60), (170, 20), (170, 120), (10, 120)], (255, 215, 90, 255))
+    for x, y, r in [(50, 95, 12), (110, 75, 9), (140, 100, 14), (85, 108, 7)]:
+        t.elips(x - r, y - r, x + r, y + r, (230, 180, 60, 255), cizgi=2, guc=0.6)
+    return kirp(t.bitir())
+
+
+def esya_cilek():
+    t = Tuval(120, 140)
+    t.cokgen([(15, 40), (105, 40), (95, 90), (60, 135), (25, 90)], (225, 40, 60, 255))
+    for x, y in [(40, 60), (65, 55), (85, 70), (50, 90), (72, 95), (60, 115)]:
+        t.elips(x - 3, y - 4, x + 3, y + 4, (255, 230, 120, 255), cizgi=0, guc=0)
+    t.cokgen([(20, 42), (40, 15), (60, 35), (80, 15), (100, 42)], (80, 170, 60, 255), cizgi=2)
+    return kirp(t.bitir())
+
+
+def esya_karpuz():
+    t = Tuval(220, 130)
+    t.cokgen([(10, 15), (210, 15), (110, 125)], (60, 150, 60, 255))
+    t.cokgen([(24, 24), (196, 24), (110, 110)], (245, 80, 90, 255), cizgi=0)
+    for x, y in [(70, 40), (110, 45), (150, 40), (95, 70), (125, 70), (110, 92)]:
+        t.elips(x - 4, y - 6, x + 4, y + 6, (40, 30, 30, 255), cizgi=0, guc=0.5)
+    return kirp(t.bitir())
+
+
+def esya_kurabiye():
+    t = Tuval(140, 140)
+    t.elips(10, 10, 130, 130, (215, 160, 90, 255))
+    for x, y in [(45, 45), (85, 40), (95, 85), (50, 90), (70, 65)]:
+        t.elips(x - 8, y - 8, x + 8, y + 8, (90, 55, 35, 255), cizgi=0, guc=0.6)
+    return kirp(t.bitir())
+
+
+def esya_dondurma():
+    t = Tuval(120, 220)
+    t.cokgen([(18, 95), (102, 95), (60, 215)], (220, 165, 90, 255))
+    t.cizgi([(35, 115), (75, 175)], (180, 120, 60, 255), 3)
+    t.cizgi([(85, 115), (48, 175)], (180, 120, 60, 255), 3)
+    t.elips(10, 50, 110, 110, (250, 170, 200, 255), kure=True)
+    t.elips(22, 8, 98, 78, (255, 240, 210, 255), kure=True)
+    t.elips(52, 0, 70, 18, (230, 40, 60, 255), cizgi=2, kure=True)
+    return kirp(t.bitir())
+
+
+def esya_portakal():
+    t = Tuval(130, 135)
+    t.elips(8, 15, 122, 128, (250, 150, 30, 255), kure=True)
+    t.elips(56, 4, 92, 22, (90, 170, 60, 255))
+    return kirp(t.bitir())
+
+
+def esya_portakal_suyu():
+    t = Tuval(110, 200)
+    t.kutu(10, 30, 100, 195, (250, 160, 40, 255), r=10)
+    t.kutu(10, 30, 100, 60, (255, 255, 255, 255), r=6, cizgi=2, guc=0.4)
+    t.elips(30, 100, 80, 150, (255, 200, 60, 255), cizgi=2, kure=True)
+    t.kutu(40, 4, 70, 32, (60, 150, 60, 255), r=4)
+    return kirp(t.bitir())
+
+
+def esya_pasta():
+    t = Tuval(140, 170)
+    t.cokgen([(20, 85), (120, 85), (105, 165), (35, 165)], (120, 180, 230, 255))
+    for x in (45, 70, 95):
+        t.cizgi([(x, 92), (x - 3, 160)], (90, 150, 200, 255), 3)
+    t.elips(10, 30, 130, 100, (255, 230, 240, 255))
+    t.elips(30, 10, 110, 70, (255, 230, 240, 255), cizgi=0)
+    t.elips(58, 0, 82, 24, (220, 30, 50, 255), cizgi=2, kure=True)
+    return kirp(t.bitir())
+
+
+def esya_araba():
+    t = Tuval(230, 140)
+    t.kutu(60, 20, 170, 75, (80, 160, 230, 255), r=18)
+    t.kutu(75, 30, 112, 62, (200, 235, 250, 255), r=6, cizgi=2, guc=0.4)
+    t.kutu(118, 30, 155, 62, (200, 235, 250, 255), r=6, cizgi=2, guc=0.4)
+    t.kutu(10, 60, 220, 110, (230, 60, 60, 255), r=20)
+    t.elips(200, 70, 216, 86, (255, 230, 120, 255), cizgi=2, kure=True)
+    for x in (55, 175):
+        t.elips(x - 28, 85, x + 28, 138, (50, 50, 60, 255), kure=True)
+        t.elips(x - 11, 101, x + 11, 122, (200, 200, 210, 255), cizgi=2)
+    return kirp(t.bitir())
+
+
+def esya_kup():
+    t = Tuval(150, 150)
+    t.cokgen([(20, 40), (60, 10), (140, 10), (100, 40)], (255, 220, 90, 255))
+    t.cokgen([(100, 40), (140, 10), (140, 105), (100, 140)], (60, 150, 220, 255))
+    t.kutu(10, 40, 100, 140, (235, 80, 80, 255), r=6)
+    t.elips(38, 70, 72, 110, (255, 255, 255, 255), cizgi=2, guc=0.5)
+    return kirp(t.bitir())
+
+
+def esya_boya():
+    t = Tuval(220, 70)
+    t.kutu(10, 15, 170, 55, (140, 90, 220, 255), r=8)
+    t.kutu(30, 15, 60, 55, (255, 255, 255, 255), r=2, cizgi=2, guc=0.4)
+    t.cokgen([(170, 15), (210, 35), (170, 55)], (240, 205, 160, 255))
+    t.cokgen([(198, 29), (212, 35), (198, 41)], (140, 90, 220, 255), cizgi=0)
+    return kirp(t.bitir())
+
+
+def esya_dis_fircasi():
+    t = Tuval(240, 90)
+    t.kutu(10, 45, 190, 70, (90, 190, 240, 255), r=12)
+    t.kutu(180, 40, 232, 66, (250, 250, 250, 255), r=4)
+    for x in range(186, 230, 9):
+        t.kutu(x, 12, x + 6, 42, (240, 245, 255, 255), r=3, cizgi=2, guc=0.3)
+    return kirp(t.bitir())
+
+
+def esya_dis_macunu():
+    t = Tuval(230, 100)
+    t.cokgen([(20, 20), (190, 30), (190, 75), (20, 85)], (255, 255, 255, 255))
+    t.kutu(40, 35, 160, 70, (90, 200, 120, 255), r=10, cizgi=2, guc=0.5)
+    t.kutu(188, 38, 222, 68, (240, 80, 80, 255), r=6)
+    t.cizgi([(20, 18), (20, 88)], KALEM, 6)
+    return kirp(t.bitir())
+
+
+def esya_havlu():
+    t = Tuval(180, 120)
+    t.kutu(10, 60, 170, 115, (250, 210, 90, 255), r=12)
+    t.kutu(15, 30, 165, 75, (250, 210, 90, 255), r=12)
+    t.kutu(20, 5, 160, 45, (250, 210, 90, 255), r=12)
+    for y in (20, 52, 88):
+        t.kutu(20, y, 160, y + 6, (255, 255, 255, 255), r=2, cizgi=0, guc=0.3)
+    return kirp(t.bitir())
+
+
 # --- Odalar: perspektif geometri ---
 W, H = 1280, 720
 UFUK = (640, 120)          # kaçış noktası
@@ -498,7 +656,12 @@ def main():
         im.thumbnail((240, 240), Image.LANCZOS)
         im.save(yol("esya", ad + ".png"))
     for ad, f in [("elma", esya_elma), ("sut", esya_sut), ("kupa", esya_kupa), ("ordek", esya_ordek),
-                  ("sabun", esya_sabun), ("sampuan", esya_sampuan)]:
+                  ("sabun", esya_sabun), ("sampuan", esya_sampuan), ("muz", esya_muz), ("havuc", esya_havuc),
+                  ("ekmek", esya_ekmek), ("peynir", esya_peynir), ("cilek", esya_cilek), ("karpuz", esya_karpuz),
+                  ("kurabiye", esya_kurabiye), ("dondurma", esya_dondurma), ("portakal", esya_portakal),
+                  ("portakal-suyu", esya_portakal_suyu), ("pasta", esya_pasta), ("araba", esya_araba), ("kup", esya_kup),
+                  ("boya", esya_boya), ("dis-fircasi", esya_dis_fircasi), ("dis-macunu", esya_dis_macunu),
+                  ("havlu", esya_havlu)]:
         f().save(yol("esya", ad + ".png"))
     for ad, f in [("oda", oda), ("mutfak", mutfak), ("banyo", banyo)]:
         f(ciz).convert("RGB").save(yol("mekan", ad + ".jpg"), quality=88)

@@ -16,10 +16,18 @@ function dunyaOku() {
     if (s && VERI.mekanlar[s.mekan] && Array.isArray(s.varliklar)) {
       // Silinmiş bir şablon kayıtta kalırsa onu atla.
       s.varliklar = s.varliklar.filter((v) => (v.tur === "karakter" ? VERI.karakterler : VERI.esyalar)[v.sablon] && VERI.mekanlar[v.mekan]);
+      // Başlangıca sonradan eklenen eşyalar eski kayda da gelir. Yenmiş ya da bilinen eşya geri gelmez.
+      // bilinen alanı olmayan eski kayıtta ilk sürümün eşyaları bilinir sayılır.
+      const bilinen = new Set(s.bilinen || ["kiz1", "kedi1", "top1", "telefon1", "kitap1", "ayi1", "elma1", "elma2", "tahin1", "sut1", "kupa1", "ordek1", "sabun1", "sampuan1"]);
+      s.varliklar.forEach((v) => bilinen.add(v.id));
+      VERI.baslangic.varliklar.forEach((v) => { if (!bilinen.has(v.id)) { s.varliklar.push(JSON.parse(JSON.stringify(v))); bilinen.add(v.id); } });
+      s.bilinen = [...bilinen];
       return s;
     }
   } catch (e) {}
-  return JSON.parse(JSON.stringify(VERI.baslangic));
+  const yeni = JSON.parse(JSON.stringify(VERI.baslangic));
+  yeni.bilinen = yeni.varliklar.map((v) => v.id);
+  return yeni;
 }
 const dunya = dunyaOku();
 function kaydet() {
