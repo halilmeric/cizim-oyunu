@@ -110,7 +110,7 @@ window.OYUN_VERI = {
   mekanlar: {
     // Mahalle haritası. Geniş bir sokak: kamera sağa sola kayar.
     dunya: {
-      ad: "Mahalle", simge: "harita", tur: "dunya",
+      ad: "Meriç Sokağı", simge: "harita", tur: "dunya",
       genislik: 6520,
       taban: 472, // binaların oturduğu çizgi
       zemin: { ust: 482, alt: 705, sol: 30, sag: 6490 },
