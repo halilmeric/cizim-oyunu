@@ -16,15 +16,30 @@ Y, X = np.mgrid[0:H, 0:W]
 
 # Her parça: ad, maske (piksel seçimi), dönme noktası, çizim sırası, hareket türü.
 # Parçalar gövdenin biraz içine taşar. Gövde üstte çizilir ve ek yerini örter.
-PARCALAR = [
-    ("kuyruk",    (X > 326) & (Y >= 352) & (Y < 480),               (326, 455), -2, "kuyruk"),
-    ("kol-sol",   (X < 158) & (Y > 250) & (Y < 372),                (152, 305), -1, "kol-sol"),
-    ("kol-sag",   (X > 314) & (Y > 250) & (Y < 352),                (320, 305), -1, "kol-sag"),
-    ("bacak-sol", (Y >= 425) & (X < 230) & ~((X > 326) & (Y < 480)), (185, 430), -1, "bacak-sol"),
-    ("bacak-sag", (Y >= 425) & (X >= 226) & (X <= 340),             (270, 430), -1, "bacak-sag"),
-    ("govde",     ~(((X < 142) & (Y > 250) & (Y < 372)) | ((X > 330) & (Y > 250) & (Y < 352))
-                    | ((X > 336) & (Y >= 352)) | (Y >= 445)),        (W // 2, H), 0, "govde"),
-]
+# Her karakterin kendi sınırları vardır. Anahtar: çıktı klasörünün adı.
+def kedi():
+    return [
+        ("kuyruk",    (X > 326) & (Y >= 352) & (Y < 480),               (326, 455), -2, "kuyruk"),
+        ("kol-sol",   (X < 158) & (Y > 250) & (Y < 372),                (152, 305), -1, "kol-sol"),
+        ("kol-sag",   (X > 314) & (Y > 250) & (Y < 352),                (320, 305), -1, "kol-sag"),
+        ("bacak-sol", (Y >= 425) & (X < 230) & ~((X > 326) & (Y < 480)), (185, 430), -1, "bacak-sol"),
+        ("bacak-sag", (Y >= 425) & (X >= 226) & (X <= 340),             (270, 430), -1, "bacak-sag"),
+        ("govde",     ~(((X < 142) & (Y > 250) & (Y < 372)) | ((X > 330) & (Y > 250) & (Y < 352))
+                        | ((X > 336) & (Y >= 352)) | (Y >= 445)),        (W // 2, H), 0, "govde"),
+    ]
+
+def kiz():
+    return [
+        ("kol-sol",   (X < 175) & (Y > 270) & (Y < 370),                (172, 318), -1, "kol-sol"),
+        ("kol-sag",   (X > 362) & (Y > 280) & (Y < 365),                (366, 322), -1, "kol-sag"),
+        ("bacak-sol", (Y >= 445) & (X < 264),                           (215, 450), -1, "bacak-sol"),
+        ("bacak-sag", (Y >= 445) & (X >= 260),                          (305, 450), -1, "bacak-sag"),
+        ("govde",     ~(((X < 165) & (Y > 270) & (Y < 370)) | ((X > 372) & (Y > 280) & (Y < 365))
+                        | (Y >= 455)),                                   (W // 2, H), 0, "govde"),
+    ]
+
+kid = out.rstrip("/").split("/")[-1]
+PARCALAR = {"kedi": kedi, "kiz": kiz}[kid]()
 
 liste = []
 for ad, maske, pivot, z, hareket in PARCALAR:
@@ -36,7 +51,6 @@ for ad, maske, pivot, z, hareket in PARCALAR:
     liste.append({"ad": ad, "resim": f"{out}/{ad}.png", "x": int(x0), "y": int(y0),
                   "w": int(x1 - x0), "h": int(y1 - y0), "pivot": list(pivot), "z": z, "hareket": hareket})
 
-kid = out.rstrip("/").split("/")[-1]
 veri = json.dumps({"genislik": W, "yukseklik": H, "parcalar": liste}, ensure_ascii=False, indent=1)
 with open(f"{out}/parcalar.js", "w") as f:
     f.write("// araclar/parcala.py üretir. Elle değiştirme.\n")

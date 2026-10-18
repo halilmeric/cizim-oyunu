@@ -1,7 +1,7 @@
 // Oyun motoru: sürükle-bırak, düşme, dokun-yürü, kapılar ve kayıt.
 
 const VERI = window.OYUN_VERI;
-const KAYIT_ANAHTARI = "cizim-dunyasi-v1";
+const KAYIT_ANAHTARI = "cizim-dunyasi-v2";
 const SURUKLE_ESIGI = 12; // piksel; daha az kayan dokunuş "dokunma" sayılır
 const YERCEKIMI = 2600;
 
@@ -13,7 +13,11 @@ const K = window.KARAKTER(k, VERI);
 function dunyaOku() {
   try {
     const s = JSON.parse(localStorage.getItem(KAYIT_ANAHTARI));
-    if (s && VERI.mekanlar[s.mekan] && Array.isArray(s.varliklar)) return s;
+    if (s && VERI.mekanlar[s.mekan] && Array.isArray(s.varliklar)) {
+      // Silinmiş bir şablon kayıtta kalırsa onu atla.
+      s.varliklar = s.varliklar.filter((v) => (v.tur === "karakter" ? VERI.karakterler : VERI.esyalar)[v.sablon] && VERI.mekanlar[v.mekan]);
+      return s;
+    }
   } catch (e) {}
   return JSON.parse(JSON.stringify(VERI.baslangic));
 }
@@ -36,8 +40,15 @@ k.scene("mekan", (mekanId) => {
   else G.mekanlar[m.gecici]();
   m.kapilar.forEach((d) => G.kapi(d, !!m.resim));
 
-  const derinlik = (y) => 0.72 + 0.28 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)));
+  const derinlik = (y) => 0.62 + 0.38 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)));
   const zemineSabitle = (y) => Math.max(z.ust, Math.min(z.alt, y));
+  // Zemin arkaya doğru daralır. y derinliğinde basılabilen en sol ve en sağ x.
+  function xSinir(y) {
+    if (!z.ufuk) return [z.sol, z.sag];
+    const t = (y - z.ufuk.y) / (z.arka.y - z.ufuk.y), pay = 45;
+    return [Math.max(z.sol, z.ufuk.x + (z.arka.sol - z.ufuk.x) * t + pay), Math.min(z.sag, z.ufuk.x + (z.arka.sag - z.ufuk.x) * t - pay)];
+  }
+  const xSabitle = (x, y) => { const [a, b] = xSinir(y); return Math.max(a, Math.min(b, x)); };
 
   // --- Varlıkları kur ---
   // Her varlık: v (kayıt), zemY (zemindeki derinlik), h (zeminden yükseklik), hal, hedef.
@@ -45,16 +56,25 @@ k.scene("mekan", (mekanId) => {
 
   function varlikKur(v) {
     const o = { v, zemY: zemineSabitle(v.y), h: 0, vy: 0, yon: 1, hal: "dur", hedef: null, varinca: null, salla: 0 };
+    // Zemindeki gölge: varlık yükseldikçe küçülür ve solar.
+    o.golge = k.add([k.circle(50), k.pos(0, 0), k.color(40, 25, 20), k.opacity(0.3), k.scale(1, 0.25), k.z(0)]);
     if (v.tur === "karakter") {
       o.kr = K.kur(v.sablon, v.renk);
       o.kok = o.kr.kok;
+      o.golgeEn = o.kr.genislik * 0.34;
     } else {
       const s = VERI.esyalar[v.sablon];
       o.boy = s.boy;
       o.kok = k.add([k.pos(0, 0), k.scale(1), k.rotate(0), k.z(0)]);
-      if (s.resim) o.kok.add([k.sprite("esya-" + v.sablon, { height: s.boy }), k.anchor("bot")]);
-      else G.sus[s.sekil](o.kok.add([...G.esya[s.sekil](), k.pos(0, -s.boy / 2), k.anchor("center")]));
+      if (s.resim) {
+        const sp = o.kok.add([k.sprite("esya-" + v.sablon, { height: s.boy }), k.anchor("bot")]);
+        o.golgeEn = sp.width * 0.55;
+      } else {
+        G.sus[s.sekil](o.kok.add([...G.esya[s.sekil](), k.pos(0, -s.boy / 2), k.anchor("center")]));
+        o.golgeEn = s.boy * 0.55;
+      }
     }
+    o.v.x = xSabitle(o.v.x, o.zemY);
     return o;
   }
 
@@ -84,7 +104,8 @@ k.scene("mekan", (mekanId) => {
   }
 
   function yuru(o, p, sonra = null) {
-    o.hedef = k.vec2(Math.max(z.sol, Math.min(z.sag, p.x)), zemineSabitle(p.y));
+    const y = zemineSabitle(p.y);
+    o.hedef = k.vec2(xSabitle(p.x, y), y);
     o.varinca = sonra;
   }
 
@@ -96,6 +117,7 @@ k.scene("mekan", (mekanId) => {
     if (o.kr) { dunya.secili = o.v.id; kaydet(); k.go("mekan", d.hedef); return; }
     varliklar.splice(varliklar.indexOf(o), 1);
     o.kok.destroy();
+    o.golge.destroy();
     kaydet();
   }
 
@@ -123,7 +145,10 @@ k.scene("mekan", (mekanId) => {
     // Ayak noktası parmağı izler. Zemin bandındaysa derinlik değişir, üstündeyse karakter havaya kalkar.
     const ayakX = p.x + kayma.x, ayakY = p.y + kayma.y;
     tutulan.v.x = Math.max(20, Math.min(1260, ayakX));
-    if (ayakY >= z.ust) { tutulan.zemY = zemineSabitle(ayakY); tutulan.h = 0; }
+    if (ayakY >= z.ust) {
+      tutulan.zemY = zemineSabitle(ayakY); tutulan.h = 0;
+      tutulan.v.x = xSabitle(tutulan.v.x, tutulan.zemY);
+    }
     else tutulan.h = tutulan.zemY - ayakY;
     tutulan.hal = "tutuluyor";
   });
@@ -192,11 +217,22 @@ k.scene("mekan", (mekanId) => {
           hal = "yuru";
         }
       }
+      // Duvarın önüne düşen varlık zemine doğru kayar.
+      if (o.h === 0 && o !== tutulan) {
+        const x2 = xSabitle(o.v.x, o.zemY);
+        if (Math.abs(x2 - o.v.x) > 0.5) o.v.x += (x2 - o.v.x) * Math.min(1, dt * 8);
+      }
       if (hal === "dur" && t < o.salla) hal = "salla";
       const s = olcek(o);
       const ziplama = hal === "yuru" ? Math.abs(Math.sin(t * 11)) * 10 : 0;
       o.kok.pos = k.vec2(o.v.x, o.zemY - o.h - ziplama);
       o.kok.z = o === tutulan ? 5000 : o.zemY;
+      const yukseklik = Math.min(o.h, 500);
+      o.golge.pos = k.vec2(o.v.x, o.zemY);
+      o.golge.z = o.zemY - 0.5;
+      const gs = (o.golgeEn / 50) * s * (1 - yukseklik / 900);
+      o.golge.scale = k.vec2(gs, gs * 0.25);
+      o.golge.opacity = 0.3 * (1 - yukseklik / 700);
       if (o.kr) {
         o.kok.angle = hal === "yuru" ? Math.sin(t * 11) * 3 : hal === "tutuluyor" ? Math.sin(t * 7) * 6 : Math.sin(t * 1.6);
         const nefes = hal === "dur" ? Math.sin(t * 2.4) * 0.015 : 0;
