@@ -1,4 +1,4 @@
-// Oyun motoru: sürükle-bırak, düşme, dokun-yürü, kapılar ve kayıt.
+// Oyun motoru: sürükle-bırak, düşme, dokun-yürü, kapılar, ele alma, yemek ve kayıt.
 
 const VERI = window.OYUN_VERI;
 const KAYIT_ANAHTARI = "cizim-dunyasi-v2";
@@ -39,6 +39,15 @@ k.scene("mekan", (mekanId) => {
   if (m.resim) k.add([k.sprite("mekan-" + mekanId, { width: 1280, height: 720 }), k.z(-100)]);
   else G.mekanlar[m.gecici]();
   m.kapilar.forEach((d) => G.kapi(d, !!m.resim));
+  // Kapının üstündeki ok: kamera tek başına öbür odaya geçer. Karakterler yerinde kalır.
+  const okBul = (p) => m.kapilar.find((d) => p.dist(k.vec2(d.x + d.w / 2, d.y - 40)) < 50);
+  // Musluklar: dokununca su akar ya da durur.
+  const noktalar = (m.noktalar || []).map((n) => {
+    const o = { ...n };
+    if (n.tur === "musluk") { o.akis = G.su(n.su.x, n.su.y, n.su.boy); o.akis.hidden = true; }
+    return o;
+  });
+  const noktaBul = (p) => noktalar.find((n) => p.x > n.x && p.x < n.x + n.w && p.y > n.y && p.y < n.y + n.h);
 
   const derinlik = (y) => 0.62 + 0.38 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)));
   const zemineSabitle = (y) => Math.max(z.ust, Math.min(z.alt, y));
@@ -75,8 +84,16 @@ k.scene("mekan", (mekanId) => {
       }
     }
     o.v.x = xSabitle(o.v.x, o.zemY);
+    o.yenir = !o.kr && VERI.esyalar[v.sablon].yenir;
+    o.isirik = 0;
     return o;
   }
+  // Kayıtta elde duran eşyaları sahibine bağla.
+  varliklar.forEach((o) => {
+    if (!o.v.elde) return;
+    o.elde = varliklar.find((c) => c.kr && c.v.id === o.v.elde) || null;
+    if (!o.elde) delete o.v.elde;
+  });
 
   function olcek(o) {
     return o.kr ? (o.kr.boy / o.kr.yukseklik) * derinlik(o.zemY) : derinlik(o.zemY);
@@ -86,11 +103,20 @@ k.scene("mekan", (mekanId) => {
   function dokunulan(p) {
     const adaylar = varliklar.filter((o) => {
       const s = olcek(o), ay = o.zemY - o.h;
-      if (o.kr) return Math.abs(p.x - o.v.x) < (o.kr.genislik * s) / 2 && p.y < ay + 10 && p.y > ay - o.kr.yukseklik * s;
-      return p.dist(k.vec2(o.v.x, ay - (o.boy * s) / 2)) < o.boy * s * 0.75;
+      if (o.kr) return karakterUstunde(o, p);
+      if (o.yeniyor) return false;
+      return p.dist(merkez(o)) < o.boy * s * 0.75;
     });
     adaylar.sort((a, b) => (b === tutulan ? 1 : 0) - (a === tutulan ? 1 : 0) || (b.kr ? 0 : 1) - (a.kr ? 0 : 1) || b.zemY - a.zemY);
     return adaylar[0] || null;
+  }
+  function karakterUstunde(o, p) {
+    const s = olcek(o), ay = o.zemY - o.h;
+    return Math.abs(p.x - o.v.x) < (o.kr.genislik * s) / 2 && p.y < ay + 10 && p.y > ay - o.kr.yukseklik * s;
+  }
+  // Eşyanın ekrandaki orta noktası (yerde, havada ya da elde).
+  function merkez(o) {
+    return k.vec2(o.kok.pos.x, o.kok.pos.y - (o.boy * o.kok.scale.y) / 2);
   }
   const kapiBul = (p) => m.kapilar.find((d) => p.x > d.x && p.x < d.x + d.w && p.y > d.y && p.y < d.y + d.h);
 
@@ -114,10 +140,76 @@ k.scene("mekan", (mekanId) => {
     o.v.mekan = d.hedef;
     // Eşyalar girişte üst üste binmesin diye biraz dağılır.
     o.v.x = d.giris.x + (o.kr ? 0 : k.rand(-80, 80)); o.v.y = d.giris.y + (o.kr ? 0 : k.rand(0, 80));
-    if (o.kr) { dunya.secili = o.v.id; kaydet(); k.go("mekan", d.hedef); return; }
+    if (o.kr) {
+      varliklar.filter((e) => e.elde === o).forEach((e) => { e.v.mekan = d.hedef; e.v.x = o.v.x; e.v.y = o.v.y; });
+      dunya.secili = o.v.id; kaydet(); k.go("mekan", d.hedef); return;
+    }
+    kaldir(o);
+    kaydet();
+  }
+  function kaldir(o) {
     varliklar.splice(varliklar.indexOf(o), 1);
     o.kok.destroy();
     o.golge.destroy();
+  }
+
+  // --- Ele alma ve yeme ---
+  function eleVer(sahip, o) {
+    // Elde zaten bir eşya varsa yere düşer.
+    varliklar.filter((e) => e.elde === sahip && e !== o).forEach(eldenBirak);
+    o.elde = sahip; o.v.elde = sahip.v.id;
+    o.h = 0; o.vy = 0;
+    kaydet();
+  }
+  function eldenBirak(o) {
+    const p = o.kok.pos;
+    o.zemY = o.elde.zemY; o.v.x = p.x; o.h = Math.max(0, o.zemY - p.y);
+    o.elde = null; delete o.v.elde;
+  }
+  // Üç ısırık: her ısırıkta eşya küçülür, kırıntı düşer. Sonunda eşya biter, kalp çıkar.
+  function ye(sahip, o) {
+    if (o.yeniyor) return;
+    eleVer(sahip, o);
+    o.yeniyor = true;
+    sahip.yiyor = k.time() + 1.6;
+    sahip.hedef = null;
+    let n = 0;
+    const isir = () => {
+      if (!varliklar.includes(o)) return;
+      n++; o.isirik = n;
+      G.kirinti(K.agizYeri(sahip.kr), o.yenir);
+      if (n < 3) return k.wait(0.45, isir);
+      kaldir(o);
+      dunya.varliklar.splice(dunya.varliklar.indexOf(o.v), 1);
+      kalpCikar(sahip);
+      kaydet();
+    };
+    k.wait(0.35, isir);
+  }
+  function kalpCikar(o) {
+    const s = olcek(o);
+    const kl = G.kalp(o.v.x, o.zemY - o.h - o.kr.yukseklik * s - 30);
+    k.tween(0, 1, 1.2, (t) => { kl.pos.y -= 1.2; kl.opacity = 1 - t; kl.scale = k.vec2(1 + t * 0.3); }).onEnd(() => kl.destroy());
+  }
+  // Bırakılan eşya bir karakterin üstündeyse: yiyecek ağza yakınsa yenir, değilse ele alınır.
+  function karakteraBirak(o, p) {
+    const sahip = varliklar.filter((c) => c.kr && karakterUstunde(c, p)).sort((a, b) => b.zemY - a.zemY)[0];
+    if (!sahip) return false;
+    const agiz = K.agizYeri(sahip.kr), s = olcek(sahip);
+    if (o.yenir && p.dist(agiz) < sahip.kr.genislik * s * 0.35) ye(sahip, o);
+    else eleVer(sahip, o);
+    return true;
+  }
+
+  // Dolaptan yiyecek çıkar: kapağın önünden zıplayarak düşer.
+  function dolaptanCikar(n) {
+    if (varliklar.filter((o) => !o.kr).length >= 24) return;
+    const sablon = n.cikar[Math.floor(k.rand(0, n.cikar.length))];
+    const v = { id: sablon + Date.now(), tur: "esya", sablon, mekan: mekanId, x: n.x + n.w / 2 + k.rand(-30, 30), y: z.ust + k.rand(30, 90) };
+    dunya.varliklar.push(v);
+    const o = varlikKur(v);
+    varliklar.push(o);
+    o.h = o.zemY - (n.y + n.h * 0.45); o.vy = -500;
     kaydet();
   }
 
@@ -129,7 +221,7 @@ k.scene("mekan", (mekanId) => {
     basla = p;
     surukluyor = false;
     tutulan = dokunulan(p);
-    if (tutulan) kayma = k.vec2(tutulan.v.x - p.x, tutulan.zemY - tutulan.h - p.y);
+    if (tutulan) kayma = k.vec2(tutulan.kok.pos.x - p.x, tutulan.kok.pos.y - p.y);
   });
 
   k.onMouseMove(() => {
@@ -140,6 +232,7 @@ k.scene("mekan", (mekanId) => {
       surukluyor = true;
       tutulan.hedef = null;
       tutulan.vy = 0;
+      if (tutulan.elde) eldenBirak(tutulan);
       if (tutulan.kr) sec(tutulan);
     }
     // Ayak noktası parmağı izler. Zemin bandındaysa derinlik değişir, üstündeyse karakter havaya kalkar.
@@ -162,6 +255,7 @@ k.scene("mekan", (mekanId) => {
       o.hal = "dur";
       const d = kapiBul(p);
       if (d) return kapidanGec(o, d);
+      if (!o.kr && karakteraBirak(o, p)) return;
       if (o.h <= 0) { o.v.y = o.zemY; kaydet(); }
       return;
     }
@@ -170,14 +264,21 @@ k.scene("mekan", (mekanId) => {
     // Dokunma
     if (o && o.kr) {
       sec(o);
+      // Elinde yiyecek varsa yer, yoksa el sallar.
+      const yemek = varliklar.find((e) => e.elde === o && e.yenir);
+      if (yemek) return ye(o, yemek);
       o.salla = k.time() + 1.6;
-      const s = olcek(o);
-      const kl = G.kalp(o.v.x, o.zemY - o.h - o.kr.yukseklik * s - 30);
-      k.tween(0, 1, 1.2, (t) => { kl.pos.y -= 1.2; kl.opacity = 1 - t; kl.scale = k.vec2(1 + t * 0.3); }).onEnd(() => kl.destroy());
+      kalpCikar(o);
       kaydet();
       return;
     }
+    if (o && o.elde) { if (o.yenir) ye(o.elde, o); return; }
     if (o) { o.vy = -700; o.h = Math.max(o.h, 1); return; } // eşya zıplar
+    const ok = okBul(p);
+    if (ok) return k.go("mekan", ok.hedef);
+    const n = noktaBul(p);
+    if (n && n.tur === "musluk") { n.akis.hidden = !n.akis.hidden; return; }
+    if (n && n.tur === "dolap") return dolaptanCikar(n);
     const d = kapiBul(p);
     if (d) {
       if (secili) return yuru(secili, k.vec2(d.x + d.w / 2, z.ust + 20), () => kapidanGec(secili, d));
@@ -190,6 +291,7 @@ k.scene("mekan", (mekanId) => {
   k.onUpdate(() => {
     const t = k.time(), dt = k.dt();
     for (const o of varliklar) {
+      if (o.elde) { eldeGuncelle(o); continue; }
       let hal = o === tutulan && surukluyor ? "tutuluyor" : "dur";
       // Düşme
       if (o !== tutulan && (o.h > 0 || o.vy !== 0)) {
@@ -222,12 +324,14 @@ k.scene("mekan", (mekanId) => {
         const x2 = xSabitle(o.v.x, o.zemY);
         if (Math.abs(x2 - o.v.x) > 0.5) o.v.x += (x2 - o.v.x) * Math.min(1, dt * 8);
       }
+      if (hal === "dur" && t < o.yiyor) hal = "ye";
       if (hal === "dur" && t < o.salla) hal = "salla";
       const s = olcek(o);
       const ziplama = hal === "yuru" ? Math.abs(Math.sin(t * 11)) * 10 : 0;
       o.kok.pos = k.vec2(o.v.x, o.zemY - o.h - ziplama);
       o.kok.z = o === tutulan ? 5000 : o.zemY;
       const yukseklik = Math.min(o.h, 500);
+      o.golge.hidden = false;
       o.golge.pos = k.vec2(o.v.x, o.zemY);
       o.golge.z = o.zemY - 0.5;
       const gs = (o.golgeEn / 50) * s * (1 - yukseklik / 900);
@@ -235,13 +339,24 @@ k.scene("mekan", (mekanId) => {
       o.golge.opacity = 0.3 * (1 - yukseklik / 700);
       if (o.kr) {
         o.kok.angle = hal === "yuru" ? Math.sin(t * 11) * 3 : hal === "tutuluyor" ? Math.sin(t * 7) * 6 : Math.sin(t * 1.6);
-        const nefes = hal === "dur" ? Math.sin(t * 2.4) * 0.015 : 0;
+        const nefes = hal === "dur" ? Math.sin(t * 2.4) * 0.015 : hal === "ye" ? Math.abs(Math.sin(t * 14)) * 0.03 : 0;
         o.kok.scale = k.vec2(s * o.yon * (1 - nefes), s * (1 + nefes));
         K.canlandir(o.kr, t, hal);
       } else {
         o.kok.scale = k.vec2(s);
         o.kok.angle = hal === "tutuluyor" ? Math.sin(t * 8) * 10 : 0;
       }
+    }
+    // Elde duran eşya elin ucunda durur. Yenirken ağza gider ve her ısırıkta küçülür.
+    function eldeGuncelle(o) {
+      const sahip = o.elde, s = derinlik(sahip.zemY) * (1 - o.isirik * 0.25);
+      const yer = o.yeniyor ? K.agizYeri(sahip.kr) : K.elYeri(sahip.kr);
+      o.kok.pos = k.vec2(yer.x, yer.y + (o.boy * s) / 2);
+      o.kok.scale = k.vec2(s);
+      o.kok.angle = 0;
+      o.kok.z = sahip.kok.z + 0.5;
+      o.zemY = sahip.zemY; o.v.x = sahip.v.x; o.v.y = sahip.v.y; o.h = 0;
+      o.golge.hidden = true;
     }
     // Seçili karakterin üstündeki ok
     isaret.hidden = !secili;

@@ -21,12 +21,13 @@ window.OYUN_VERI = {
   },
   esyalar: {
     // resim: eşyanın PNG dosyası. boy: ekranın önündeki piksel boyu.
+    // yenir: karakterin ağzına götürülünce yenir. Değer kırıntının rengidir.
     top: { resim: "cizimler/esya/top.png", boy: 74 },
     telefon: { resim: "cizimler/esya/telefon.png", boy: 62 },
     kitap: { resim: "cizimler/esya/kitap.png", boy: 58 },
-    tahin: { resim: "cizimler/esya/tahin.png", boy: 70 },
-    elma: { resim: "cizimler/esya/elma.png", boy: 50 },
-    sut: { resim: "cizimler/esya/sut.png", boy: 84 },
+    tahin: { resim: "cizimler/esya/tahin.png", boy: 70, yenir: [200, 160, 90] },
+    elma: { resim: "cizimler/esya/elma.png", boy: 50, yenir: [235, 225, 180] },
+    sut: { resim: "cizimler/esya/sut.png", boy: 84, yenir: [250, 250, 255] },
     kupa: { resim: "cizimler/esya/kupa.png", boy: 48 },
     ordek: { resim: "cizimler/esya/ordek.png", boy: 60 },
     sabun: { resim: "cizimler/esya/sabun.png", boy: 34 },
@@ -34,6 +35,9 @@ window.OYUN_VERI = {
   },
 
   // Mekanlar. resim: arka plan. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
+  // noktalar: dokununca bir şey olan yerler.
+  //   musluk: su akar ya da durur. su: suyun başladığı yer ve boyu.
+  //   dolap: içinden yiyecek çıkar. cikar: çıkabilecek eşyalar.
   mekanlar: {
     oda: {
       resim: "cizimler/mekan/oda.jpg",
@@ -47,11 +51,19 @@ window.OYUN_VERI = {
         { ...KAPI_SOL, hedef: "oda", giris: { x: 1020, y: 580 } },
         { ...KAPI_SAG, hedef: "banyo", giris: { x: 260, y: 580 } },
       ],
+      noktalar: [
+        { tur: "dolap", x: 225, y: 140, w: 160, h: 318, cikar: ["elma", "elma", "sut", "tahin"] },
+        { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
+      ],
     },
     banyo: {
       resim: "cizimler/mekan/banyo.jpg",
       zemin: ZEMIN,
       kapilar: [{ ...KAPI_SOL, hedef: "mutfak", giris: { x: 1020, y: 580 } }],
+      noktalar: [
+        { tur: "musluk", x: 300, y: 255, w: 150, h: 90, su: { x: 393, y: 270, boy: 30 } },
+        { tur: "musluk", x: 950, y: 235, w: 95, h: 95, su: { x: 985, y: 270, boy: 45 } },
+      ],
     },
   },
 

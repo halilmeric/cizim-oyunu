@@ -89,5 +89,45 @@ window.GECICI = (k) => {
     return o;
   }
 
-  return { mekanlar, kapi, esya, sus, kalp };
+  // Yemek kırıntısı: küçük daireler düşer ve solar.
+  function kirinti(p, renk) {
+    for (let i = 0; i < 5; i++) {
+      const o = k.add([k.circle(k.rand(3, 6)), k.pos(p.x + k.rand(-14, 14), p.y), k.color(...renk), k.opacity(1), k.z(4800)]);
+      const vx = k.rand(-90, 90);
+      let vy = k.rand(-180, -60);
+      o.onUpdate(() => {
+        vy += 900 * k.dt();
+        o.pos.x += vx * k.dt(); o.pos.y += vy * k.dt();
+        o.opacity -= k.dt() * 1.6;
+        if (o.opacity <= 0) o.destroy();
+      });
+    }
+  }
+
+  // Akan su: musluktan aşağı inen şerit ve dipte sıçrayan damlalar. Dönen nesne hidden ile açılıp kapanır.
+  function su(x, y, boy) {
+    const o = k.add([k.pos(x, y), k.z(-40)]);
+    const serit = o.add([k.rect(11, boy, { radius: 5 }), k.anchor("top"), k.color(70, 155, 235), k.opacity(0.9)]);
+    o.add([k.rect(3, boy, { radius: 2 }), k.pos(-2, 0), k.anchor("top"), k.color(230, 245, 255), k.opacity(0.8)]);
+    let sayac = 0;
+    o.onUpdate(() => {
+      if (o.hidden) return;
+      serit.width = 10 + Math.sin(k.time() * 30) * 1.5;
+      sayac -= k.dt();
+      if (sayac > 0) return;
+      sayac = 0.05;
+      const d = o.add([k.circle(k.rand(2, 4)), k.pos(k.rand(-4, 4), boy), k.color(170, 215, 250), k.opacity(1)]);
+      const vx = k.rand(-70, 70);
+      let vy = k.rand(-140, -60);
+      d.onUpdate(() => {
+        vy += 700 * k.dt();
+        d.pos.x += vx * k.dt(); d.pos.y += vy * k.dt();
+        d.opacity -= k.dt() * 3;
+        if (d.opacity <= 0) d.destroy();
+      });
+    });
+    return o;
+  }
+
+  return { mekanlar, kapi, esya, sus, kalp, kirinti, su };
 };
