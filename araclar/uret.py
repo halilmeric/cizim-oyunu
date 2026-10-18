@@ -3,7 +3,7 @@
 Kullanım: python3 araclar/uret.py
 Girdi: cizimler/<ad>.png (kızın temizlenmiş çizimleri).
 Çıktı:
-  cizimler/hacimli/<karakter>.png  ışık verilmiş karakterler (parcala.py bunları böler)
+  cizimler/hacimli/<karakter>.png  düz tarza uydurulmuş karakterler: kalem çizgisi ve gölge şeridi (parcala.py bunları böler)
   cizimler/esya/<ad>.png           taşınan eşyalar
   cizimler/mekan/<ad>.png          oda, mutfak ve banyo arka planları
 """
@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
-from hacim import hacim  # noqa: E402
+from hacim import hacim  # noqa: E402,F401  (araclar/hacim.py elle de kullanılabilir)
 
 KOK = os.path.join(os.path.dirname(__file__), "..")
 CIZ = os.path.join(KOK, "cizimler")
@@ -39,7 +39,7 @@ def koy(alt, ust, x, y):
 
 # --- Düz çizgi film gölgesi ---
 # Her şeklin sağ alt kenarı boyunca keskin, biraz koyu bir şerit olur. Parlama ve geçiş yoktur.
-# Kızın çizimleri bu stili kullanmaz: onlara hacim() ışığı verilir.
+# Kızın çizimleri duz_cizim() ile aynı tarza uydurulur: kenarına kalem çizgisi çekilir.
 def duz(L, kure=False, guc=1.0):
     a = np.array(L).astype(np.float32)
     al = a[..., 3] > 128
@@ -65,6 +65,25 @@ def duz(L, kure=False, guc=1.0):
         p.putalpha(Image.fromarray(np.minimum(np.array(p)[..., 3], al.astype(np.uint8) * 255)))
         im.alpha_composite(p)
     return im
+
+
+def duz_cizim(im):
+    """Kızın çizimini düz tarza uydurur: renkler biraz canlanır, kenarına koyu kalem çizgisi
+    çekilir, sağ altta gölge şeridi olur. Resmin boyu değişmez (parcala.py aynı koordinatları kullanır)."""
+    import cv2
+    from PIL import ImageEnhance
+    im = im.convert("RGBA")
+    rgb = ImageEnhance.Contrast(ImageEnhance.Color(im.convert("RGB")).enhance(1.3)).enhance(1.1)
+    a = np.array(rgb.convert("RGBA"))
+    al = np.array(im)[..., 3]
+    a[..., 3] = al
+    ic = (al > 128).astype(np.uint8)
+    k = max(3, int(max(im.size) * 0.007))
+    oz = cv2.erode(ic, np.ones((2 * k + 1, 2 * k + 1), np.uint8))
+    halka = (ic > 0) & (oz == 0)
+    a[halka, :3] = KALEM[:3]
+    a[halka, 3] = 255
+    return duz(Image.fromarray(a, "RGBA"), guc=0.4)
 
 
 # --- Tuval: düz şekiller çizer. Her şekil düz renklidir, kalın kalem çizgisi ve sağ altta gölge şeridi vardır. ---
@@ -778,7 +797,7 @@ def main():
     os.makedirs(yol("mekan"), exist_ok=True)
     ciz = {}
     for ad in ["kedi", "kiz", "ayi", "top", "telefon", "kitap", "tahin", "somine", "tv", "gokkusagi", "ev"]:
-        ciz[ad] = hacim(Image.open(yol(ad + ".png")), kure=(ad == "top"))
+        ciz[ad] = duz_cizim(Image.open(yol(ad + ".png")))
     for ad in ["kedi", "kiz", "ayi"]:
         ciz[ad].save(yol("hacimli", ad + ".png"))
     for ad in ["top", "telefon", "kitap", "tahin"]:

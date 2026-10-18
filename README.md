@@ -34,7 +34,7 @@ Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`
 Program çizimleri düz çizgi film tarzındadır: düz renk, koyu kalem çizgisi, sağ altta keskin bir gölge şeridi.
 Parlama ve renk geçişi yoktur. Ağaç, çalı ve bulutlar dairelerin birleşimiyle tek çizgili çizilir.
 Ortak çizim aracı `araclar/uret.py` içindeki `Tuval` ve `duz()` gölgesidir.
-Kızın çizimleri (karakterler, TV, şömine, gökkuşağı) kendi halini korur.
+Kızın çizimleri (karakterler, TV, şömine, gökkuşağı) de düz tarza uydurulur: renkleri biraz canlanır, kenarına kalem çizgisi çekilir.
 Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve `ekler.py` sırayla çalıştırılır.
 
 ## Dosyalar
