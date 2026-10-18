@@ -312,6 +312,67 @@ def esya_havlu():
     return kirp(t.bitir())
 
 
+def esya_stetoskop():
+    t = Tuval(170, 200)
+    t.cizgi([(40, 20), (30, 80), (60, 130), (100, 140), (120, 110)], (60, 70, 90, 255), 8)
+    t.cizgi([(110, 20), (125, 70), (120, 110)], (60, 70, 90, 255), 8)
+    for x in (40, 110):
+        t.elips(x - 10, 8, x + 10, 28, (200, 205, 215, 255), cizgi=2, kure=True)
+    t.cizgi([(120, 110), (130, 150)], (60, 70, 90, 255), 8)
+    t.elips(105, 145, 160, 195, (200, 205, 215, 255), kure=True)
+    t.elips(118, 158, 147, 182, (150, 160, 175, 255), cizgi=2, guc=0.4)
+    return kirp(t.bitir())
+
+
+def esya_tarak():
+    t = Tuval(220, 80)
+    t.kutu(10, 10, 210, 36, (240, 120, 170, 255), r=10)
+    for x in range(22, 200, 12):
+        t.kutu(x, 30, x + 6, 72, (240, 120, 170, 255), r=3, cizgi=2, guc=0.4)
+    return kirp(t.bitir())
+
+
+def esya_fon():
+    t = Tuval(200, 180)
+    t.kutu(70, 90, 110, 176, (160, 130, 240, 255), r=14)
+    t.kutu(20, 30, 150, 100, (160, 130, 240, 255), r=34)
+    t.kutu(140, 44, 196, 86, (140, 110, 220, 255), r=8)
+    t.elips(40, 46, 80, 86, (230, 225, 250, 255), cizgi=2, guc=0.5)
+    return kirp(t.bitir())
+
+
+def esya_sulama_kabi():
+    t = Tuval(240, 170)
+    t.cokgen([(150, 90), (230, 30), (238, 40), (160, 120)], (90, 180, 120, 255))
+    t.elips(222, 18, 240, 44, (90, 180, 120, 255), cizgi=2)
+    t.kutu(30, 60, 160, 165, (90, 180, 120, 255), r=18)
+    t.cizgi([(50, 64), (60, 20), (130, 20), (140, 64)], KALEM, 14)
+    t.cizgi([(50, 64), (60, 20), (130, 20), (140, 64)], (90, 180, 120, 255), 8)
+    t.elips(70, 95, 120, 140, (255, 220, 80, 255), cizgi=2, guc=0.5)
+    return kirp(t.bitir())
+
+
+def esya_kova():
+    t = Tuval(170, 170)
+    t.cizgi([(30, 60), (85, 10), (140, 60)], KALEM, 8)
+    t.cokgen([(20, 60), (150, 60), (130, 165), (40, 165)], (240, 80, 80, 255))
+    t.elips(20, 50, 150, 74, (250, 220, 150, 255), cizgi=3, guc=0.5)
+    t.elips(60, 100, 110, 140, (255, 210, 70, 255), cizgi=2, guc=0.5)
+    return kirp(t.bitir())
+
+
+def esya_cicek():
+    t = Tuval(120, 220)
+    t.cizgi([(60, 90), (62, 215)], (80, 160, 60, 255), 8)
+    t.elips(64, 140, 110, 165, (90, 175, 70, 255), cizgi=2)
+    for i in range(6):
+        import math
+        x, y = 60 + 32 * math.cos(i * 1.047), 55 + 32 * math.sin(i * 1.047)
+        t.elips(x - 22, y - 22, x + 22, y + 22, (250, 120, 160, 255), cizgi=2, guc=0.7)
+    t.elips(40, 35, 80, 75, (255, 215, 70, 255), cizgi=2, kure=True)
+    return kirp(t.bitir())
+
+
 # --- Odalar: perspektif geometri ---
 W, H = 1280, 720
 UFUK = (640, 120)          # kaçış noktası
@@ -486,14 +547,15 @@ def oda(ciz):
     oda_iskeleti(t, ((255, 230, 200), (246, 208, 176)), ((236, 205, 175), (225, 190, 160)), lambda t: parke(t, (212, 156, 104)))
     duvar_deseni(t, (240, 195, 160, 255))
     zemin_isigi(t)
+    kapi(t, sag=False)
     kapi(t, sag=True)
     pencere(t, 222, 90, 372, 290)
-    # Sol duvarda çerçeveli ev resmi
+    # Sol duvarda, dış kapının üstünde çerçeveli ev resmi
     c = Tuval(300, 300)
     c.kutu(4, 4, 296, 296, (200, 140, 80, 255), r=6)
     c.kutu(24, 24, 276, 276, (255, 252, 240, 255), r=2, guc=0.3)
     c.resim(ciz["ev"], 40, 34, h=232)
-    t.im.alpha_composite(cerceveye_ger(c.bitir(), yan_dortgen(45, 165, 0.42, 0.82)))
+    t.im.alpha_composite(cerceveye_ger(c.bitir(), yan_dortgen(62, 152, 0.66, 0.92)))
     # Şömine ve üstünde gökkuşağı
     golge_birak(t, 590, 452, 175, 14)
     t.kutu(428, 252, 752, 272, (185, 120, 75, 255), r=4)
@@ -583,6 +645,7 @@ def banyo(ciz):
             d.rectangle([x * SS, y * SS, (x + 24.1) * SS, (y + 24) * SS], fill=(170, 210, 240, 255), outline=(240, 248, 255, 255), width=SS)
     zemin_isigi(t)
     kapi(t, sag=False)
+    kapi(t, sag=True)
     # Ayna ve lavabo
     t.elips(305, 95, 445, 250, (230, 200, 120, 255), kure=False)
     t.elips(318, 108, 432, 237, (205, 232, 248, 255), cizgi=2, guc=0.4)
@@ -686,7 +749,8 @@ def main():
                   ("kurabiye", esya_kurabiye), ("dondurma", esya_dondurma), ("portakal", esya_portakal),
                   ("portakal-suyu", esya_portakal_suyu), ("pasta", esya_pasta), ("araba", esya_araba), ("kup", esya_kup),
                   ("boya", esya_boya), ("dis-fircasi", esya_dis_fircasi), ("dis-macunu", esya_dis_macunu),
-                  ("havlu", esya_havlu)]:
+                  ("havlu", esya_havlu), ("stetoskop", esya_stetoskop), ("tarak", esya_tarak), ("fon", esya_fon),
+                  ("sulama-kabi", esya_sulama_kabi), ("kova", esya_kova), ("cicek", esya_cicek)]:
         f().save(yol("esya", ad + ".png"))
     for ad, f in [("oda", oda), ("mutfak", mutfak), ("banyo", banyo)]:
         f(ciz).convert("RGB").save(yol("mekan", ad + ".jpg"), quality=88)
