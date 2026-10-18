@@ -73,6 +73,7 @@ k.scene("mekan", (mekanId) => {
   });
   const kuvetler = noktalar.filter((n) => n.tur === "kuvet");
   const kuvetBul = (p) => kuvetler.find((n) => p.x > n.x && p.x < n.x + n.w && p.y > n.y && p.y < n.y + n.h);
+  const klozetBul = (p) => noktalar.find((n) => n.tur === "klozet" && p.x > n.x && p.x < n.x + n.w && p.y > n.y && p.y < n.y + n.h);
   const dolaplar = noktalar.filter((n) => n.tur === "dolap");
   function dolapAcKapa(n) {
     const ac = n.acik.hidden;
@@ -139,6 +140,13 @@ k.scene("mekan", (mekanId) => {
     else if (!o.kr && kv) o.yuzuyor = kv;
     else delete o.v.kuvet;
   });
+  // Kayıtta klozette oturanı yerine koy.
+  varliklar.forEach((o) => {
+    if (!o.v.klozet) return;
+    const n = noktalar.find((n) => n.tur === "klozet" && !n.dolu);
+    if (o.kr && n) klozeteOtur(o, n, false);
+    else delete o.v.klozet;
+  });
   // Kayıtta elde duran eşyaları sahibine bağla.
   varliklar.forEach((o) => {
     if (!o.v.elde) return;
@@ -186,6 +194,27 @@ k.scene("mekan", (mekanId) => {
     delete o.v.kuvet;
     o.zemY = z.ust; o.v.x = p.x; o.h = Math.max(0, o.zemY - p.y);
   }
+  // --- Klozet ---
+  function klozeteOtur(o, n, kayit = true) {
+    n.dolu = o; o.klozet = n; o.v.klozet = true;
+    o.hedef = null; o.vy = 0; o.zemY = z.ust; o.v.x = n.oturma.x; o.v.y = z.ust;
+    o.sansur = G.sansur();
+    if (kayit) kaydet();
+  }
+  function klozettenKalk(o) {
+    const n = o.klozet, p = o.kok.pos;
+    n.dolu = null; o.klozet = null; delete o.v.klozet;
+    o.sansur.destroy(); o.sansur = null;
+    o.zemY = z.ust; o.v.x = p.x; o.h = Math.max(0, o.zemY - p.y);
+    sifon(n);
+  }
+  // Sifon: klozetin içinde su döner, köpükler çıkar.
+  function sifon(n) {
+    const m = k.vec2(n.oturma.x, 382);
+    for (let i = 0; i < 10; i++) k.wait(i * 0.06, () => G.kopuk(m.x + Math.cos(i) * 30, m.y + Math.sin(i) * 6, -79, k.rand(3, 7)));
+    G.kirinti(m, [120, 180, 240]);
+  }
+
   function suyaBirak(o, kv, p) {
     o.yuzuyor = kv; o.v.kuvet = 0;
     o.v.x = Math.max(kv.x + 50, Math.min(kv.x + kv.w - 50, p.x)); o.zemY = z.ust; o.v.y = z.ust;
@@ -350,6 +379,7 @@ k.scene("mekan", (mekanId) => {
       tutulan.vx = 0;
       if (tutulan.elde) eldenBirak(tutulan);
       if (tutulan.kuvet || tutulan.yuzuyor) kuvettenCik(tutulan);
+      if (tutulan.klozet) klozettenKalk(tutulan);
       if (tutulan.kr) sec(tutulan);
     }
     // Ayak noktası parmağı izler. Zemin bandındaysa derinlik değişir, üstündeyse karakter havaya kalkar.
@@ -373,6 +403,8 @@ k.scene("mekan", (mekanId) => {
       const d = kapiBul(p);
       if (d) return kapidanGec(o, d);
       if (!o.kr && karakteraBirak(o, p)) return;
+      const kl = klozetBul(p);
+      if (kl && o.kr && !kl.dolu) return klozeteOtur(o, kl);
       const kv = kuvetBul(p);
       if (kv && o.kr && kuveteGir(o, kv)) return;
       if (kv && !o.kr) return suyaBirak(o, kv, p);
@@ -401,6 +433,7 @@ k.scene("mekan", (mekanId) => {
     const n = noktaBul(p);
     if (n && n.tur === "musluk") { n.akis.hidden = !n.akis.hidden; return; }
     if (n && n.tur === "dolap") return dolapAcKapa(n);
+    if (n && n.tur === "klozet") return sifon(n);
     const d = kapiBul(p);
     if (d) {
       if (secili) return yuru(secili, k.vec2(d.x + d.w / 2, z.ust + 20), () => kapidanGec(secili, d));
@@ -415,6 +448,7 @@ k.scene("mekan", (mekanId) => {
     for (const o of varliklar) {
       if (o.elde) { eldeGuncelle(o); continue; }
       if (o.kuvet || o.yuzuyor) { kuvetGuncelle(o, t, dt); continue; }
+      if (o.klozet) { klozetGuncelle(o, t); continue; }
       let hal = o === tutulan && surukluyor ? "tutuluyor" : "dur";
       // Düşme
       if (o !== tutulan && (o.h > 0 || o.vy !== 0)) {
@@ -529,6 +563,18 @@ k.scene("mekan", (mekanId) => {
           return { yer: K.elYeri(sahip.kr), aci: 0, olc: 1 - 0.25 * Math.abs(Math.sin(t * 10)) };
       }
       return { yer: K.elYeri(sahip.kr), aci: 0, olc: 1 };
+    }
+    // Klozette oturan karakter biraz basık durur, hafifçe titrer. Beli sansürle örtülür.
+    function klozetGuncelle(o, t) {
+      const s = olcek(o), n = o.klozet, bas = 0.85;
+      o.golge.hidden = true;
+      o.kok.pos = k.vec2(n.oturma.x, n.oturma.y);
+      o.kok.z = -84;
+      o.kok.angle = Math.sin(t * 22) * 1.2;
+      o.kok.scale = k.vec2(s * o.yon, s * bas);
+      K.canlandir(o.kr, t, t < o.salla ? "salla" : "dur");
+      const boyu = o.kr.yukseklik * s * bas, gen = o.kr.genislik * s;
+      o.sansur.ayarla(n.oturma.x, n.oturma.y - boyu * 0.3, gen * 0.6, boyu * 0.24, -83);
     }
     // Küvetteki karakter yavaşça sallanır, çevresinden köpük çıkar. Eşya suyun üstünde yüzer.
     function kuvetGuncelle(o, t, dt) {

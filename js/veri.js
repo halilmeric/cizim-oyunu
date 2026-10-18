@@ -60,6 +60,7 @@ window.OYUN_VERI = {
   //          raflar: raftaki yiyecekler. Biri alınınca yerine yenisi gelir.
   //   kuvet: karakter bırakılınca içine girer, sadece başı görünür. resim: suyun altında kalan ön yüz.
   //          su: su çizgisi. dip: karakterin ayağının durduğu y. yerler: karakterlerin oturduğu x. Eşyalar suda yüzer.
+  //   klozet: karakter bırakılınca oturur, beli piksel sansürle örtülür. Kalkınca sifon çekilir.
   mekanlar: {
     oda: {
       resim: "cizimler/mekan/oda.jpg",
@@ -98,6 +99,7 @@ window.OYUN_VERI = {
           resim: "cizimler/mekan/kuvet-on.png", x0: 637, y0: 303,
           su: 326, dip: 442, yerler: [{ x: 765 }, { x: 915 }],
         },
+        { tur: "klozet", x: 460, y: 270, w: 160, h: 200, oturma: { x: 540, y: 448 } },
       ],
     },
   },
