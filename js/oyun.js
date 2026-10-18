@@ -29,6 +29,7 @@ function kaydet() {
 K.yukle();
 Object.entries(VERI.mekanlar).forEach(([id, m]) => { if (m.resim) k.loadSprite("mekan-" + id, m.resim); });
 Object.entries(VERI.esyalar).forEach(([id, e]) => { if (e.resim) k.loadSprite("esya-" + id, e.resim); });
+Object.entries(VERI.mekanlar).forEach(([id, m]) => (m.noktalar || []).forEach((n, i) => { if (n.resim) k.loadSprite(`nokta-${id}-${i}`, n.resim); }));
 
 k.scene("mekan", (mekanId) => {
   const m = VERI.mekanlar[mekanId];
@@ -42,11 +43,37 @@ k.scene("mekan", (mekanId) => {
   // Kapının üstündeki ok: kamera tek başına öbür odaya geçer. Karakterler yerinde kalır.
   const okBul = (p) => m.kapilar.find((d) => p.dist(k.vec2(d.x + d.w / 2, d.y - 40)) < 50);
   // Musluklar: dokununca su akar ya da durur.
-  const noktalar = (m.noktalar || []).map((n) => {
+  const noktalar = (m.noktalar || []).map((n, i) => {
     const o = { ...n };
     if (n.tur === "musluk") { o.akis = G.su(n.su.x, n.su.y, n.su.boy); o.akis.hidden = true; }
+    if (n.tur === "dolap") {
+      // Açık dolap resmi ve raftaki yiyecekler. Kapalıyken gizli.
+      o.acik = k.add([k.sprite(`nokta-${mekanId}-${i}`), k.pos(n.x0, n.y0), k.z(-90)]);
+      o.acik.hidden = true;
+      o.raflar = n.raflar.map((r) => ({
+        ...r,
+        boy: VERI.esyalar[r.sablon].boy * 0.62,
+        resim: k.add([k.sprite("esya-" + r.sablon, { height: VERI.esyalar[r.sablon].boy * 0.62 }), k.pos(r.x, r.y), k.anchor("bot"), k.z(-89)]),
+      }));
+      o.raflar.forEach((r) => (r.resim.hidden = true));
+    }
     return o;
   });
+  const dolaplar = noktalar.filter((n) => n.tur === "dolap");
+  function dolapAcKapa(n) {
+    const ac = n.acik.hidden;
+    n.acik.hidden = !ac;
+    n.raflar.forEach((r) => (r.resim.hidden = !ac || r.bos));
+  }
+  // Açık dolapta dokunulan raf yiyeceği.
+  function rafBul(p) {
+    for (const n of dolaplar) {
+      if (n.acik.hidden) continue;
+      const r = n.raflar.find((r) => !r.bos && p.dist(k.vec2(r.x, r.y - r.boy / 2)) < r.boy * 0.8);
+      if (r) return r;
+    }
+    return null;
+  }
   const noktaBul = (p) => noktalar.find((n) => p.x > n.x && p.x < n.x + n.w && p.y > n.y && p.y < n.y + n.h);
 
   const derinlik = (y) => 0.62 + 0.38 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)));
@@ -201,16 +228,21 @@ k.scene("mekan", (mekanId) => {
     return true;
   }
 
-  // Dolaptan yiyecek çıkar: kapağın önünden zıplayarak düşer.
-  function dolaptanCikar(n) {
-    if (varliklar.filter((o) => !o.kr).length >= 24) return;
-    const sablon = n.cikar[Math.floor(k.rand(0, n.cikar.length))];
-    const v = { id: sablon + Date.now(), tur: "esya", sablon, mekan: mekanId, x: n.x + n.w / 2 + k.rand(-30, 30), y: z.ust + k.rand(30, 90) };
+  // Raftan yiyecek al: rafta duran yerde gerçek bir eşya olur, parmak onu tutar.
+  // Raf biraz sonra yeniden dolar.
+  function raftanAl(r) {
+    if (varliklar.filter((o) => !o.kr).length >= 24) return null;
+    const v = { id: r.sablon + Date.now(), tur: "esya", sablon: r.sablon, mekan: mekanId, x: r.x, y: z.ust + 50 };
     dunya.varliklar.push(v);
     const o = varlikKur(v);
     varliklar.push(o);
-    o.h = o.zemY - (n.y + n.h * 0.45); o.vy = -500;
+    o.h = o.zemY - r.y;
+    o.kok.pos = k.vec2(r.x, r.y);
+    o.kok.scale = k.vec2(derinlik(o.zemY));
+    r.bos = true; r.resim.hidden = true;
+    k.wait(1.5, () => { r.bos = false; r.resim.hidden = dolaplar.every((n) => n.acik.hidden || !n.raflar.includes(r)); });
     kaydet();
+    return o;
   }
 
   // --- Dokunma ve sürükleme ---
@@ -221,6 +253,7 @@ k.scene("mekan", (mekanId) => {
     basla = p;
     surukluyor = false;
     tutulan = dokunulan(p);
+    if (!tutulan) { const r = rafBul(p); if (r) tutulan = raftanAl(r); }
     if (tutulan) kayma = k.vec2(tutulan.kok.pos.x - p.x, tutulan.kok.pos.y - p.y);
   });
 
@@ -278,7 +311,7 @@ k.scene("mekan", (mekanId) => {
     if (ok) return k.go("mekan", ok.hedef);
     const n = noktaBul(p);
     if (n && n.tur === "musluk") { n.akis.hidden = !n.akis.hidden; return; }
-    if (n && n.tur === "dolap") return dolaptanCikar(n);
+    if (n && n.tur === "dolap") return dolapAcKapa(n);
     const d = kapiBul(p);
     if (d) {
       if (secili) return yuru(secili, k.vec2(d.x + d.w / 2, z.ust + 20), () => kapidanGec(secili, d));

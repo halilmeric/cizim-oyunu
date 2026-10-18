@@ -451,6 +451,39 @@ def banyo(ciz):
     return t.bitir()
 
 
+def buzdolabi_acik():
+    """Açık buzdolabı: mutfak resminin üstüne konur. Kapaklar sola açılır, içi aydınlıktır."""
+    t = Tuval(W, H)
+    # Gövde ve aydınlık iç
+    t.kutu(225, 140, 385, 458, (235, 245, 252, 255), r=14)
+    t.kutu(236, 151, 374, 447, (250, 253, 255, 255), r=8, cizgi=2, guc=0.3)
+    isik = Image.new("RGBA", t.im.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(isik)
+    for y in range(152, 446, 2):
+        a = int(70 * (1 - (y - 152) / 294))
+        d.line([(237 * SS, y * SS), (373 * SS, y * SS)], fill=(255, 250, 215, a), width=2 * SS)
+    t.im.alpha_composite(isik)
+    # Lamba
+    t.elips(290, 156, 320, 168, (255, 245, 180, 255), cizgi=2, guc=0.5)
+    # Raflar (cam) ve sebzelik
+    for y in (215, 285, 355):
+        t.kutu(238, y, 372, y + 7, (200, 230, 245, 255), r=2, cizgi=2, guc=0.4)
+    t.kutu(244, 375, 366, 440, (215, 240, 225, 255), r=8, cizgi=2, guc=0.5)
+    for x, renk in [(270, (240, 140, 60)), (300, (90, 170, 70)), (335, (230, 60, 60))]:
+        t.elips(x - 14, 386, x + 14, 412, renk + (255,), cizgi=2, kure=True)
+    # Kapaklar: menteşe solda, kapaklar sola açılır. İç yüzlerinde raf ve şişeler var.
+    for y0, y1 in [(140, 252), (256, 458)]:
+        t.cokgen([(226, y0 + 6), (150, y0 - 14), (150, y1 + 14), (226, y1 - 6)], (232, 242, 250, 255))
+        t.cokgen([(220, y0 + 16), (160, y0 + 2), (160, y1 + 2), (220, y1 - 14)], (215, 230, 242, 255), cizgi=2, guc=0.4)
+        for i in range(1 if y1 - y0 < 150 else 2):
+            yr = y0 + 70 + i * 90
+            t.cokgen([(220, yr - 2), (160, yr - 12), (160, yr + 6), (220, yr + 12)], (190, 220, 240, 255), cizgi=2, guc=0.3)
+            for j, renk in enumerate([(120, 190, 90), (250, 200, 80), (230, 90, 120)]):
+                x = 170 + j * 17
+                t.kutu(x, yr - 36 + j * 2, x + 12, yr - 2 + j * 2, renk + (255,), r=4, cizgi=2, guc=0.6)
+    return t.bitir()
+
+
 def main():
     os.makedirs(yol("hacimli"), exist_ok=True)
     os.makedirs(yol("esya"), exist_ok=True)
@@ -469,6 +502,9 @@ def main():
         f().save(yol("esya", ad + ".png"))
     for ad, f in [("oda", oda), ("mutfak", mutfak), ("banyo", banyo)]:
         f(ciz).convert("RGB").save(yol("mekan", ad + ".jpg"), quality=88)
+    acik = buzdolabi_acik()
+    acik.crop(acik.getbbox()).save(yol("mekan", "buzdolabi-acik.png"))
+    print("buzdolabi-acik kutusu:", acik.getbbox())
     for ad in ["kedi", "kiz"]:
         subprocess.run([sys.executable, os.path.join(KOK, "araclar", "parcala.py"),
                         f"cizimler/hacimli/{ad}.png", f"cizimler/{ad}"], cwd=KOK, check=True, stdout=subprocess.DEVNULL)

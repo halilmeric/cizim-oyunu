@@ -37,7 +37,8 @@ window.OYUN_VERI = {
   // Mekanlar. resim: arka plan. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
   // noktalar: dokununca bir şey olan yerler.
   //   musluk: su akar ya da durur. su: suyun başladığı yer ve boyu.
-  //   dolap: içinden yiyecek çıkar. cikar: çıkabilecek eşyalar.
+  //   dolap: dokununca açılır ya da kapanır. resim: açık hali, sol üst köşesi x0, y0.
+  //          raflar: raftaki yiyecekler. Biri alınınca yerine yenisi gelir.
   mekanlar: {
     oda: {
       resim: "cizimler/mekan/oda.jpg",
@@ -52,7 +53,14 @@ window.OYUN_VERI = {
         { ...KAPI_SAG, hedef: "banyo", giris: { x: 260, y: 580 } },
       ],
       noktalar: [
-        { tur: "dolap", x: 225, y: 140, w: 160, h: 318, cikar: ["elma", "elma", "sut", "tahin"] },
+        {
+          tur: "dolap", x: 225, y: 140, w: 160, h: 318,
+          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 146, y0: 122,
+          raflar: [
+            { sablon: "sut", x: 300, y: 214 }, { sablon: "elma", x: 265, y: 284 },
+            { sablon: "tahin", x: 333, y: 284 }, { sablon: "elma", x: 300, y: 354 },
+          ],
+        },
         { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
       ],
     },
