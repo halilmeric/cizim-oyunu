@@ -193,8 +193,10 @@ k.scene("mekan", (mekanId) => {
     if (n.tur === "salincak") {
       // İpler ve oturak: asma noktasında döner. Karakter oturunca ipler önünde kalır, tutuyormuş gibi durur.
       o.kol = k.add([k.pos(n.asma.x, n.asma.y), k.rotate(0), k.z(-83)]);
-      for (const dx of [-36, 36]) o.kol.add([k.rect(5, n.ip, { radius: 2 }), k.pos(dx, 0), k.anchor("top"), k.color(120, 110, 100)]);
-      o.kol.add([k.rect(96, 16, { radius: 6 }), k.pos(0, n.ip), k.anchor("center"), k.color(90, 160, 230), k.outline(3, KALEM)]);
+      // ara: iplerin merkezden uzaklığı. Resimdeki salıncağın üstüne tam otursun diye ayarlanır.
+      const ara = n.ara || 36;
+      for (const dx of [-ara, ara]) o.kol.add([k.rect(5, n.ip, { radius: 2 }), k.pos(dx, 0), k.anchor("top"), k.color(...(n.ipRenk || [120, 110, 100]))]);
+      o.kol.add([k.rect(ara * 2 + 24, 16, { radius: 6 }), k.pos(0, n.ip), k.anchor("center"), k.color(...(n.renk || [90, 160, 230])), k.outline(3, KALEM)]);
       o.genlik = 0;
     }
     return o;

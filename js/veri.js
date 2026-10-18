@@ -308,19 +308,25 @@ window.OYUN_VERI = {
 
     bahce1: {
       ad: "Bahçe", simge: "bahce", ev: "ev1",
-      resim: "cizimler/mekan/bahce1.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
+      resim: "cizimler/mekan/bahce1.jpg",
+      zemin: { ust: 490, alt: 700, sol: 60, sag: 1220 },
+      giris: { x: 1060, y: 600 },
       kapilar: [
-        { ...EV_ARKA_KAPI, hedef: "yatak", giris: GIRIS_SAG },
-        { ...BAHCE_KAPI_SAG, hedef: "dunya", yer: "bahce1" },
+        { x: 45, y: 300, w: 110, h: 250, hedef: "yatak", giris: GIRIS_SAG },
+        { x: 1115, y: 370, w: 135, h: 190, hedef: "dunya", yer: "bahce1" },
       ],
       noktalar: [
-        { tur: "salincak", x: 400, y: 180, w: 240, h: 300, asma: { x: 520, y: 192 }, ip: 200 },
-        { tur: "kaydirak", x: 670, y: 200, w: 360, h: 290, ust: { x: 765, y: 232 }, alt: { x: 1010, y: 470 } },
-        { ...sandalye(230, 486) },
+        // Resimdeki iki salıncağın üstüne oturan ipler ve oturaklar.
+        { tur: "salincak", x: 438, y: 180, w: 74, h: 320, asma: { x: 475, y: 190 }, ip: 235, ara: 27, renk: [240, 190, 60], ipRenk: [90, 80, 75] },
+        { tur: "salincak", x: 532, y: 180, w: 74, h: 320, asma: { x: 568, y: 190 }, ip: 235, ara: 28, renk: [240, 190, 60], ipRenk: [90, 80, 75] },
+        { tur: "kaydirak", x: 680, y: 210, w: 340, h: 280, ust: { x: 765, y: 228 }, alt: { x: 1000, y: 472 } },
+        // Mavi sandalye ve şemsiyeli masa.
+        { tur: "otur", x: 200, y: 350, w: 70, h: 140, oturma: { x: 232, y: 478 } },
+        { tur: "tezgah", x: 245, y: 495, w: 125, h: 30, ust: 515 },
         {
           tur: "bitki", bitkiler: [
-            { tur: "lale", x: 250, y: 560, hal: 2 }, { tur: "gul", x: 335, y: 575, hal: 1 },
-            { tur: "papatya", x: 850, y: 565 }, { tur: "aycicegi", x: 940, y: 555, hal: 2 }, { tur: "lale", x: 1030, y: 570 },
+            { tur: "lale", x: 470, y: 660, hal: 2 }, { tur: "gul", x: 560, y: 680, hal: 1 },
+            { tur: "papatya", x: 720, y: 665 }, { tur: "aycicegi", x: 880, y: 650, hal: 2 }, { tur: "lale", x: 1080, y: 680 },
           ],
         },
       ],
@@ -353,18 +359,23 @@ window.OYUN_VERI = {
     },
     bahce2: {
       ad: "Bahçe", simge: "bahce", ev: "ev2",
-      resim: "cizimler/mekan/bahce2.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
+      resim: "cizimler/mekan/bahce2.jpg",
+      zemin: { ust: 500, alt: 700, sol: 60, sag: 1220 },
+      giris: { x: 1060, y: 610 },
       kapilar: [
-        { ...EV_ARKA_KAPI, hedef: "ev2-cocuk", giris: GIRIS_SAG },
-        { ...BAHCE_KAPI_SAG, hedef: "dunya", yer: "bahce2" },
+        { x: 45, y: 330, w: 110, h: 230, hedef: "ev2-cocuk", giris: GIRIS_SAG },
+        { x: 1115, y: 370, w: 135, h: 195, hedef: "dunya", yer: "bahce2" },
       ],
       noktalar: [
-        { tur: "kaydirak", x: 350, y: 200, w: 360, h: 290, ust: { x: 445, y: 232 }, alt: { x: 690, y: 470 } },
-        sandalye(1010, 486),
+        { tur: "kaydirak", x: 360, y: 210, w: 340, h: 290, ust: { x: 445, y: 232 }, alt: { x: 690, y: 478 } },
+        // Sarı sandalye, şemsiyeli masa ve ön sağdaki bank.
+        { tur: "otur", x: 975, y: 345, w: 75, h: 140, oturma: { x: 1010, y: 483 } },
+        { tur: "tezgah", x: 800, y: 370, w: 160, h: 35, ust: 395 },
+        { tur: "otur", x: 1045, y: 585, w: 155, h: 75, oturma: { x: 1120, y: 652 } },
         {
           tur: "bitki", bitkiler: [
-            { tur: "aycicegi", x: 250, y: 560, hal: 1 }, { tur: "papatya", x: 330, y: 575, hal: 2 },
-            { tur: "gul", x: 800, y: 570, hal: 2 }, { tur: "lale", x: 880, y: 560 }, { tur: "papatya", x: 960, y: 575 },
+            { tur: "aycicegi", x: 300, y: 650, hal: 1 }, { tur: "papatya", x: 470, y: 670, hal: 2 },
+            { tur: "gul", x: 640, y: 660, hal: 2 }, { tur: "lale", x: 900, y: 660 }, { tur: "papatya", x: 960, y: 690 },
           ],
         },
       ],
