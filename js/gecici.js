@@ -167,5 +167,18 @@ window.GECICI = (k) => {
     return o;
   }
 
-  return { mekanlar, kapi, esya, sus, kalp, kirinti, su, kopuk, nota, kagit };
+  // Piksel sansür: renkleri sürekli değişen kareler. ayarla(x, y, en, boy, z) ile yerleşir.
+  function sansur() {
+    const S = 6, Y = 4, o = k.add([k.pos(0, 0), k.scale(1), k.anchor("center"), k.z(0)]);
+    const kareler = [];
+    for (let i = 0; i < S; i++) for (let j = 0; j < Y; j++) kareler.push(o.add([k.rect(10, 10), k.pos(i * 10 - S * 5, j * 10 - Y * 5), k.color(0, 0, 0)]));
+    let sayac = 0;
+    const boya = () => kareler.forEach((c) => { const g = k.rand(0.6, 1); c.color = k.rgb(230 * g, 170 * g, 150 * g); });
+    boya();
+    o.onUpdate(() => { sayac -= k.dt(); if (sayac <= 0) { sayac = 0.12; boya(); } });
+    o.ayarla = (x, y, en, boy, z) => { o.pos = k.vec2(x, y); o.scale = k.vec2(en / (S * 10), boy / (Y * 10)); o.z = z; };
+    return o;
+  }
+
+  return { mekanlar, kapi, esya, sus, kalp, kirinti, su, kopuk, nota, kagit, sansur };
 };
