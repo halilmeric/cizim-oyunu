@@ -508,15 +508,24 @@ window.OYUN_VERI = {
     },
     hastane: {
       ad: "Hastane", simge: "hastane",
-      resim: "cizimler/mekan/hastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "hastane" }],
+      resim: "cizimler/mekan/hastane.jpg",
+      zemin: { ust: 480, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 170 }, arka: { sol: 205, sag: 1075, y: 440 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 200, w: 112, h: 350, hedef: "dunya", yer: "hastane" }],
       calisan: {
-        meslek: "doktor", x: 760, y: 500,
+        meslek: "doktor", x: 690, y: 530,
         selam: "Hoş geldiniz! Ne rahatsızlığınız vardı?",
         sozler: ["Ağzınızı açın, aaa deyin.", "Derin nefes alın, verin.", "Ateşiniz var mı? Bir ölçelim.", "Şurubunuzu günde üç kez için.", "Geçmiş olsun! Bol su için, dinlenin."],
       },
       noktalar: [
-        { tur: "yatak", x: 290, y: 280, w: 340, h: 200, yatis: { x: 320, y: 318 }, uzunluk: 270, yorgan: { x: 306, y: 300, w: 190, h: 84 }, renk: [150, 210, 240] },
+        // Hasta yatağı. Yastık sağda.
+        { tur: "yatak", x: 310, y: 295, w: 320, h: 190, yatis: { x: 355, y: 362 }, uzunluk: 240, yorgan: { x: 320, y: 335, w: 200, h: 62 }, renk: [96, 140, 196] },
+        { tur: "tezgah", x: 745, y: 320, w: 285, h: 45, ust: 352 },
+        // Doktorun döner sandalyesi.
+        { tur: "otur", x: 890, y: 365, w: 105, h: 150, oturma: { x: 935, y: 505 } },
+        // Kapının yanındaki sabunluk.
+        { tur: "musluk", x: 8, y: 328, w: 45, h: 75, su: { x: 28, y: 398, boy: 12, renk: [200, 230, 255] } },
+        { tur: "raf", raflar: [{ sablon: "havlu", x: 1215, y: 548 }, { sablon: "sabun", x: 1235, y: 450 }] },
       ],
     },
     kuafor: {
