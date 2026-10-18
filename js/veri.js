@@ -22,16 +22,18 @@ window.OYUN_VERI = {
   esyalar: {
     // resim: eşyanın PNG dosyası. boy: ekranın önündeki piksel boyu.
     // yenir: karakterin ağzına götürülünce yenir. Değer kırıntının rengidir.
-    top: { resim: "cizimler/esya/top.png", boy: 74 },
-    telefon: { resim: "cizimler/esya/telefon.png", boy: 62 },
-    kitap: { resim: "cizimler/esya/kitap.png", boy: 58 },
+    // eylem: elinde tutan karaktere dokununca yaptığı hareket.
+    //   at: fırlatır. sur: yerde sürer. konus, oku, ic, fircala, yaz, yika, kurula, sik: elde oynanan hareketler.
+    top: { resim: "cizimler/esya/top.png", boy: 74, eylem: "at" },
+    telefon: { resim: "cizimler/esya/telefon.png", boy: 62, eylem: "konus" },
+    kitap: { resim: "cizimler/esya/kitap.png", boy: 58, eylem: "oku" },
     tahin: { resim: "cizimler/esya/tahin.png", boy: 70, yenir: [200, 160, 90] },
     elma: { resim: "cizimler/esya/elma.png", boy: 50, yenir: [235, 225, 180] },
     sut: { resim: "cizimler/esya/sut.png", boy: 84, yenir: [250, 250, 255] },
-    kupa: { resim: "cizimler/esya/kupa.png", boy: 48 },
-    ordek: { resim: "cizimler/esya/ordek.png", boy: 60 },
-    sabun: { resim: "cizimler/esya/sabun.png", boy: 34 },
-    sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82 },
+    kupa: { resim: "cizimler/esya/kupa.png", boy: 48, eylem: "ic" },
+    ordek: { resim: "cizimler/esya/ordek.png", boy: 60, eylem: "sik" },
+    sabun: { resim: "cizimler/esya/sabun.png", boy: 34, eylem: "yika" },
+    sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82, eylem: "yika" },
     muz: { resim: "cizimler/esya/muz.png", boy: 34, yenir: [250, 235, 170] },
     havuc: { resim: "cizimler/esya/havuc.png", boy: 70, yenir: [245, 150, 60] },
     ekmek: { resim: "cizimler/esya/ekmek.png", boy: 50, yenir: [225, 175, 110] },
@@ -43,12 +45,12 @@ window.OYUN_VERI = {
     portakal: { resim: "cizimler/esya/portakal.png", boy: 48, yenir: [250, 170, 60] },
     "portakal-suyu": { resim: "cizimler/esya/portakal-suyu.png", boy: 76, yenir: [255, 190, 60] },
     pasta: { resim: "cizimler/esya/pasta.png", boy: 64, yenir: [255, 225, 235] },
-    araba: { resim: "cizimler/esya/araba.png", boy: 60 },
-    kup: { resim: "cizimler/esya/kup.png", boy: 54 },
-    boya: { resim: "cizimler/esya/boya.png", boy: 22 },
-    "dis-fircasi": { resim: "cizimler/esya/dis-fircasi.png", boy: 26 },
-    "dis-macunu": { resim: "cizimler/esya/dis-macunu.png", boy: 28 },
-    havlu: { resim: "cizimler/esya/havlu.png", boy: 44 },
+    araba: { resim: "cizimler/esya/araba.png", boy: 60, eylem: "sur" },
+    kup: { resim: "cizimler/esya/kup.png", boy: 54, eylem: "at" },
+    boya: { resim: "cizimler/esya/boya.png", boy: 22, eylem: "yaz" },
+    "dis-fircasi": { resim: "cizimler/esya/dis-fircasi.png", boy: 26, eylem: "fircala" },
+    "dis-macunu": { resim: "cizimler/esya/dis-macunu.png", boy: 28, eylem: "fircala" },
+    havlu: { resim: "cizimler/esya/havlu.png", boy: 44, eylem: "kurula" },
   },
 
   // Mekanlar. resim: arka plan. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
@@ -56,6 +58,8 @@ window.OYUN_VERI = {
   //   musluk: su akar ya da durur. su: suyun başladığı yer ve boyu.
   //   dolap: dokununca açılır ya da kapanır. resim: açık hali, sol üst köşesi x0, y0.
   //          raflar: raftaki yiyecekler. Biri alınınca yerine yenisi gelir.
+  //   kuvet: karakter bırakılınca içine girer, sadece başı görünür. resim: suyun altında kalan ön yüz.
+  //          su: su çizgisi. dip: karakterin ayağının durduğu y. yerler: karakterlerin oturduğu x. Eşyalar suda yüzer.
   mekanlar: {
     oda: {
       resim: "cizimler/mekan/oda.jpg",
@@ -89,6 +93,11 @@ window.OYUN_VERI = {
       noktalar: [
         { tur: "musluk", x: 300, y: 255, w: 150, h: 90, su: { x: 393, y: 270, boy: 30 } },
         { tur: "musluk", x: 950, y: 235, w: 95, h: 95, su: { x: 985, y: 270, boy: 45 } },
+        {
+          tur: "kuvet", x: 640, y: 200, w: 400, h: 260,
+          resim: "cizimler/mekan/kuvet-on.png", x0: 637, y0: 303,
+          su: 326, dip: 442, yerler: [{ x: 765 }, { x: 915 }],
+        },
       ],
     },
   },

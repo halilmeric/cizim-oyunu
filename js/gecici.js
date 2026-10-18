@@ -129,5 +129,43 @@ window.GECICI = (k) => {
     return o;
   }
 
-  return { mekanlar, kapi, esya, sus, kalp, kirinti, su };
+  // Banyo köpüğü: yükselip sallanan, sonra sönen baloncuk.
+  function kopuk(x, y, z = -79, r = k.rand(5, 13)) {
+    const o = k.add([k.circle(r), k.pos(x, y), k.color(250, 252, 255), k.outline(2, k.rgb(170, 210, 240)), k.opacity(0.9), k.z(z)]);
+    const hiz = k.rand(30, 70), faz = k.rand(0, 6), omur = k.rand(1.2, 2.4);
+    let yas = 0;
+    o.onUpdate(() => {
+      yas += k.dt();
+      o.pos.y -= hiz * k.dt();
+      o.pos.x += Math.sin(yas * 4 + faz) * 0.6;
+      o.opacity = 0.9 * (1 - yas / omur);
+      if (yas >= omur) o.destroy();
+    });
+  }
+
+  // Nota simgesi: ses çıkan eşyalar için. Yükselir ve söner.
+  function nota(x, y, renk = [120, 90, 220]) {
+    const o = k.add([k.pos(x, y), k.opacity(1), k.z(4800)]);
+    o.add([k.circle(7), k.pos(0, 0), k.color(...renk)]);
+    o.add([k.rect(3, 24), k.pos(4, -24), k.color(...renk)]);
+    o.add([k.rect(12, 4), k.pos(4, -24), k.color(...renk)]);
+    const vx = k.rand(-30, 30);
+    let yas = 0;
+    o.onUpdate(() => {
+      yas += k.dt();
+      o.pos.y -= 50 * k.dt(); o.pos.x += vx * k.dt();
+      o.children.forEach((c) => (c.opacity = 1 - yas));
+      if (yas >= 1) o.destroy();
+    });
+  }
+
+  // Yazı kağıdı: kalemin çizdiği noktalar üstünde birikir.
+  function kagit(x, y, z) {
+    const o = k.add([k.pos(x, y), k.z(z)]);
+    o.add([k.rect(96, 72, { radius: 4 }), k.anchor("center"), k.color(255, 255, 250), k.outline(3, KALEM)]);
+    for (let i = -1; i <= 1; i++) o.add([k.rect(76, 2), k.pos(0, i * 18), k.anchor("center"), k.color(190, 210, 235)]);
+    return o;
+  }
+
+  return { mekanlar, kapi, esya, sus, kalp, kirinti, su, kopuk, nota, kagit };
 };

@@ -316,6 +316,7 @@ def esya_havlu():
 W, H = 1280, 720
 UFUK = (640, 120)          # kaçış noktası
 ARKA = (200, 1080, 20, 440)  # arka duvar: sol, sağ, üst, alt
+KUVET_SU = 326               # banyodaki küvetin su çizgisi (y)
 
 
 def zemin_x(y, kenar):
@@ -642,6 +643,23 @@ def buzdolabi_acik():
     return t.bitir()
 
 
+def kuvet_on():
+    """Küvetin su çizgisinin altında kalan ön yüzü ve köpükler. Küvetteki karakterin gövdesini örter."""
+    t = Tuval(W, H)
+    for x in (680, 1000):
+        t.elips(x - 14, 440, x + 14, 466, (240, 200, 90, 255), cizgi=2, kure=True)
+    t.kutu(640, 320, 1040, 455, (252, 252, 255, 255), r=60)
+    t.elips(650, 305, 1030, 345, (255, 255, 255, 255))
+    t.elips(668, 312, 1012, 338, (130, 195, 240, 255), cizgi=2, guc=0.4)
+    ImageDraw.Draw(t.im).rectangle([0, 0, W * SS, KUVET_SU * SS], fill=(0, 0, 0, 0))
+    rng = np.random.default_rng(7)
+    for x in range(690, 1000, 22):
+        r = int(rng.integers(9, 17))
+        y = KUVET_SU + int(rng.integers(-4, 4))
+        t.elips(x - r, y - r, x + r, y + r, (245, 250, 255, 255), cizgi=2, kure=True)
+    return t.bitir()
+
+
 def main():
     os.makedirs(yol("hacimli"), exist_ok=True)
     os.makedirs(yol("esya"), exist_ok=True)
@@ -668,6 +686,9 @@ def main():
     acik = buzdolabi_acik()
     acik.crop(acik.getbbox()).save(yol("mekan", "buzdolabi-acik.png"))
     print("buzdolabi-acik kutusu:", acik.getbbox())
+    on = kuvet_on()
+    on.crop(on.getbbox()).save(yol("mekan", "kuvet-on.png"))
+    print("kuvet-on kutusu:", on.getbbox())
     for ad in ["kedi", "kiz"]:
         subprocess.run([sys.executable, os.path.join(KOK, "araclar", "parcala.py"),
                         f"cizimler/hacimli/{ad}.png", f"cizimler/{ad}"], cwd=KOK, check=True, stdout=subprocess.DEVNULL)
