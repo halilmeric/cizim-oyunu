@@ -8,6 +8,10 @@ const YERCEKIMI = 2600;
 const EKRAN_W = 1280, EKRAN_H = 720;
 
 const k = kaplay({ width: EKRAN_W, height: EKRAN_H, letterbox: true, background: [40, 40, 60], global: false, crisp: false });
+// İki parmakla yakınlaştırma. Haritadaki sahne kendi işleyicisini buraya koyar.
+let cimdikIsleyici = null;
+k.canvas.addEventListener("touchmove", (e) => { if (e.touches.length === 2 && cimdikIsleyici) { e.preventDefault(); cimdikIsleyici(e.touches); } }, { passive: false });
+k.canvas.addEventListener("touchend", (e) => { if (e.touches.length < 2 && cimdikIsleyici) cimdikIsleyici(null); });
 const G = window.GECICI(k);
 const K = window.KARAKTER(k, VERI);
 const KALEM = k.rgb(70, 50, 40);
@@ -178,7 +182,7 @@ k.scene("mekan", (mekanId) => {
       o.isik = k.add([k.pos(n.isik.x, n.isik.y), k.z(-87)]);
       o.isik.add([k.circle(170), k.anchor("center"), k.color(255, 235, 150), k.opacity(0.18)]);
       o.isik.add([k.circle(80), k.anchor("center"), k.color(255, 240, 170), k.opacity(0.3)]);
-      o.isik.add([k.polygon([k.vec2(-25, -18), k.vec2(25, -18), k.vec2(35, 18), k.vec2(-35, 18)]), k.color(255, 250, 210), k.outline(3, KALEM)]);
+      if (n.abajur !== false) o.isik.add([k.polygon([k.vec2(-25, -18), k.vec2(25, -18), k.vec2(35, 18), k.vec2(-35, 18)]), k.color(255, 250, 210), k.outline(3, KALEM)]);
       o.isik.hidden = !dunya.acik[o.anahtar];
     }
     if (n.tur === "ocak") {
@@ -193,8 +197,10 @@ k.scene("mekan", (mekanId) => {
     if (n.tur === "salincak") {
       // İpler ve oturak: asma noktasında döner. Karakter oturunca ipler önünde kalır, tutuyormuş gibi durur.
       o.kol = k.add([k.pos(n.asma.x, n.asma.y), k.rotate(0), k.z(-83)]);
-      for (const dx of [-36, 36]) o.kol.add([k.rect(5, n.ip, { radius: 2 }), k.pos(dx, 0), k.anchor("top"), k.color(120, 110, 100)]);
-      o.kol.add([k.rect(96, 16, { radius: 6 }), k.pos(0, n.ip), k.anchor("center"), k.color(90, 160, 230), k.outline(3, KALEM)]);
+      // ara: iplerin merkezden uzaklığı. Resimdeki salıncağın üstüne tam otursun diye ayarlanır.
+      const ara = n.ara || 36;
+      for (const dx of [-ara, ara]) o.kol.add([k.rect(5, n.ip, { radius: 2 }), k.pos(dx, 0), k.anchor("top"), k.color(...(n.ipRenk || [120, 110, 100]))]);
+      o.kol.add([k.rect(ara * 2 + 24, 16, { radius: 6 }), k.pos(0, n.ip), k.anchor("center"), k.color(...(n.renk || [90, 160, 230])), k.outline(3, KALEM)]);
       o.genlik = 0;
     }
     return o;
@@ -296,12 +302,25 @@ k.scene("mekan", (mekanId) => {
   }
 
   // --- Kamera: geniş mekanda (harita) sağa sola, yüksek mekanda yukarı aşağı kayar ---
+  // Haritada yakınlaşıp uzaklaşılır: zum 1 normal, en küçük zumda bütün kasaba ekrana sığar.
   let kameraX = EKRAN_W / 2, kameraY = EKRAN_H / 2, takip = false, panYon = 0;
   const kayar = genis > EKRAN_W || yuksek > EKRAN_H;
+  const ZUM_EN_AZ = Math.max(EKRAN_W / genis, EKRAN_H / yuksek), ZUM_EN_COK = 2;
+  let zum = harita ? Math.max(ZUM_EN_AZ, Math.min(ZUM_EN_COK, dunya.zum || 1)) : 1;
   const kameraSinirla = () => {
-    kameraX = Math.max(EKRAN_W / 2, Math.min(genis - EKRAN_W / 2, kameraX));
-    kameraY = Math.max(EKRAN_H / 2, Math.min(yuksek - EKRAN_H / 2, kameraY));
+    const yw = EKRAN_W / (2 * zum), yh = EKRAN_H / (2 * zum);
+    kameraX = genis <= 2 * yw ? genis / 2 : Math.max(yw, Math.min(genis - yw, kameraX));
+    kameraY = yuksek <= 2 * yh ? yuksek / 2 : Math.max(yh, Math.min(yuksek - yh, kameraY));
   };
+  // Yakınlaşınca parmağın altındaki yer yerinde kalır.
+  function zumla(yeni, e = k.vec2(EKRAN_W / 2, EKRAN_H / 2)) {
+    yeni = Math.max(ZUM_EN_AZ, Math.min(ZUM_EN_COK, yeni));
+    const wx = kameraX + (e.x - EKRAN_W / 2) / zum, wy = kameraY + (e.y - EKRAN_H / 2) / zum;
+    zum = yeni;
+    kameraX = wx - (e.x - EKRAN_W / 2) / zum; kameraY = wy - (e.y - EKRAN_H / 2) / zum;
+    takip = false; kameraSinirla();
+    dunya.zum = zum;
+  }
   const ekran = () => k.mousePos();
   const fare = () => k.toWorld(k.mousePos());
 
@@ -726,6 +745,31 @@ k.scene("mekan", (mekanId) => {
       }, "kaydir", yon);
     }
   }
+  // Haritada yakınlaştırma düğmeleri: sol tarafta artı ve eksi.
+  if (harita) {
+    for (const yon of [1, -1]) {
+      dugme(50, yon > 0 ? 470 : 550, (o) => {
+        o.add([k.circle(32), k.color(255, 255, 255), k.outline(4, KALEM), k.opacity(0.85), k.fixed()]);
+        o.add([k.rect(28, 7, { radius: 3 }), k.anchor("center"), k.color(70, 50, 40), k.fixed()]);
+        if (yon > 0) o.add([k.rect(7, 28, { radius: 3 }), k.anchor("center"), k.color(70, 50, 40), k.fixed()]);
+      }, "zum", yon);
+    }
+    // Fare tekerleği ve iki parmak.
+    k.onScroll((d) => zumla(zum * (d.y > 0 ? 0.9 : 1.1), ekran()));
+    let cimdik = null;
+    cimdikIsleyici = (t) => {
+      if (!t) { if (cimdik) kaydet(); cimdik = null; return; }
+      if (tutulan && surukluyor) return;
+      tutulan = null; basla = null; kaydirma = null; kaydiriyor = false;
+      const r = k.canvas.getBoundingClientRect(), olcek = EKRAN_W / r.width;
+      const a = t[0], b = t[1];
+      const uzak = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      const orta = k.vec2(((a.clientX + b.clientX) / 2 - r.left) * olcek, ((a.clientY + b.clientY) / 2 - r.top) * olcek);
+      if (cimdik) zumla(zum * uzak / cimdik, orta);
+      cimdik = uzak;
+    };
+    k.onSceneLeave(() => (cimdikIsleyici = null));
+  }
   // Ses düğmesi: sol altta hoparlör. Kapalıyken üstünde kırmızı çizgi olur.
   let sesCizgi;
   dugme(50, EKRAN_H - 50, (o) => {
@@ -798,13 +842,14 @@ k.scene("mekan", (mekanId) => {
     kameraSinirla();
   }
   k.setCamPos(kameraX, kameraY);
+  k.setCamScale(zum);
 
   // --- Sokaktan araç geçer: ara sıra bir araba ya da otobüs ekranın bir ucundan öbür ucuna gider ---
   // Uzak şeritte sola, yakın şeritte sağa gider. Önünde karakter varsa korna çalar.
   function aracGonder() {
     const saga = k.rand() < 0.5, y = saga ? 688 : 618, yon = saga ? 1 : -1;
     const s = derinlik(y);
-    const a = k.add([k.sprite(k.choose(m.araclar)), k.pos(kameraX - yon * (EKRAN_W / 2 + 450), y), k.anchor("bot"), k.scale(s * yon, s), k.z(y)]);
+    const a = k.add([k.sprite(k.choose(m.araclar)), k.pos(kameraX - yon * (EKRAN_W / (2 * zum) + 450), y), k.anchor("bot"), k.scale(s * yon, s), k.z(y)]);
     const hiz = yon * k.rand(260, 380), korna = new Set();
     SES.motor((EKRAN_W + 900) / Math.abs(hiz));
     if (k.rand() < 0.3) k.wait(k.rand(1, 2.5), () => SES.korna()); // bazen önünde kimse yokken de korna çalar
@@ -820,7 +865,7 @@ k.scene("mekan", (mekanId) => {
         k.wait(0.2, () => G.nota(a.pos.x + yon * a.width * s * 0.4, y - a.height * s, [240, 80, 60]));
         o.salla = k.time() + 1;
       }
-      if ((a.pos.x - kameraX) * yon > EKRAN_W / 2 + 500) a.destroy();
+      if ((a.pos.x - kameraX) * yon > EKRAN_W / (2 * zum) + 500) a.destroy();
     });
   }
   if (harita && m.araclar) {
@@ -864,7 +909,7 @@ k.scene("mekan", (mekanId) => {
     if (kaydirma) {
       const dx = ekran().x - kaydirma.x0, dy = ekran().y - kaydirma.y0;
       if (!kaydiriyor && Math.hypot(dx, dy) > SURUKLE_ESIGI) kaydiriyor = true;
-      if (kaydiriyor) { kameraX = kaydirma.kam0 - dx; kameraY = kaydirma.kamY0 - dy; takip = false; kameraSinirla(); }
+      if (kaydiriyor) { kameraX = kaydirma.kam0 - dx / zum; kameraY = kaydirma.kamY0 - dy / zum; takip = false; kameraSinirla(); }
       return;
     }
     if (!tutulan || !basla) return;
@@ -892,6 +937,7 @@ k.scene("mekan", (mekanId) => {
       basiliDugme = null; panYon = 0;
       if (d.tur === "harita") return disariCik();
       if (d.tur === "ses") return sesDugmesi();
+      if (d.tur === "zum") { zumla(zum * (d.yon > 0 ? 1.4 : 1 / 1.4)); return kaydet(); }
       if (d.tur === "karakter") karaktereGit(d.id);
       return;
     }
@@ -1355,6 +1401,7 @@ k.scene("mekan", (mekanId) => {
       kameraSinirla();
       if (once !== kameraX) panYon = 0;
       k.setCamPos(kameraX, kameraY);
+      k.setCamScale(zum);
       if (tutulan && surukluyor) tasi();
       dunya.kamera = kameraX;
       dunya.kameraY = kameraY;

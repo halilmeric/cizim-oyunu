@@ -308,19 +308,25 @@ window.OYUN_VERI = {
 
     bahce1: {
       ad: "Bahçe", simge: "bahce", ev: "ev1",
-      resim: "cizimler/mekan/bahce1.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
+      resim: "cizimler/mekan/bahce1.jpg",
+      zemin: { ust: 490, alt: 700, sol: 60, sag: 1220 },
+      giris: { x: 1060, y: 600 },
       kapilar: [
-        { ...EV_ARKA_KAPI, hedef: "yatak", giris: GIRIS_SAG },
-        { ...BAHCE_KAPI_SAG, hedef: "dunya", yer: "bahce1" },
+        { x: 45, y: 300, w: 110, h: 250, hedef: "yatak", giris: GIRIS_SAG },
+        { x: 1115, y: 370, w: 135, h: 190, hedef: "dunya", yer: "bahce1" },
       ],
       noktalar: [
-        { tur: "salincak", x: 400, y: 180, w: 240, h: 300, asma: { x: 520, y: 192 }, ip: 200 },
-        { tur: "kaydirak", x: 670, y: 200, w: 360, h: 290, ust: { x: 765, y: 232 }, alt: { x: 1010, y: 470 } },
-        { ...sandalye(230, 486) },
+        // Resimdeki iki salıncağın üstüne oturan ipler ve oturaklar.
+        { tur: "salincak", x: 438, y: 180, w: 74, h: 320, asma: { x: 475, y: 190 }, ip: 235, ara: 27, renk: [240, 190, 60], ipRenk: [90, 80, 75] },
+        { tur: "salincak", x: 532, y: 180, w: 74, h: 320, asma: { x: 568, y: 190 }, ip: 235, ara: 28, renk: [240, 190, 60], ipRenk: [90, 80, 75] },
+        { tur: "kaydirak", x: 680, y: 210, w: 340, h: 280, ust: { x: 765, y: 228 }, alt: { x: 1000, y: 472 } },
+        // Mavi sandalye ve şemsiyeli masa.
+        { tur: "otur", x: 200, y: 350, w: 70, h: 140, oturma: { x: 232, y: 478 } },
+        { tur: "tezgah", x: 245, y: 495, w: 125, h: 30, ust: 515 },
         {
           tur: "bitki", bitkiler: [
-            { tur: "lale", x: 250, y: 560, hal: 2 }, { tur: "gul", x: 335, y: 575, hal: 1 },
-            { tur: "papatya", x: 850, y: 565 }, { tur: "aycicegi", x: 940, y: 555, hal: 2 }, { tur: "lale", x: 1030, y: 570 },
+            { tur: "lale", x: 470, y: 660, hal: 2 }, { tur: "gul", x: 560, y: 680, hal: 1 },
+            { tur: "papatya", x: 720, y: 665 }, { tur: "aycicegi", x: 880, y: 650, hal: 2 }, { tur: "lale", x: 1080, y: 680 },
           ],
         },
       ],
@@ -353,18 +359,23 @@ window.OYUN_VERI = {
     },
     bahce2: {
       ad: "Bahçe", simge: "bahce", ev: "ev2",
-      resim: "cizimler/mekan/bahce2.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
+      resim: "cizimler/mekan/bahce2.jpg",
+      zemin: { ust: 500, alt: 700, sol: 60, sag: 1220 },
+      giris: { x: 1060, y: 610 },
       kapilar: [
-        { ...EV_ARKA_KAPI, hedef: "ev2-cocuk", giris: GIRIS_SAG },
-        { ...BAHCE_KAPI_SAG, hedef: "dunya", yer: "bahce2" },
+        { x: 45, y: 330, w: 110, h: 230, hedef: "ev2-cocuk", giris: GIRIS_SAG },
+        { x: 1115, y: 370, w: 135, h: 195, hedef: "dunya", yer: "bahce2" },
       ],
       noktalar: [
-        { tur: "kaydirak", x: 350, y: 200, w: 360, h: 290, ust: { x: 445, y: 232 }, alt: { x: 690, y: 470 } },
-        sandalye(1010, 486),
+        { tur: "kaydirak", x: 360, y: 210, w: 340, h: 290, ust: { x: 445, y: 232 }, alt: { x: 690, y: 478 } },
+        // Sarı sandalye, şemsiyeli masa ve ön sağdaki bank.
+        { tur: "otur", x: 975, y: 345, w: 75, h: 140, oturma: { x: 1010, y: 483 } },
+        { tur: "tezgah", x: 800, y: 370, w: 160, h: 35, ust: 395 },
+        { tur: "otur", x: 1045, y: 585, w: 155, h: 75, oturma: { x: 1120, y: 652 } },
         {
           tur: "bitki", bitkiler: [
-            { tur: "aycicegi", x: 250, y: 560, hal: 1 }, { tur: "papatya", x: 330, y: 575, hal: 2 },
-            { tur: "gul", x: 800, y: 570, hal: 2 }, { tur: "lale", x: 880, y: 560 }, { tur: "papatya", x: 960, y: 575 },
+            { tur: "aycicegi", x: 300, y: 650, hal: 1 }, { tur: "papatya", x: 470, y: 670, hal: 2 },
+            { tur: "gul", x: 640, y: 660, hal: 2 }, { tur: "lale", x: 900, y: 660 }, { tur: "papatya", x: 960, y: 690 },
           ],
         },
       ],
@@ -385,17 +396,23 @@ window.OYUN_VERI = {
     // --- Kamusal ve sosyal mekanlar ---
     park: {
       ad: "Park", simge: "park",
-      resim: "cizimler/mekan/park.jpg", zemin: ZEMIN_ACIK, giris: { x: 270, y: 590 },
-      kapilar: [{ ...BAHCE_KAPI_SOL, hedef: "dunya", yer: "park" }],
+      resim: "cizimler/mekan/park.jpg",
+      zemin: { ust: 510, alt: 705, sol: 60, sag: 1220 },
+      giris: { x: 250, y: 600 },
+      kapilar: [{ x: 35, y: 350, w: 135, h: 215, hedef: "dunya", yer: "park" }],
       calisan: {
-        meslek: "bahcivan", x: 380, y: 500,
+        meslek: "bahcivan", x: 420, y: 560,
         selam: "Hoş geldiniz! Parkımız bugün çok güzel.",
         sozler: ["Çiçeklere dikkat edelim, koparmayalım.", "Ağaçları her sabah ben suluyorum.", "Fıskiyenin suyu çok serin!", "Çöpleri çöp kutusuna atalım lütfen.", "Bankta oturup dinlenebilirsiniz."],
       },
       noktalar: [
-        { tur: "fiskiye", x: 600, y: 300, w: 200, h: 180, su: { x: 700, y: 324 }, acik: true },
-        { tur: "otur", x: 950, y: 320, w: 100, h: 160, oturma: { x: 1000, y: 474 } },
-        { tur: "otur", x: 1050, y: 320, w: 100, h: 160, oturma: { x: 1100, y: 474 } },
+        // Havuzlu çeşme. Dokununca su açılır, kapanır.
+        { tur: "fiskiye", x: 520, y: 250, w: 360, h: 265, su: { x: 700, y: 322 }, acik: true },
+        // Arkadaki büyük bank ve öndeki küçük bank: ikişer kişilik.
+        { tur: "otur", x: 950, y: 330, w: 100, h: 150, oturma: { x: 1000, y: 472 } },
+        { tur: "otur", x: 1050, y: 330, w: 100, h: 150, oturma: { x: 1100, y: 472 } },
+        { tur: "otur", x: 905, y: 560, w: 100, h: 100, oturma: { x: 955, y: 648 } },
+        { tur: "otur", x: 1005, y: 560, w: 100, h: 100, oturma: { x: 1055, y: 648 } },
       ],
     },
     oyun: {
@@ -434,122 +451,184 @@ window.OYUN_VERI = {
     },
     kafe: {
       ad: "Kafe", simge: "kafe",
-      resim: "cizimler/mekan/kafe.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kafe" }],
+      resim: "cizimler/mekan/kafe.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 190 }, arka: { sol: 205, sag: 1090, y: 470 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 200, w: 112, h: 345, hedef: "dunya", yer: "kafe" }],
       calisan: {
-        meslek: "garson", x: 480, y: 500,
+        meslek: "garson", x: 610, y: 600,
         selam: "Hoş geldiniz! Ne içersiniz? Çay, kahve ya da sıcak çikolata?",
         sozler: ["Kurabiyelerimiz fırından yeni çıktı.", "Şekerli mi olsun, şekersiz mi?", "Siparişiniz hemen geliyor.", "Buyurun, masanız hazır.", "Afiyet olsun!"],
       },
       noktalar: [
-        { tur: "musluk", x: 260, y: 230, w: 100, h: 100, su: { x: 310, y: 306, boy: 22, renk: [130, 80, 45] } },
-        { tur: "raf", raflar: [{ sablon: "kupa", x: 395, y: 332 }, { sablon: "kurabiye", x: 545, y: 332 }] },
-        sandalye(760, 476), sandalye(960, 476),
+        // Kahve makinesi: dokununca kahve akar.
+        { tur: "musluk", x: 345, y: 250, w: 140, h: 95, su: { x: 420, y: 333, boy: 18, renk: [130, 80, 45] } },
+        { tur: "tezgah", x: 250, y: 330, w: 370, h: 60, ust: 368 },
+        // Pasta vitrini ve sağdaki raflar. Alınanın yerine yenisi gelir.
+        {
+          tur: "raf", raflar: [
+            { sablon: "ekmek", x: 665, y: 378 }, { sablon: "kurabiye", x: 718, y: 378 }, { sablon: "kurabiye", x: 770, y: 378 },
+            { sablon: "pasta", x: 665, y: 427 }, { sablon: "kurabiye", x: 718, y: 427 }, { sablon: "kurabiye", x: 770, y: 427 },
+            { sablon: "kupa", x: 1222, y: 330 }, { sablon: "kupa", x: 1200, y: 424 },
+          ],
+        },
+        // Yuvarlak masa, iki pembe sandalye ve kanepe.
+        { tur: "tezgah", x: 835, y: 455, w: 175, h: 50, ust: 490 },
+        sandalye(785, 605), sandalye(1040, 600),
+        { tur: "otur", x: 845, y: 335, w: 215, h: 115, oturma: { x: 950, y: 455 } },
       ],
     },
     market: {
       ad: "Market", simge: "market",
-      resim: "cizimler/mekan/market.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "market" }],
+      resim: "cizimler/mekan/market.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 715, y: 290 }, arka: { sol: 300, sag: 1090, y: 465 } },
+      giris: { x: 230, y: 600 },
+      kapilar: [{ x: 40, y: 200, w: 110, h: 345, hedef: "dunya", yer: "market" }],
       calisan: {
-        meslek: "kasiyer", x: 960, y: 500,
+        meslek: "kasiyer", x: 975, y: 520,
         selam: "Hoş geldiniz! Aradığınızı bulabildiniz mi?",
         sozler: ["Meyveler bugün çok taze.", "Poşet ister misiniz?", "Kasaya buyurun, ürünleri okutayım.", "Fişiniz burada. İyi günler!", "Bugün sütte indirim var."],
       },
       noktalar: [
+        // İki mavi rafın üç katı. Raftan alınan ürünün yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "elma", x: 270, y: 230 }, { sablon: "muz", x: 345, y: 230 }, { sablon: "portakal", x: 420, y: 230 }, { sablon: "cilek", x: 495, y: 230 },
-            { sablon: "ekmek", x: 285, y: 330 }, { sablon: "peynir", x: 390, y: 330 }, { sablon: "havuc", x: 480, y: 330 },
-            { sablon: "sut", x: 275, y: 430 }, { sablon: "portakal-suyu", x: 370, y: 430 }, { sablon: "karpuz", x: 470, y: 430 },
-            { sablon: "tahin", x: 650, y: 230 }, { sablon: "kurabiye", x: 730, y: 230 }, { sablon: "dondurma", x: 810, y: 230 },
-            { sablon: "sabun", x: 650, y: 330 }, { sablon: "sampuan", x: 730, y: 330 }, { sablon: "dis-macunu", x: 810, y: 330 },
-            { sablon: "muz", x: 650, y: 430 }, { sablon: "elma", x: 730, y: 430 }, { sablon: "ekmek", x: 810, y: 430 },
+            { sablon: "elma", x: 362, y: 278 }, { sablon: "muz", x: 427, y: 278 }, { sablon: "portakal", x: 492, y: 278 }, { sablon: "cilek", x: 557, y: 278 },
+            { sablon: "ekmek", x: 375, y: 356 }, { sablon: "peynir", x: 460, y: 356 }, { sablon: "havuc", x: 545, y: 356 },
+            { sablon: "sut", x: 370, y: 434 }, { sablon: "portakal-suyu", x: 455, y: 434 }, { sablon: "karpuz", x: 545, y: 434 },
+            { sablon: "tahin", x: 685, y: 278 }, { sablon: "kurabiye", x: 765, y: 278 }, { sablon: "dondurma", x: 845, y: 278 },
+            { sablon: "sabun", x: 685, y: 356 }, { sablon: "sampuan", x: 765, y: 356 }, { sablon: "dis-macunu", x: 845, y: 356 },
+            { sablon: "muz", x: 685, y: 434 }, { sablon: "elma", x: 765, y: 434 }, { sablon: "ekmek", x: 845, y: 434 },
           ],
         },
       ],
     },
+
     oyuncakci: {
       ad: "Oyuncakçı", simge: "oyuncak",
-      resim: "cizimler/mekan/oyuncakci.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "oyuncakci" }],
+      resim: "cizimler/mekan/oyuncakci.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 200 }, arka: { sol: 235, sag: 1050, y: 440 } },
+      giris: { x: 240, y: 610 },
+      kapilar: [{ x: 40, y: 215, w: 110, h: 330, hedef: "dunya", yer: "oyuncakci" }],
       calisan: {
-        meslek: "oyuncakci", x: 620, y: 510,
+        meslek: "oyuncakci", x: 880, y: 565,
         selam: "Hoş geldin! Hangi oyuncağa bakmıştın?",
         sozler: ["Bu top çok yükseğe zıplıyor!", "Yeni oyuncak arabalar geldi.", "Hediye paketi yapalım mı?", "Ayıcığımız çok yumuşak, sarılabilirsin.", "Pilleri de vereyim mi?"],
       },
       noktalar: [
+        // Arkadaki büyük raf ve öndeki raf. Alınan oyuncağın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "top", x: 285, y: 230 }, { sablon: "kup", x: 385, y: 230 }, { sablon: "ordek", x: 480, y: 230 },
-            { sablon: "araba", x: 300, y: 330 }, { sablon: "boya", x: 420, y: 330 }, { sablon: "kitap", x: 520, y: 330 },
-            { sablon: "top", x: 290, y: 430 }, { sablon: "kova", x: 410, y: 430 }, { sablon: "telefon", x: 525, y: 430 },
+            { sablon: "ordek", x: 335, y: 263 }, { sablon: "araba", x: 452, y: 263 }, { sablon: "kup", x: 612, y: 263 },
+            { sablon: "top", x: 605, y: 350 },
+            { sablon: "boya", x: 400, y: 503 }, { sablon: "araba", x: 490, y: 503 }, { sablon: "kup", x: 570, y: 503 },
+            { sablon: "kitap", x: 400, y: 600 }, { sablon: "kova", x: 490, y: 600 }, { sablon: "top", x: 620, y: 600 },
           ],
         },
+        { tur: "tezgah", x: 918, y: 340, w: 215, h: 45, ust: 378 },
+        // Kırmızı tabure.
+        { tur: "otur", x: 1075, y: 425, w: 75, h: 80, oturma: { x: 1112, y: 495 } },
       ],
     },
     hastane: {
       ad: "Hastane", simge: "hastane",
-      resim: "cizimler/mekan/hastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "hastane" }],
+      resim: "cizimler/mekan/hastane.jpg",
+      zemin: { ust: 480, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 170 }, arka: { sol: 205, sag: 1075, y: 440 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 200, w: 112, h: 350, hedef: "dunya", yer: "hastane" }],
       calisan: {
-        meslek: "doktor", x: 760, y: 500,
+        meslek: "doktor", x: 690, y: 530,
         selam: "Hoş geldiniz! Ne rahatsızlığınız vardı?",
         sozler: ["Ağzınızı açın, aaa deyin.", "Derin nefes alın, verin.", "Ateşiniz var mı? Bir ölçelim.", "Şurubunuzu günde üç kez için.", "Geçmiş olsun! Bol su için, dinlenin."],
       },
       noktalar: [
-        { tur: "yatak", x: 290, y: 280, w: 340, h: 200, yatis: { x: 320, y: 318 }, uzunluk: 270, yorgan: { x: 306, y: 300, w: 190, h: 84 }, renk: [150, 210, 240] },
+        // Hasta yatağı. Yastık sağda.
+        { tur: "yatak", x: 310, y: 295, w: 320, h: 190, yatis: { x: 355, y: 362 }, uzunluk: 240, yorgan: { x: 320, y: 335, w: 200, h: 62 }, renk: [96, 140, 196] },
+        { tur: "tezgah", x: 745, y: 320, w: 285, h: 45, ust: 352 },
+        // Doktorun döner sandalyesi.
+        { tur: "otur", x: 890, y: 365, w: 105, h: 150, oturma: { x: 935, y: 505 } },
+        // Kapının yanındaki sabunluk.
+        { tur: "musluk", x: 8, y: 328, w: 45, h: 75, su: { x: 28, y: 398, boy: 12, renk: [200, 230, 255] } },
+        { tur: "raf", raflar: [{ sablon: "havlu", x: 1215, y: 548 }, { sablon: "sabun", x: 1235, y: 450 }] },
       ],
     },
     kuafor: {
       ad: "Kuaför", simge: "kuafor",
-      resim: "cizimler/mekan/kuafor.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kuafor" }],
+      resim: "cizimler/mekan/kuafor.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 160 }, arka: { sol: 210, sag: 1080, y: 455 } },
+      giris: { x: 230, y: 600 },
+      kapilar: [{ x: 40, y: 200, w: 118, h: 360, hedef: "dunya", yer: "kuafor" }],
       calisan: {
-        meslek: "kuafor", x: 560, y: 495,
+        meslek: "kuafor", x: 655, y: 565,
         selam: "Hoş geldiniz! Saçınızı bugün nasıl kesmemi istersiniz?",
         sozler: ["Uçlarını mı alalım, kısa mı keselim?", "Önce saçınızı yıkayalım.", "Fön mü çekelim, maşa mı yapalım?", "Kakül ister misiniz?", "Saçınız çok güzel oldu!"],
       },
       noktalar: [
-        { tur: "otur", x: 340, y: 290, w: 160, h: 190, oturma: { x: 420, y: 452 } },
-        { tur: "musluk", x: 700, y: 270, w: 160, h: 100, su: { x: 800, y: 288, boy: 24 } },
+        // Pembe kuaför koltuğu, aynanın önünde.
+        { tur: "otur", x: 330, y: 360, w: 180, h: 180, oturma: { x: 410, y: 500 } },
+        // Turuncu kanepe.
+        { tur: "otur", x: 1090, y: 395, w: 190, h: 170, oturma: { x: 1175, y: 535 } },
+        { tur: "tezgah", x: 290, y: 300, w: 335, h: 80, ust: 372 },
+        { tur: "musluk", x: 705, y: 295, w: 155, h: 90, su: { x: 786, y: 322, boy: 22 } },
+        // Su sebili.
+        { tur: "musluk", x: 1050, y: 290, w: 65, h: 165, su: { x: 1070, y: 408, boy: 16 } },
       ],
     },
     kutuphane: {
       ad: "Kütüphane", simge: "kutuphane",
-      resim: "cizimler/mekan/kutuphane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kutuphane" }],
+      resim: "cizimler/mekan/kutuphane.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 190 }, arka: { sol: 205, sag: 1075, y: 455 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 210, w: 115, h: 345, hedef: "dunya", yer: "kutuphane" }],
       calisan: {
-        meslek: "kutuphaneci", x: 640, y: 520,
+        meslek: "kutuphaneci", x: 285, y: 600,
         selam: "Hoş geldiniz! Hangi kitabı arıyorsunuz?",
         sozler: ["Kütüphanede sessiz olalım, şşş.", "Masal kitapları şu rafta.", "Kitabı iki hafta sonra geri getirin.", "Kütüphane kartınız var mı?", "Okumak çok güzel, değil mi?"],
       },
       noktalar: [
+        // İki kitaplığın orta rafı. Alınan kitabın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "kitap", x: 260, y: 330 }, { sablon: "kitap", x: 340, y: 330 }, { sablon: "kitap", x: 420, y: 330 },
-            { sablon: "kitap", x: 860, y: 420 }, { sablon: "kitap", x: 940, y: 420 }, { sablon: "kitap", x: 1020, y: 420 },
+            { sablon: "kitap", x: 430, y: 205 }, { sablon: "kitap", x: 395, y: 295 }, { sablon: "kitap", x: 450, y: 295 },
+            { sablon: "kitap", x: 870, y: 295 }, { sablon: "kitap", x: 950, y: 295 }, { sablon: "kitap", x: 1030, y: 295 },
           ],
         },
-        sandalye(510, 476), sandalye(770, 476),
+        { tur: "tezgah", x: 485, y: 430, w: 315, h: 75, ust: 478 },
+        { tur: "lamba", x: 705, y: 345, w: 65, h: 95, isik: { x: 725, y: 388 }, abajur: false },
+        sandalye(460, 600), sandalye(822, 600),
+        // Sağdaki minderler ve soldaki yeşil puf.
+        { tur: "otur", x: 1020, y: 440, w: 160, h: 110, oturma: { x: 1095, y: 540 } },
+        { tur: "otur", x: 0, y: 565, w: 165, h: 140, oturma: { x: 80, y: 698 } },
       ],
     },
     pastane: {
       ad: "Pastane", simge: "pastane",
-      resim: "cizimler/mekan/pastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "pastane" }],
+      resim: "cizimler/mekan/pastane.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 200 }, arka: { sol: 230, sag: 1080, y: 440 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 40, y: 215, w: 110, h: 330, hedef: "dunya", yer: "pastane" }],
       calisan: {
-        meslek: "pastaci", x: 770, y: 500,
+        meslek: "pastaci", x: 820, y: 560,
         selam: "Hoş geldiniz! Bugün taze pastalarımız var.",
         sozler: ["Doğum günü pastası mı istersiniz?", "Çilekli mi olsun, çikolatalı mı?", "Kurabiyeler fırından yeni çıktı.", "Mumlarını da koyayım mı?", "Afiyet olsun!"],
       },
       noktalar: [
+        // İki camlı vitrinin iki katı. Alınanın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "pasta", x: 300, y: 300 }, { sablon: "kurabiye", x: 420, y: 300 }, { sablon: "dondurma", x: 540, y: 300 }, { sablon: "pasta", x: 660, y: 300 },
-            { sablon: "ekmek", x: 300, y: 390 }, { sablon: "kurabiye", x: 420, y: 390 }, { sablon: "cilek", x: 540, y: 390 }, { sablon: "kurabiye", x: 660, y: 390 },
+            { sablon: "pasta", x: 295, y: 370 }, { sablon: "kurabiye", x: 365, y: 370 }, { sablon: "dondurma", x: 435, y: 370 },
+            { sablon: "pasta", x: 550, y: 370 }, { sablon: "cilek", x: 620, y: 370 }, { sablon: "kurabiye", x: 690, y: 370 },
+            { sablon: "ekmek", x: 300, y: 432 }, { sablon: "kurabiye", x: 370, y: 432 }, { sablon: "ekmek", x: 440, y: 432 },
+            { sablon: "kurabiye", x: 555, y: 432 }, { sablon: "pasta", x: 625, y: 432 }, { sablon: "ekmek", x: 695, y: 432 },
           ],
         },
+        { tur: "tezgah", x: 250, y: 270, w: 505, h: 40, ust: 298 },
+        // Taş fırın: dokununca ateş yanar. Tencere ve tava ateşe konur.
+        { tur: "ocak", x: 880, y: 250, w: 165, h: 140, gozler: [{ x: 960, y: 380 }] },
+        // Sağdaki tahta masa ve bank, soldaki ön masa.
+        { tur: "tezgah", x: 905, y: 395, w: 280, h: 40, ust: 418 },
+        { tur: "otur", x: 1120, y: 450, w: 160, h: 180, oturma: { x: 1195, y: 610 } },
+        { tur: "tezgah", x: 140, y: 560, w: 215, h: 40, ust: 582 },
       ],
     },
   },
@@ -602,9 +681,9 @@ window.OYUN_VERI = {
       { id: "kitap2", tur: "esya", sablon: "kitap", mekan: "okul", x: 760, y: 660 },
       { id: "kupa2", tur: "esya", sablon: "kupa", mekan: "kafe", x: 860, y: 620 },
       { id: "stetoskop1", tur: "esya", sablon: "stetoskop", mekan: "hastane", x: 760, y: 640 },
-      { id: "tarak1", tur: "esya", sablon: "tarak", mekan: "kuafor", x: 560, y: 640 },
-      { id: "fon1", tur: "esya", sablon: "fon", mekan: "kuafor", x: 680, y: 660 },
-      { id: "sampuan2", tur: "esya", sablon: "sampuan", mekan: "kuafor", x: 920, y: 620 },
+      { id: "tarak1", tur: "esya", sablon: "tarak", mekan: "kuafor", x: 545, y: 630 },
+      { id: "fon1", tur: "esya", sablon: "fon", mekan: "kuafor", x: 470, y: 670 },
+      { id: "sampuan2", tur: "esya", sablon: "sampuan", mekan: "kuafor", x: 930, y: 600 },
     ],
   },
 };
