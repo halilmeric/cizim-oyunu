@@ -30,10 +30,30 @@ window.KARAKTER = (k, VERI) => {
       const g = kok.add([k.sprite(sablonId), k.anchor("bot"), ...boya]);
       genislik = g.width; yukseklik = g.height;
     }
-    return { kok, parca, genislik, yukseklik, boy: s.boy };
+    // El: eşya tutulan nokta. Ağız: yemek götürülen nokta. İkisi de çizim pikselidir.
+    let el = { parca: kok, nokta: k.vec2(genislik * 0.38, -yukseklik * 0.42) };
+    const kol = P && P.parcalar.find((p) => p.hareket === "kol-sag");
+    if (kol) el = { parca: parca["kol-sag"], nokta: k.vec2(kol.x + kol.w * 0.86 - kol.pivot[0], kol.y + kol.h * 0.5 - kol.pivot[1]) };
+    const agiz = k.vec2(0, -yukseklik * (s.agiz || 0.74));
+    return { kok, parca, genislik, yukseklik, boy: s.boy, el, agiz };
   }
 
-  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla". Açı artınca parça saat yönünde döner.
+  // Bir nesnenin kendi koordinatındaki noktayı ebeveyninin koordinatına çevirir: ölçek, dönme, konum.
+  function disari(o, p) {
+    const sx = o.scale ? o.scale.x : 1, sy = o.scale ? o.scale.y : 1, a = ((o.angle || 0) * Math.PI) / 180;
+    const x = p.x * sx, y = p.y * sy;
+    return k.vec2(o.pos.x + x * Math.cos(a) - y * Math.sin(a), o.pos.y + x * Math.sin(a) + y * Math.cos(a));
+  }
+  // Elin ve ağzın ekrandaki yeri. Parçalar dönünce bu noktalar da döner.
+  function elYeri(kr) {
+    const p = kr.el.parca === kr.kok ? kr.el.nokta : disari(kr.el.parca, kr.el.nokta);
+    return disari(kr.kok, p);
+  }
+  function agizYeri(kr) {
+    return disari(kr.kok, kr.agiz);
+  }
+
+  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla", "ye". Açı artınca parça saat yönünde döner.
   function canlandir(kr, t, hal) {
     const p = kr.parca, f = Math.sin(t * 11);
     const aci = {
@@ -41,6 +61,7 @@ window.KARAKTER = (k, VERI) => {
       yuru: { ks: f * 26, kg: f * 26, bs: f * 12, bg: -f * 12, ku: Math.sin(t * 8) * 16 },
       tutuluyor: { ks: -30 + Math.sin(t * 16) * 25, kg: 30 - Math.sin(t * 16) * 25, bs: Math.sin(t * 9) * 18, bg: -Math.sin(t * 9) * 18, ku: Math.sin(t * 10) * 25 },
       salla: { ks: Math.sin(t * 1.8) * 4, kg: -40 + Math.sin(t * 14) * 22, bs: 0, bg: 0, ku: Math.sin(t * 6) * 18 },
+      ye: { ks: Math.sin(t * 1.8) * 4, kg: -55 + Math.sin(t * 12) * 6, bs: 0, bg: 0, ku: Math.sin(t * 9) * 20 },
     }[hal];
     if (p["kol-sol"]) p["kol-sol"].angle = aci.ks;
     if (p["kol-sag"]) p["kol-sag"].angle = aci.kg;
@@ -49,5 +70,5 @@ window.KARAKTER = (k, VERI) => {
     if (p["kuyruk"]) p["kuyruk"].angle = aci.ku;
   }
 
-  return { yukle, kur, canlandir };
+  return { yukle, kur, canlandir, elYeri, agizYeri };
 };
