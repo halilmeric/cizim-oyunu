@@ -412,7 +412,10 @@ k.scene("mekan", (mekanId) => {
     // Eşyalar girişte üst üste binmesin diye biraz dağılır.
     o.v.x = g.x + (o.kr ? 0 : k.rand(-80, 80)); o.v.y = g.y + (o.kr ? 0 : k.rand(0, 80));
     if (o.kr) {
-      varliklar.filter((e) => e.elde === o || e.giyili === o).forEach((e) => { e.v.mekan = d.hedef; e.v.x = o.v.x; e.v.y = o.v.y; });
+      // Karakter ve üstündekiler bu sahneden hemen çıkar. Yoksa ekran kararırken oda onları duvarın önüne çeker.
+      varliklar.filter((e) => e.elde === o || e.giyili === o).forEach((e) => { e.v.mekan = d.hedef; e.v.x = o.v.x; e.v.y = o.v.y; kaldir(e); });
+      kaldir(o);
+      if (o === secili) secili = null;
       dunya.secili = o.v.id;
       if (d.hedef === "dunya") dunya.kamera = g.x;
       return gec(d.hedef);
@@ -630,6 +633,17 @@ k.scene("mekan", (mekanId) => {
     if (v.mekan === "dunya") dunya.kamera = v.x;
     gec(v.mekan);
   }
+  // Harita düğmesi: seçili karakter bu yerin kapısından sokağa çıkar, yerin önünde durur.
+  // Evin iç odalarından çıkınca evin önüne çıkılır.
+  function disariCik() {
+    const d = m.kapilar.find((d) => d.hedef === "dunya") || (m.ev && { hedef: "dunya", yer: m.ev });
+    if (!d || !secili || !varliklar.includes(secili)) return gec("dunya");
+    const o = secili;
+    if (o.oturak) kalk(o);
+    if (o.kuvet || o.yuzuyor) kuvettenCik(o);
+    o.kayiyor = null; o.hedef = null;
+    kapidanGec(o, { hedef: "dunya", yer: d.yer });
+  }
   const dugmeBul = (e) => dugmeler.find((d) => !d.o.hidden && e.dist(k.vec2(d.x, d.y)) < d.r);
 
   // Mekanın adı: girişte üstte kısa bir süre görünür.
@@ -737,7 +751,7 @@ k.scene("mekan", (mekanId) => {
     if (basiliDugme) {
       const d = basiliDugme;
       basiliDugme = null; panYon = 0;
-      if (d.tur === "harita") gec("dunya");
+      if (d.tur === "harita") return disariCik();
       if (d.tur === "karakter") karaktereGit(d.id);
       return;
     }
