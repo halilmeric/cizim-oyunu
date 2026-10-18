@@ -507,16 +507,24 @@ window.OYUN_VERI = {
     },
     kuafor: {
       ad: "Kuaför", simge: "kuafor",
-      resim: "cizimler/mekan/kuafor.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kuafor" }],
+      resim: "cizimler/mekan/kuafor.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 160 }, arka: { sol: 210, sag: 1080, y: 455 } },
+      giris: { x: 230, y: 600 },
+      kapilar: [{ x: 40, y: 200, w: 118, h: 360, hedef: "dunya", yer: "kuafor" }],
       calisan: {
-        meslek: "kuafor", x: 560, y: 495,
+        meslek: "kuafor", x: 655, y: 565,
         selam: "Hoş geldiniz! Saçınızı bugün nasıl kesmemi istersiniz?",
         sozler: ["Uçlarını mı alalım, kısa mı keselim?", "Önce saçınızı yıkayalım.", "Fön mü çekelim, maşa mı yapalım?", "Kakül ister misiniz?", "Saçınız çok güzel oldu!"],
       },
       noktalar: [
-        { tur: "otur", x: 340, y: 290, w: 160, h: 190, oturma: { x: 420, y: 452 } },
-        { tur: "musluk", x: 700, y: 270, w: 160, h: 100, su: { x: 800, y: 288, boy: 24 } },
+        // Pembe kuaför koltuğu, aynanın önünde.
+        { tur: "otur", x: 330, y: 360, w: 180, h: 180, oturma: { x: 410, y: 500 } },
+        // Turuncu kanepe.
+        { tur: "otur", x: 1090, y: 395, w: 190, h: 170, oturma: { x: 1175, y: 535 } },
+        { tur: "tezgah", x: 290, y: 300, w: 335, h: 80, ust: 372 },
+        { tur: "musluk", x: 705, y: 295, w: 155, h: 90, su: { x: 786, y: 322, boy: 22 } },
+        // Su sebili.
+        { tur: "musluk", x: 1050, y: 290, w: 65, h: 165, su: { x: 1070, y: 408, boy: 16 } },
       ],
     },
     kutuphane: {
@@ -606,9 +614,9 @@ window.OYUN_VERI = {
       { id: "kitap2", tur: "esya", sablon: "kitap", mekan: "okul", x: 760, y: 660 },
       { id: "kupa2", tur: "esya", sablon: "kupa", mekan: "kafe", x: 860, y: 620 },
       { id: "stetoskop1", tur: "esya", sablon: "stetoskop", mekan: "hastane", x: 760, y: 640 },
-      { id: "tarak1", tur: "esya", sablon: "tarak", mekan: "kuafor", x: 560, y: 640 },
-      { id: "fon1", tur: "esya", sablon: "fon", mekan: "kuafor", x: 680, y: 660 },
-      { id: "sampuan2", tur: "esya", sablon: "sampuan", mekan: "kuafor", x: 920, y: 620 },
+      { id: "tarak1", tur: "esya", sablon: "tarak", mekan: "kuafor", x: 545, y: 630 },
+      { id: "fon1", tur: "esya", sablon: "fon", mekan: "kuafor", x: 470, y: 670 },
+      { id: "sampuan2", tur: "esya", sablon: "sampuan", mekan: "kuafor", x: 930, y: 600 },
     ],
   },
 };
