@@ -396,17 +396,23 @@ window.OYUN_VERI = {
     // --- Kamusal ve sosyal mekanlar ---
     park: {
       ad: "Park", simge: "park",
-      resim: "cizimler/mekan/park.jpg", zemin: ZEMIN_ACIK, giris: { x: 270, y: 590 },
-      kapilar: [{ ...BAHCE_KAPI_SOL, hedef: "dunya", yer: "park" }],
+      resim: "cizimler/mekan/park.jpg",
+      zemin: { ust: 510, alt: 705, sol: 60, sag: 1220 },
+      giris: { x: 250, y: 600 },
+      kapilar: [{ x: 35, y: 350, w: 135, h: 215, hedef: "dunya", yer: "park" }],
       calisan: {
-        meslek: "bahcivan", x: 380, y: 500,
+        meslek: "bahcivan", x: 420, y: 560,
         selam: "Hoş geldiniz! Parkımız bugün çok güzel.",
         sozler: ["Çiçeklere dikkat edelim, koparmayalım.", "Ağaçları her sabah ben suluyorum.", "Fıskiyenin suyu çok serin!", "Çöpleri çöp kutusuna atalım lütfen.", "Bankta oturup dinlenebilirsiniz."],
       },
       noktalar: [
-        { tur: "fiskiye", x: 600, y: 300, w: 200, h: 180, su: { x: 700, y: 324 }, acik: true },
-        { tur: "otur", x: 950, y: 320, w: 100, h: 160, oturma: { x: 1000, y: 474 } },
-        { tur: "otur", x: 1050, y: 320, w: 100, h: 160, oturma: { x: 1100, y: 474 } },
+        // Havuzlu çeşme. Dokununca su açılır, kapanır.
+        { tur: "fiskiye", x: 520, y: 250, w: 360, h: 265, su: { x: 700, y: 322 }, acik: true },
+        // Arkadaki büyük bank ve öndeki küçük bank: ikişer kişilik.
+        { tur: "otur", x: 950, y: 330, w: 100, h: 150, oturma: { x: 1000, y: 472 } },
+        { tur: "otur", x: 1050, y: 330, w: 100, h: 150, oturma: { x: 1100, y: 472 } },
+        { tur: "otur", x: 905, y: 560, w: 100, h: 100, oturma: { x: 955, y: 648 } },
+        { tur: "otur", x: 1005, y: 560, w: 100, h: 100, oturma: { x: 1055, y: 648 } },
       ],
     },
     oyun: {
