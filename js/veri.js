@@ -434,17 +434,31 @@ window.OYUN_VERI = {
     },
     kafe: {
       ad: "Kafe", simge: "kafe",
-      resim: "cizimler/mekan/kafe.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kafe" }],
+      resim: "cizimler/mekan/kafe.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 190 }, arka: { sol: 205, sag: 1090, y: 470 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 200, w: 112, h: 345, hedef: "dunya", yer: "kafe" }],
       calisan: {
-        meslek: "garson", x: 480, y: 500,
+        meslek: "garson", x: 610, y: 600,
         selam: "Hoş geldiniz! Ne içersiniz? Çay, kahve ya da sıcak çikolata?",
         sozler: ["Kurabiyelerimiz fırından yeni çıktı.", "Şekerli mi olsun, şekersiz mi?", "Siparişiniz hemen geliyor.", "Buyurun, masanız hazır.", "Afiyet olsun!"],
       },
       noktalar: [
-        { tur: "musluk", x: 260, y: 230, w: 100, h: 100, su: { x: 310, y: 306, boy: 22, renk: [130, 80, 45] } },
-        { tur: "raf", raflar: [{ sablon: "kupa", x: 395, y: 332 }, { sablon: "kurabiye", x: 545, y: 332 }] },
-        sandalye(760, 476), sandalye(960, 476),
+        // Kahve makinesi: dokununca kahve akar.
+        { tur: "musluk", x: 345, y: 250, w: 140, h: 95, su: { x: 420, y: 333, boy: 18, renk: [130, 80, 45] } },
+        { tur: "tezgah", x: 250, y: 330, w: 370, h: 60, ust: 368 },
+        // Pasta vitrini ve sağdaki raflar. Alınanın yerine yenisi gelir.
+        {
+          tur: "raf", raflar: [
+            { sablon: "ekmek", x: 665, y: 378 }, { sablon: "kurabiye", x: 718, y: 378 }, { sablon: "kurabiye", x: 770, y: 378 },
+            { sablon: "pasta", x: 665, y: 427 }, { sablon: "kurabiye", x: 718, y: 427 }, { sablon: "kurabiye", x: 770, y: 427 },
+            { sablon: "kupa", x: 1222, y: 330 }, { sablon: "kupa", x: 1200, y: 424 },
+          ],
+        },
+        // Yuvarlak masa, iki pembe sandalye ve kanepe.
+        { tur: "tezgah", x: 835, y: 455, w: 175, h: 50, ust: 490 },
+        sandalye(785, 605), sandalye(1040, 600),
+        { tur: "otur", x: 845, y: 335, w: 215, h: 115, oturma: { x: 950, y: 455 } },
       ],
     },
     market: {
