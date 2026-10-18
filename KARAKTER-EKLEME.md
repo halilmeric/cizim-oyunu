@@ -23,6 +23,11 @@ Oyunun kodu değişmez. Sadece resim dosyası eklenir ve `js/veri.js` dosyasına
    ```
    Eski kayıtlar da yeni karakteri alır. `id` benzersiz olmalı.
 
+Evcil hayvan için `evcil: true` yaz: kendi kendine gezer. `eller: 1` tek eli olduğunu söyler.
+Ağız ve el yeri farklıysa `agizX`, `agiz` ve `el: [x, y]` ile verilir (genişlik ve yükseklik oranı).
+Simgede başın görünmesi için `portre: [x, y, en, boy]` oranları verilir.
+Kıyafet yeri farklıysa `giyim: { govde: [x, omuz, en], bas: [x, tepe, en] }` yazılır.
+
 Tek parça karakter de yürür, oturur, yatar, salıncağa biner, eşya tutar ve yer.
 Kolları ve bacakları ayrı oynasın istenirse:
 `python3 araclar/parcala.py cizimler/hacimli/tavsan.png cizimler/tavsan`.
@@ -34,7 +39,9 @@ Sonra `index.html` dosyasına `cizimler/tavsan/parcalar.js` satırı ve karakter
 2. `js/veri.js` içinde `esyalar` bölümüne ekle. Her eşyanın bir işi olmalı:
    - Yiyecek: `yenir: [r, g, b]` (kırıntı rengi).
    - Oyuncak ya da araç: `eylem: "..."`. Seçenekler: at, sur, konus, oku, ic, fircala, yaz,
-     yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla.
+     yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
+   - Kıyafet: `eylem: "giy", giy: "govde"` ya da `giy: "bas"`. Karaktere bırakılınca giyilir.
+   - Tencere gibi ocağa konan eşya: `ocak: true`.
 3. Yeni bir eylem gerekirse `js/oyun.js` içinde `EYLEM_SURE` ve `eylemKaresi` bölümüne eklenir.
 
 ## 4. Mekan ekle

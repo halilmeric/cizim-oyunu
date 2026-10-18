@@ -30,12 +30,16 @@ window.KARAKTER = (k, VERI) => {
       const g = kok.add([k.sprite(sablonId), k.anchor("bot"), ...boya]);
       genislik = g.width; yukseklik = g.height;
     }
-    // El: eşya tutulan nokta. Ağız: yemek götürülen nokta. İkisi de çizim pikselidir.
-    let el = { parca: kok, nokta: k.vec2(genislik * 0.38, -yukseklik * 0.42) };
+    // El: eşya tutulan nokta. Sağ ve sol el var. Ağız: yemek götürülen nokta. Hepsi çizim pikselidir.
+    let el = { parca: kok, nokta: k.vec2(genislik * (s.el ? s.el[0] : 0.38), -yukseklik * (s.el ? s.el[1] : 0.42)) };
+    let elSol = { parca: kok, nokta: k.vec2(-genislik * 0.38, -yukseklik * 0.42) };
     const kol = P && P.parcalar.find((p) => p.hareket === "kol-sag");
     if (kol) el = { parca: parca["kol-sag"], nokta: k.vec2(kol.x + kol.w * 0.86 - kol.pivot[0], kol.y + kol.h * 0.5 - kol.pivot[1]) };
-    const agiz = k.vec2(0, -yukseklik * (s.agiz || 0.74));
-    return { kok, parca, genislik, yukseklik, boy: s.boy, el, agiz };
+    const kolSol = P && P.parcalar.find((p) => p.hareket === "kol-sol");
+    if (kolSol) elSol = { parca: parca["kol-sol"], nokta: k.vec2(kolSol.x + kolSol.w * 0.14 - kolSol.pivot[0], kolSol.y + kolSol.h * 0.5 - kolSol.pivot[1]) };
+    if (s.eller === 1) elSol = el;
+    const agiz = k.vec2(genislik * (s.agizX || 0), -yukseklik * (s.agiz || 0.74));
+    return { kok, parca, genislik, yukseklik, boy: s.boy, el, elSol, eller: s.eller || 2, agiz };
   }
 
   // Bir nesnenin kendi koordinatındaki noktayı ebeveyninin koordinatına çevirir: ölçek, dönme, konum.
@@ -45,15 +49,20 @@ window.KARAKTER = (k, VERI) => {
     return k.vec2(o.pos.x + x * Math.cos(a) - y * Math.sin(a), o.pos.y + x * Math.sin(a) + y * Math.cos(a));
   }
   // Elin ve ağzın ekrandaki yeri. Parçalar dönünce bu noktalar da döner.
-  function elYeri(kr) {
-    const p = kr.el.parca === kr.kok ? kr.el.nokta : disari(kr.el.parca, kr.el.nokta);
+  function elYeri(kr, taraf) {
+    const el = taraf === "sol" ? kr.elSol : kr.el;
+    const p = el.parca === kr.kok ? el.nokta : disari(el.parca, el.nokta);
     return disari(kr.kok, p);
+  }
+  // Karakterin üstünde bir nokta. x: ortadan genişlik oranı, y: ayaktan yükseklik oranı.
+  function yer(kr, x, y) {
+    return disari(kr.kok, k.vec2(kr.genislik * x, -kr.yukseklik * y));
   }
   function agizYeri(kr) {
     return disari(kr.kok, kr.agiz);
   }
 
-  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla", "ye", "uyu". Açı artınca parça saat yönünde döner.
+  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla", "ye", "uyu", "dans", "dans2". Açı artınca parça saat yönünde döner.
   function canlandir(kr, t, hal) {
     const p = kr.parca, f = Math.sin(t * 11);
     const aci = {
@@ -64,6 +73,9 @@ window.KARAKTER = (k, VERI) => {
       ye: { ks: Math.sin(t * 1.8) * 4, kg: -55 + Math.sin(t * 12) * 6, bs: 0, bg: 0, ku: Math.sin(t * 9) * 20 },
       // Uyurken kollar gövdenin yanına iner.
       uyu: { ks: -75, kg: 75, bs: 0, bg: 0, ku: Math.sin(t * 1.2) * 5 },
+      // Dans: iki kol yukarıda sallanır. dans2: kollar sırayla iner kalkar, bacaklar tekme atar.
+      dans: { ks: 55 + Math.sin(t * 9) * 25, kg: -55 + Math.sin(t * 9) * 25, bs: Math.sin(t * 9) * 12, bg: Math.sin(t * 9) * 12, ku: Math.sin(t * 12) * 30 },
+      dans2: { ks: Math.sin(t * 8) * 60, kg: Math.sin(t * 8) * 60, bs: Math.max(0, Math.sin(t * 8)) * 25, bg: -Math.max(0, -Math.sin(t * 8)) * 25, ku: Math.sin(t * 12) * 30 },
     }[hal];
     if (p["kol-sol"]) p["kol-sol"].angle = aci.ks;
     if (p["kol-sag"]) p["kol-sag"].angle = aci.kg;
@@ -72,5 +84,5 @@ window.KARAKTER = (k, VERI) => {
     if (p["kuyruk"]) p["kuyruk"].angle = aci.ku;
   }
 
-  return { yukle, kur, canlandir, elYeri, agizYeri };
+  return { yukle, kur, canlandir, elYeri, agizYeri, yer };
 };

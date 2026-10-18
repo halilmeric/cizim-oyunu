@@ -29,16 +29,26 @@ window.OYUN_VERI = {
   karakterler: {
     // resim: hacimli PNG. parcalar: araclar/parcala.py çıktısı (yoksa karakter tek parça oynar).
     // boy: ekranın önündeki piksel boyu. agiz: ağzın yüksekliği (0 ayak, 1 baş). Verilmezse 0.74.
-    kedi: { resim: "cizimler/hacimli/kedi.png", parcalar: "kedi", boy: 300 },
+    kedi: { resim: "cizimler/hacimli/kedi.png", parcalar: "kedi", boy: 300, giyim: { govde: [0, 0.54, 0.4] } },
     kiz: { resim: "cizimler/hacimli/kiz.png", parcalar: "kiz", boy: 360 },
     ayi: { resim: "cizimler/hacimli/ayi.png", boy: 310 },
+    // Evcil hayvan: kendi kendine gezer. Tek eli ağzıdır.
+    // agizX ve el: ağzın ve elin yeri (genişliğin ve yüksekliğin oranı). portre: simgede görünen parça.
+    // giyim: kıyafetin yeri. [x, alt kenar, en] oranları. Verilmezse insan boyuna göre durur.
+    kopek: {
+      resim: "cizimler/hacimli/kopek.png", boy: 150, evcil: true, eller: 1,
+      agiz: 0.5, agizX: 0.42, el: [0.42, 0.5], portre: [0.5, 0, 0.5, 0.6],
+      giyim: { govde: [-0.1, 0.62, 0.5], bas: [0.2, 0.86, 0.36] },
+    },
   },
   esyalar: {
     // resim: eşyanın PNG dosyası. boy: ekranın önündeki piksel boyu.
     // yenir: karakterin ağzına götürülünce yenir. Değer kırıntının rengidir.
     // eylem: elinde tutan karaktere dokununca yaptığı hareket.
     //   at: fırlatır. sur: yerde sürer. Diğerleri elde oynanır:
-    //   konus, oku, ic, fircala, yaz, yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla.
+    //   konus, oku, ic, fircala, yaz, yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
+    //   giy: karakter üstüne giyer. giy değeri yeridir: govde ya da bas.
+    // ocak: ocağın gözüne konabilir.
     top: { resim: "cizimler/esya/top.png", boy: 74, eylem: "at" },
     telefon: { resim: "cizimler/esya/telefon.png", boy: 62, eylem: "konus" },
     kitap: { resim: "cizimler/esya/kitap.png", boy: 58, eylem: "oku" },
@@ -72,6 +82,13 @@ window.OYUN_VERI = {
     "sulama-kabi": { resim: "cizimler/esya/sulama-kabi.png", boy: 56, eylem: "sula" },
     kova: { resim: "cizimler/esya/kova.png", boy: 52, eylem: "kaz" },
     cicek: { resim: "cizimler/esya/cicek.png", boy: 70, eylem: "kokla" },
+    tencere: { resim: "cizimler/esya/tencere.png", boy: 60, eylem: "karistir", ocak: true },
+    tava: { resim: "cizimler/esya/tava.png", boy: 34, eylem: "karistir", ocak: true },
+    bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic" },
+    kumanda: { resim: "cizimler/esya/kumanda.png", boy: 50, eylem: "kumanda" },
+    elbise: { resim: "cizimler/esya/elbise.png", boy: 150, eylem: "giy", giy: "govde" },
+    tisort: { resim: "cizimler/esya/tisort.png", boy: 100, eylem: "giy", giy: "govde" },
+    sapka: { resim: "cizimler/esya/sapka.png", boy: 50, eylem: "giy", giy: "bas" },
   },
 
   // Yer simgeleri: kapıların üstünde, tabelada ve harita düğmesinde görünür.
@@ -107,6 +124,10 @@ window.OYUN_VERI = {
   //     yatak: karakter bırakılınca yatar ve uyur. yatis: ayak ucu. uzunluk: ayaktan yastığa. yorgan: üstünü örten örtü.
   //     salincak: karakter bırakılınca sallanır. asma: ipin bağlı olduğu nokta. ip: ipin boyu.
   //     kaydirak: karakter bırakılınca üstten alta kayar.
+  //     tezgah: eşya bırakılınca üstüne konur. ust: eşyaların durduğu çizgi.
+  //     ocak: tencere ve tava gözlere konur. Göze dokununca ocak yanar ve kırmızı olur.
+  //     tv: dokununca açılır. Açıkken odadaki karakterler dans eder. ekran: renkli ışığın yeri.
+  //     lamba: dokununca yanar ya da söner. isik: ışığın merkezi.
   mekanlar: {
     // Mahalle haritası. Geniş bir sokak: kamera sağa sola kayar.
     dunya: {
@@ -116,6 +137,8 @@ window.OYUN_VERI = {
       zemin: { ust: 482, alt: 705, sol: 30, sag: 6490 },
       olcek: 0.55, // haritada karakter ve eşyalar küçük görünür
       zeminResim: "cizimler/dunya/zemin.jpg", // 1280 piksellik parça yan yana tekrar eder
+      // Sokaktan ara sıra geçen araçlar.
+      araclar: ["cizimler/dunya/arac-araba.png", "cizimler/dunya/arac-taksi.png", "cizimler/dunya/arac-mavi.png", "cizimler/dunya/arac-otobus.png"],
       giris: { x: 420, y: 600 },
       // Haritadaki yerler. x: resmin sol kenarı, alt kenarı tabana oturur.
       // kapi: resmin alt kenarından ölçülen kapı (x, w, h). hedef: kapıdan girilen mekan.
@@ -161,6 +184,17 @@ window.OYUN_VERI = {
         { ...KAPI_SOL, hedef: "dunya", yer: "ev1" },
         { ...KAPI_SAG, hedef: "mutfak", giris: GIRIS_SOL },
       ],
+      noktalar: [
+        { tur: "tv", x: 790, y: 180, w: 200, h: 185, ekran: { x: 806, y: 232, w: 140, h: 124 } },
+        {
+          tur: "dolap", x: 770, y: 370, w: 230, h: 92,
+          resim: "cizimler/mekan/tv-dolabi-acik.png", x0: 712, y0: 362,
+          raflar: [
+            { sablon: "kumanda", x: 815, y: 407 }, { sablon: "kitap", x: 885, y: 407 }, { sablon: "telefon", x: 955, y: 407 },
+            { sablon: "kup", x: 830, y: 441 }, { sablon: "ordek", x: 935, y: 441 },
+          ],
+        },
+      ],
     },
     mutfak: {
       ad: "Mutfak", simge: "ev", ev: "ev1",
@@ -180,6 +214,14 @@ window.OYUN_VERI = {
           ],
         },
         { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
+        { tur: "ocak", x: 750, y: 300, w: 140, h: 60, gozler: [{ x: 785, y: 345 }, { x: 850, y: 345 }] },
+        { tur: "tezgah", x: 390, y: 250, w: 530, h: 106, ust: 346 },
+        // Tezgahın altındaki beş dolap. Hepsi aynı açık dolap resmini kullanır.
+        ...[["bardak", "tencere"], ["bardak", "tava"], ["kupa", "tencere"], ["bardak", "tava"], ["kupa", "tencere"]].map(([ust, alt], i) => ({
+          tur: "dolap", x: 410 + i * 100, y: 362, w: 92, h: 86,
+          resim: "cizimler/mekan/mutfak-dolap-acik.png", x0: 358 + i * 100, y0: 350,
+          raflar: [{ sablon: ust, x: 456 + i * 100, y: 401 }, { sablon: alt, x: 456 + i * 100, y: 444 }],
+        })),
       ],
     },
     banyo: {
@@ -209,6 +251,16 @@ window.OYUN_VERI = {
       ],
       noktalar: [
         { tur: "yatak", x: 220, y: 280, w: 350, h: 200, yatis: { x: 250, y: 318 }, uzunluk: 270, yorgan: { x: 236, y: 300, w: 190, h: 84 }, renk: [130, 170, 235] },
+        { tur: "lamba", x: 580, y: 290, w: 90, h: 95, isik: { x: 625, y: 318 } },
+        {
+          tur: "dolap", x: 800, y: 140, w: 200, h: 326,
+          resim: "cizimler/mekan/gardirop-acik.png", x0: 736, y0: 124,
+          raflar: [
+            { sablon: "sapka", x: 900, y: 205 },
+            { sablon: "elbise", x: 850, y: 360 }, { sablon: "tisort", x: 950, y: 330 },
+            { sablon: "sapka", x: 900, y: 452 },
+          ],
+        },
       ],
     },
     bahce1: {
@@ -393,6 +445,7 @@ window.OYUN_VERI = {
     varliklar: [
       { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "dunya", x: 380, y: 600 },
       { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "dunya", x: 470, y: 620 },
+      { id: "kopek1", tur: "karakter", sablon: "kopek", mekan: "dunya", x: 600, y: 660 },
       { id: "top4", tur: "esya", sablon: "top", mekan: "dunya", x: 640, y: 640 },
       { id: "telefon1", tur: "esya", sablon: "telefon", mekan: "oda", x: 330, y: 650 },
       { id: "kitap1", tur: "esya", sablon: "kitap", mekan: "oda", x: 930, y: 660 },

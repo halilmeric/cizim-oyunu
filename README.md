@@ -8,6 +8,14 @@ Kızımın çizdiği karakterler ve mekanlarla Toca Boca World tarzı serbest bi
 Oyun mahalle haritasında açılır. Sokakta 3 ev, 2 bahçe, park, oyun alanı, okul, kafe, market,
 oyuncakçı, hastane, kuaför, kütüphane ve pastane var. Bir binaya dokununca seçili karakter yürür ve içeri girer.
 Harita parmakla ya da iki yandaki oklarla kayar. Odada sol üstteki düğme haritaya döner.
+Sağ üstteki yüzlere dokununca o karaktere gidilir. Sokaktan ara sıra araba ve otobüs geçer.
+Köpek kendi kendine gezer.
+
+Evde: TV'ye ya da kumandaya dokununca TV açılır, odadakiler dans eder. Dolaplar açılır:
+TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var.
+Tencere ve tava ocağa konur. Ocağa dokununca kırmızı yanar, tencereden buhar çıkar. Bardak ve diğer eşyalar tezgaha konur.
+Kıyafet karaktere bırakılınca giyilir. Karakterler iki elde iki eşya tutar. Yatak başındaki lamba yanar.
+Klozette oturan karakter 10 saniye sonra kendi kalkar.
 
 ## Mekanlar
 Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`ev` alanı).
@@ -30,6 +38,7 @@ Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`
 - `araclar/uret.py`: çizimlere ışık verir, eşyaları, ilk evin odalarını üretir, karakterleri böler.
 - `araclar/dunya.py`: harita zemini, bina önleri, süsler ve yer simgeleri.
 - `araclar/yerler.py`: diğer odalar, dükkanlar, bahçeler ve park.
+- `araclar/ekler.py`: açık dolaplar, tencere, tava, bardak, kumanda, kıyafetler, köpek ve araçlar.
 - `araclar/temizle.py`: çizim fotoğrafının arka planını siler, şeffaf PNG yapar.
 - `araclar/hacim.py`: düz bir çizime kabartma ve ışık ekler.
 - `araclar/parcala.py`: bir karakter çizimini hareketli parçalara böler.
