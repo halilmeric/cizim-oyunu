@@ -30,6 +30,13 @@ Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`
 | Park, Oyun alanı | Fıskiye, bank, salıncak, kaydırak |
 | Okul, Kafe, Market, Oyuncakçı, Hastane, Kuaför, Kütüphane, Pastane | Her biri bir oda |
 
+## Çizim tarzı
+Program çizimleri düz çizgi film tarzındadır: düz renk, koyu kalem çizgisi, sağ altta keskin bir gölge şeridi.
+Parlama ve renk geçişi yoktur. Ağaç, çalı ve bulutlar dairelerin birleşimiyle tek çizgili çizilir.
+Ortak çizim aracı `araclar/uret.py` içindeki `Tuval` ve `duz()` gölgesidir.
+Kızın çizimleri (karakterler, TV, şömine, gökkuşağı) kendi halini korur.
+Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve `ekler.py` sırayla çalıştırılır.
+
 ## Dosyalar
 - `js/veri.js`: karakterler, eşyalar, mekanlar, kapılar, haritadaki yerler ve başlangıç hali. Yeni içerik buraya eklenir.
 - `js/oyun.js`: mekan geçişleri, harita kamerası, sürükle-bırak, düşme, dokun-yürü, oturma, yatma, salıncak, kaydırak ve kayıt.

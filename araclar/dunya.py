@@ -3,7 +3,7 @@
 Kullanım: python3 araclar/dunya.py
 Çıktı:
   cizimler/dunya/zemin.jpg     gökyüzü, tepeler, kaldırım ve yol. 1280 piksel genişlikte, yan yana tekrar eder.
-  cizimler/dunya/<sus>.png     ağaç, çalı, çiçek, lamba, bank
+  cizimler/dunya/<sus>.png     ağaç, çam, çalı, çiçek, lamba, bank
   cizimler/dis/<yer>.png       haritadaki her yerin dış görünümü (ev önü, bahçe çiti, dükkan)
   cizimler/simge/<ad>.png      yer simgeleri: tabelalarda ve kapıların üstünde
 Her dış görünümün kapısı resmin alt kenarından ölçülür. KAPILAR sözlüğü js/veri.js ile aynı sayıları kullanır.
@@ -142,65 +142,132 @@ KALDIRIM = (470, 545)
 YOL = (556, 690)
 
 
+# --- Düz çizgi film doğası: bulut, ağaç tacı, çam, çalı. Bahçeler ve park da bunları kullanır. ---
+GOK = (178, 226, 247)
+YESIL, YESIL_KOYU = (110, 185, 70), (80, 155, 55)
+
+
+def bulut_ciz(t, x, y, s=1.0):
+    t.birlesik([(x + dx * s, y + dy * s, r * s) for dx, dy, r in [(-46, 8, 26), (-16, -6, 34), (22, -12, 36), (52, 6, 26), (6, 12, 30)]],
+               BEYAZ, cizgi=0, guc=0.8)
+
+
+def govde_ciz(t, x, alt, ust, kalin=34):
+    """Ağaç gövdesi: aşağıda genişler, tepede iki dal ayrılır."""
+    k = kalin / 2
+    t.cokgen([(x - k * 1.5, alt), (x - k, alt - 18), (x - k * 0.8, ust + 30), (x - k * 2.4, ust), (x - k * 1.6, ust - 6),
+              (x, ust + 18), (x + k * 1.6, ust - 6), (x + k * 2.4, ust), (x + k * 0.8, ust + 30), (x + k, alt - 18), (x + k * 1.5, alt)],
+             (160, 105, 60, 255))
+
+
+def tac_ciz(t, cx, cy, r, renk=YESIL, koyu=YESIL_KOYU, elma=False, rng=None):
+    """Kabarık ağaç tacı: dairelerin birleşimi, içinde koyu yaprak kümeleri."""
+    d = [(cx, cy, r * 0.62)]
+    for i in range(9):
+        a = i / 9 * 2 * math.pi
+        d.append((cx + math.cos(a) * r * 0.62, cy + math.sin(a) * r * 0.5, r * (0.36 + 0.06 * (i % 2))))
+    t.birlesik(d, a4(renk))
+    for dx, dy, rr in [(-0.35, 0.1, 0.22), (0.3, 0.22, 0.2), (0.05, -0.25, 0.18)]:
+        t.elips(cx + (dx - rr) * r, cy + (dy - rr) * r, cx + (dx + rr) * r, cy + (dy + rr) * r, a4(koyu), cizgi=0, guc=0)
+    if elma:
+        rng = rng or np.random.default_rng(int(cx))
+        for _ in range(6):
+            a = rng.random() * 2 * math.pi
+            x, y = cx + math.cos(a) * r * 0.55 * rng.random(), cy + math.sin(a) * r * 0.45 * rng.random()
+            t.elips(x - 9, y - 9, x + 9, y + 9, (225, 45, 55, 255), cizgi=2, kure=True)
+
+
+def agac_tam(t, x, alt, r=80, elma=False):
+    """Gövde ve taç: ağacın tamamı. alt: gövdenin yere bastığı y."""
+    govde_ciz(t, x, alt, alt - r * 1.5, r * 0.4)
+    tac_ciz(t, x, alt - r * 2.05, r, elma=elma)
+
+
+def cam_ciz(t, x, alt, h, renk=(45, 145, 75)):
+    """Çam ağacı: üst üste üç kat, kenarları tırtıklı."""
+    t.kutu(x - h * 0.05, alt - h * 0.2, x + h * 0.05, alt, (150, 95, 55, 255), r=3)
+    pts = [(x, alt - h)]
+    for i, (y, w) in enumerate([(0.38, 0.2), (0.62, 0.3), (0.86, 0.4)]):
+        pts.append((x + w * h, alt - h + y * h))
+        if i < 2:
+            pts.append((x + w * h * 0.45, alt - h + y * h - 0.04 * h))
+    sag = pts[1:]
+    pts = [pts[0]] + sag + [(2 * x - px, py) for px, py in reversed(sag)]
+    t.cokgen(pts, a4(renk))
+    t.cokgen([(x, alt - h + 6), (x, alt - h * 0.16), (x - h * 0.36, alt - h * 0.16)], a4(tuple(min(255, c + 30) for c in renk)), cizgi=0, guc=0)
+
+
+def a4(renk):
+    return tuple(renk) + (255,) if len(renk) == 3 else renk
+
+
 def zemin():
     a = np.zeros((ZH * SS, ZW * SS, 4), np.float32)
     yy, xx = np.mgrid[0:ZH * SS, 0:ZW * SS] / SS
-    # Gökyüzü
-    g = np.clip(yy / 380, 0, 1)[..., None]
-    a[..., :3] = np.array([120, 195, 245]) * (1 - g) + np.array([205, 236, 255]) * g
+    a[..., :3] = np.array(GOK)
     a[..., 3] = 255
     # Uzak ve yakın tepeler: 1280 pikselde tam dalga, yan yana tekrar eder.
-    for taban, gen, renk, faz in [(330, 38, (165, 215, 150), 0.0), (380, 26, (135, 200, 120), 1.7)]:
+    for taban, gen, renk, faz in [(330, 38, (150, 205, 110), 0.0), (380, 26, (125, 195, 85), 1.7)]:
         ust = taban - gen * np.sin(xx * 2 * np.pi / 640 + faz) - gen * 0.5 * np.sin(xx * 2 * np.pi / 320 + faz * 2)
         m = yy > ust
         a[m, :3] = np.array(renk)
     # Ön bahçe çimeni
-    m = yy > 420
-    a[m, :3] = np.array([150, 210, 120])
+    a[yy > 420, :3] = np.array(YESIL)
     # Kaldırım, bordür, yol ve alt kaldırım
     m = (yy >= KALDIRIM[0]) & (yy < KALDIRIM[1])
     a[m, :3] = np.array([238, 222, 196])
     m = (yy >= KALDIRIM[1]) & (yy < YOL[0])
     a[m, :3] = np.array([205, 205, 212])
     m = (yy >= YOL[0]) & (yy < YOL[1])
-    a[m, :3] = np.array([118, 122, 138])
+    a[m, :3] = np.array([150, 152, 160])
     m = yy >= YOL[1]
     a[m, :3] = np.array([238, 222, 196])
     t = Tuval(ZW, ZH)
     t.im = Image.fromarray(a.astype(np.uint8), "RGBA")
     d = ImageDraw.Draw(t.im)
+    # Tepelerin ve çimin kenarı: ince koyu yeşil çizgi
+    for taban, gen, faz in [(330, 38, 0.0), (380, 26, 1.7)]:
+        pts = [(x * SS, (taban - gen * math.sin(x * 2 * math.pi / 640 + faz) - gen * 0.5 * math.sin(x * 2 * math.pi / 320 + faz * 2)) * SS) for x in range(0, ZW + 1, 4)]
+        d.line(pts, fill=(80, 140, 60, 255), width=2 * SS)
     # Kaldırım taşları
     for x in range(0, ZW, 64):
-        d.line([(x * SS, KALDIRIM[0] * SS), (x * SS, KALDIRIM[1] * SS)], fill=(210, 190, 160, 255), width=2 * SS)
-    d.line([(0, 508 * SS), (ZW * SS, 508 * SS)], fill=(210, 190, 160, 255), width=2 * SS)
-    d.line([(0, KALDIRIM[0] * SS), (ZW * SS, KALDIRIM[0] * SS)], fill=(120, 170, 100, 255), width=3 * SS)
-    d.line([(0, KALDIRIM[1] * SS), (ZW * SS, KALDIRIM[1] * SS)], fill=(170, 170, 180, 255), width=2 * SS)
+        d.line([(x * SS, KALDIRIM[0] * SS), (x * SS, KALDIRIM[1] * SS)], fill=(205, 185, 155, 255), width=2 * SS)
+    d.line([(0, 508 * SS), (ZW * SS, 508 * SS)], fill=(205, 185, 155, 255), width=2 * SS)
+    d.line([(0, KALDIRIM[0] * SS), (ZW * SS, KALDIRIM[0] * SS)], fill=KALEM, width=3 * SS)
+    d.line([(0, KALDIRIM[1] * SS), (ZW * SS, KALDIRIM[1] * SS)], fill=(150, 150, 160, 255), width=2 * SS)
+    d.line([(0, YOL[0] * SS), (ZW * SS, YOL[0] * SS)], fill=KALEM, width=3 * SS)
+    d.line([(0, YOL[1] * SS), (ZW * SS, YOL[1] * SS)], fill=KALEM, width=3 * SS)
     # Yol çizgileri
     orta = (YOL[0] + YOL[1]) // 2
     for x in range(20, ZW, 160):
         d.rounded_rectangle([x * SS, (orta - 5) * SS, (x + 80) * SS, (orta + 5) * SS], 4 * SS, fill=(250, 250, 250, 255))
+    # Çimde küçük ot öbekleri
+    for x in range(70, ZW, 210):
+        for dx in (-8, 0, 8):
+            d.line([((x + dx * 0.4) * SS, 462 * SS), ((x + dx) * SS, 448 * SS)], fill=(70, 140, 50, 255), width=2 * SS)
     # Bulutlar
     for x, y, s in [(180, 90, 1.0), (620, 60, 0.8), (1000, 120, 1.1)]:
-        for dx, dy, r in [(-50, 10, 34), (0, 0, 46), (50, 12, 32), (20, 22, 30)]:
-            t.elips(x + (dx - r) * s, y + (dy - r) * s, x + (dx + r) * s, y + (dy + r) * s, (255, 255, 255, 255), cizgi=0, guc=0.25)
+        bulut_ciz(t, x, y, s)
     return t.bitir()
 
 
 # --- Süsler ---
 def agac():
-    t = Tuval(220, 320)
-    t.kutu(92, 170, 128, 316, (150, 100, 60, 255), r=10)
-    for x, y, r in [(110, 110, 80), (60, 150, 52), (160, 150, 52), (110, 60, 56)]:
-        t.elips(x - r, y - r, x + r, y + r, (95, 180, 85, 255), kure=True)
-    for x, y in [(80, 120), (140, 90), (120, 160)]:
-        t.elips(x - 8, y - 8, x + 8, y + 8, (230, 60, 70, 255), cizgi=2, kure=True)
+    t = Tuval(260, 340)
+    agac_tam(t, 130, 334, 80, elma=True)
+    return kirp(t.bitir())
+
+
+def cam():
+    t = Tuval(200, 340)
+    cam_ciz(t, 100, 334, 320)
     return kirp(t.bitir())
 
 
 def cali():
     t = Tuval(180, 110)
-    for x, y, r in [(50, 70, 40), (95, 55, 48), (140, 72, 36)]:
-        t.elips(x - r, y - r, x + r, y + r, (110, 190, 95, 255), kure=True)
+    t.birlesik([(50, 70, 36), (92, 52, 44), (136, 70, 34), (90, 80, 34)], a4((95, 175, 65)))
+    t.elips(70, 70, 100, 92, a4(YESIL_KOYU), cizgi=0, guc=0)
     return kirp(t.bitir())
 
 
@@ -357,9 +424,8 @@ def dis_bahce(ciz, renk_cit, kapi_renk, bitki):
 
 
 def bahce1_bitki(t):
-    t.kutu(40, 120, 60, 280, (150, 100, 60, 255), r=8)
-    for x, y, r in [(50, 80, 60), (20, 120, 36), (86, 116, 40)]:
-        t.elips(x - r, y - r, x + r, y + r, (95, 180, 85, 255), kure=True)
+    govde_ciz(t, 52, 280, 150, 22)
+    tac_ciz(t, 52, 95, 62, elma=True)
     salincak_ciz(t, 170, 300, 110, 270)
     for x in range(20, 300, 34):
         t.elips(x, 250, x + 22, 272, ((250, 120, 160, 255), (255, 210, 70, 255), (160, 130, 240, 255))[x // 34 % 3], cizgi=2, guc=0.6)
@@ -370,8 +436,7 @@ def bahce2_bitki(t):
     t.cokgen([(210, 110), (300, 110), (255, 70)], (250, 120, 150, 255))
     t.kutu(251, 110, 259, 230, (200, 200, 210, 255), r=3, cizgi=2)
     t.kutu(215, 220, 295, 232, (200, 140, 90, 255), r=4)
-    for x in range(10, 310, 40):
-        t.elips(x - 22, 228, x + 22, 270, (110, 190, 95, 255), kure=True)
+    t.birlesik([(x, 248, 24 + (x // 40 % 2) * 4) for x in range(10, 310, 40)], a4((95, 175, 65)))
 
 
 def dis_ev2():
@@ -405,9 +470,9 @@ def dis_ev3():
 
 def dis_park():
     t = Tuval(480, 320)
-    for x, r in [(70, 70), (400, 62)]:
-        t.kutu(x - 14, 160, x + 14, 300, (150, 100, 60, 255), r=8)
-        t.elips(x - r, 160 - 2 * r + 30, x + r, 190, (95, 180, 85, 255), kure=True)
+    for x, r in [(70, 66), (400, 58)]:
+        govde_ciz(t, x, 300, 180, 26)
+        tac_ciz(t, x, 190 - r * 0.8, r)
     # Fıskiye
     t.elips(170, 250, 320, 296, (180, 190, 205, 255))
     t.elips(184, 256, 306, 284, (120, 190, 240, 255), cizgi=2, guc=0.4)
@@ -578,7 +643,7 @@ def main():
     for d in ("dunya", "dis", "simge"):
         os.makedirs(yol(d), exist_ok=True)
     zemin().convert("RGB").save(yol("dunya", "zemin.jpg"), quality=86)
-    for ad, f in [("agac", agac), ("cali", cali), ("cicek", cicek), ("lamba", lamba), ("bank", bank)]:
+    for ad, f in [("agac", agac), ("cam", cam), ("cali", cali), ("cicek", cicek), ("lamba", lamba), ("bank", bank)]:
         f().save(yol("dunya", ad + ".png"))
     for ad in SIMGELER:
         simge_resmi(ad).save(yol("simge", ad + ".png"))

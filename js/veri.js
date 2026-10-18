@@ -161,6 +161,13 @@ window.OYUN_VERI = {
       ],
       // Süsler: dokunulmaz, sadece görünür. x: orta nokta, y: taban. arka: binaların arkasında durur.
       susler: [
+        { resim: "cizimler/dunya/cam.png", x: 40, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 880, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 1700, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 2580, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 3590, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 4740, y: 430, arka: true },
+        { resim: "cizimler/dunya/cam.png", x: 5990, y: 430, arka: true },
         { resim: "cizimler/dunya/agac.png", x: 90, y: 474, arka: true },
         { resim: "cizimler/dunya/agac.png", x: 2050, y: 474, arka: true },
         { resim: "cizimler/dunya/agac.png", x: 3600, y: 474, arka: true },
@@ -172,6 +179,9 @@ window.OYUN_VERI = {
         { resim: "cizimler/dunya/lamba.png", x: 4730, y: 486 },
         { resim: "cizimler/dunya/lamba.png", x: 5562, y: 486 },
         { resim: "cizimler/dunya/cicek.png", x: 1710, y: 476 },
+        { resim: "cizimler/dunya/cali.png", x: 150, y: 478 },
+        { resim: "cizimler/dunya/cali.png", x: 3570, y: 478 },
+        { resim: "cizimler/dunya/cali.png", x: 5200, y: 478 },
         { resim: "cizimler/dunya/cicek.png", x: 3060, y: 476 },
       ],
     },
