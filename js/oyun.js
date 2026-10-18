@@ -259,7 +259,7 @@ k.scene("mekan", (mekanId) => {
   varliklar.forEach((o) => {
     if (o.v.kuvet == null) return;
     const kv = kuvetler[0], yer = kv && kv.yerler[o.v.kuvet];
-    if (o.kr && yer && !yer.dolu) { o.kuvet = { kv, yer }; yer.dolu = o; }
+    if (o.kr && yer && !yer.dolu) { o.kuvet = { kv, yer }; yer.dolu = o; o.kuvetT = k.time(); }
     else if (!o.kr && kv) o.yuzuyor = kv;
     else delete o.v.kuvet;
   });
@@ -322,7 +322,7 @@ k.scene("mekan", (mekanId) => {
   function kuveteGir(o, kv) {
     const yer = kv.yerler.filter((y) => !y.dolu).sort((a, b) => Math.abs(a.x - o.v.x) - Math.abs(b.x - o.v.x))[0];
     if (!yer) return false;
-    o.kuvet = { kv, yer }; yer.dolu = o;
+    o.kuvet = { kv, yer }; yer.dolu = o; o.kuvetT = k.time();
     o.v.kuvet = kv.yerler.indexOf(yer);
     o.hedef = null; o.vy = 0; o.zemY = z.ust; o.v.x = yer.x; o.v.y = z.ust;
     for (let i = 0; i < 12; i++) G.kopuk(yer.x + k.rand(-70, 70), kv.su + k.rand(-6, 6));
@@ -1114,7 +1114,17 @@ k.scene("mekan", (mekanId) => {
       }
       const { kv, yer } = o.kuvet;
       o.v.x = yer.x;
-      o.kok.pos = k.vec2(yer.x, kv.dip + Math.sin(t * 2 + yer.x) * 3);
+      // Küçük karakter (köpek) suya batmasın: boyunun yarısı suyun üstünde kalır, dokunup çıkarılabilir.
+      const dip = Math.min(kv.dip, kv.su + o.kr.yukseklik * s * 0.5);
+      o.kok.pos = k.vec2(yer.x, dip + Math.sin(t * 2 + yer.x) * 3);
+      // Evcil hayvan biraz yıkanınca kendi çıkar, silkinir.
+      if (o.evcil && o !== tutulan && t - o.kuvetT > 8) {
+        kuvettenCik(o);
+        o.v.x = Math.max(xSinir(z.ust + 60)[0], kv.x - 40); o.zemY = z.ust + 60; o.h = 120; o.vy = -500;
+        for (let i = 0; i < 10; i++) G.kirinti(o.kok.pos.add(k.rand(-30, 30), -20), [120, 180, 240]);
+        kaydet();
+        return;
+      }
       o.kok.z = -85;
       o.kok.angle = Math.sin(t * 1.5 + yer.x) * 3;
       o.kok.scale = k.vec2(s * o.yon, s);
