@@ -178,7 +178,7 @@ k.scene("mekan", (mekanId) => {
       o.isik = k.add([k.pos(n.isik.x, n.isik.y), k.z(-87)]);
       o.isik.add([k.circle(170), k.anchor("center"), k.color(255, 235, 150), k.opacity(0.18)]);
       o.isik.add([k.circle(80), k.anchor("center"), k.color(255, 240, 170), k.opacity(0.3)]);
-      o.isik.add([k.polygon([k.vec2(-25, -18), k.vec2(25, -18), k.vec2(35, 18), k.vec2(-35, 18)]), k.color(255, 250, 210), k.outline(3, KALEM)]);
+      if (n.abajur !== false) o.isik.add([k.polygon([k.vec2(-25, -18), k.vec2(25, -18), k.vec2(35, 18), k.vec2(-35, 18)]), k.color(255, 250, 210), k.outline(3, KALEM)]);
       o.isik.hidden = !dunya.acik[o.anahtar];
     }
     if (n.tur === "ocak") {

@@ -529,21 +529,29 @@ window.OYUN_VERI = {
     },
     kutuphane: {
       ad: "Kütüphane", simge: "kutuphane",
-      resim: "cizimler/mekan/kutuphane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kutuphane" }],
+      resim: "cizimler/mekan/kutuphane.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 190 }, arka: { sol: 205, sag: 1075, y: 455 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 45, y: 210, w: 115, h: 345, hedef: "dunya", yer: "kutuphane" }],
       calisan: {
-        meslek: "kutuphaneci", x: 640, y: 520,
+        meslek: "kutuphaneci", x: 285, y: 600,
         selam: "Hoş geldiniz! Hangi kitabı arıyorsunuz?",
         sozler: ["Kütüphanede sessiz olalım, şşş.", "Masal kitapları şu rafta.", "Kitabı iki hafta sonra geri getirin.", "Kütüphane kartınız var mı?", "Okumak çok güzel, değil mi?"],
       },
       noktalar: [
+        // İki kitaplığın orta rafı. Alınan kitabın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "kitap", x: 260, y: 330 }, { sablon: "kitap", x: 340, y: 330 }, { sablon: "kitap", x: 420, y: 330 },
-            { sablon: "kitap", x: 860, y: 420 }, { sablon: "kitap", x: 940, y: 420 }, { sablon: "kitap", x: 1020, y: 420 },
+            { sablon: "kitap", x: 430, y: 205 }, { sablon: "kitap", x: 395, y: 295 }, { sablon: "kitap", x: 450, y: 295 },
+            { sablon: "kitap", x: 870, y: 295 }, { sablon: "kitap", x: 950, y: 295 }, { sablon: "kitap", x: 1030, y: 295 },
           ],
         },
-        sandalye(510, 476), sandalye(770, 476),
+        { tur: "tezgah", x: 485, y: 430, w: 315, h: 75, ust: 478 },
+        { tur: "lamba", x: 705, y: 345, w: 65, h: 95, isik: { x: 725, y: 388 }, abajur: false },
+        sandalye(460, 600), sandalye(822, 600),
+        // Sağdaki minderler ve soldaki yeşil puf.
+        { tur: "otur", x: 1020, y: 440, w: 160, h: 110, oturma: { x: 1095, y: 540 } },
+        { tur: "otur", x: 0, y: 565, w: 165, h: 140, oturma: { x: 80, y: 698 } },
       ],
     },
     pastane: {
