@@ -12,7 +12,7 @@ Sağ üstteki yüzlere dokununca o karaktere gidilir. Sokaktan ara sıra araba v
 Köpek kendi kendine gezer.
 
 Evde: TV'ye ya da kumandaya dokununca TV açılır, odadakiler dans eder. Dolaplar açılır:
-TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var.
+TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var. Tişört ya da elbise giyen karakterin kendi kıyafeti o renge boyanır.
 Tencere ve tava ocağa konur. Ocağa dokununca kırmızı yanar, tencereden buhar çıkar. Bardak ve diğer eşyalar tezgaha konur.
 Kıyafet karaktere bırakılınca giyilir. Karakterler iki elde iki eşya tutar. Yatak başındaki lamba yanar.
 Klozette oturan karakter 10 saniye sonra kendi kalkar.
@@ -45,6 +45,7 @@ Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve 
 - `araclar/uret.py`: çizimlere ışık verir, eşyaları, ilk evin odalarını üretir, karakterleri böler.
 - `araclar/dunya.py`: harita zemini, bina önleri, süsler ve yer simgeleri.
 - `araclar/yerler.py`: diğer odalar, dükkanlar, bahçeler ve park.
+- `araclar/kiyafet.py`: karakterlerin kendi kıyafet bölgeleri (boyanan katman).
 - `araclar/ekler.py`: açık dolaplar, tencere, tava, bardak, kumanda, kıyafetler, köpek ve araçlar.
 - `araclar/temizle.py`: çizim fotoğrafının arka planını siler, şeffaf PNG yapar.
 - `araclar/hacim.py`: düz bir çizime kabartma ve ışık ekler.

@@ -10,6 +10,7 @@ window.KARAKTER = (k, VERI) => {
       const P = parcaVerisi(s);
       if (P) P.parcalar.forEach((p) => k.loadSprite(id + "-" + p.ad, p.resim));
       else k.loadSprite(id, s.resim);
+      Object.values(s.kiyafet || {}).forEach((b) => Object.values(b).forEach((yol) => k.loadSprite(yol, yol)));
     });
   }
 
@@ -17,7 +18,7 @@ window.KARAKTER = (k, VERI) => {
   function kur(sablonId, renk) {
     const s = VERI.karakterler[sablonId], P = parcaVerisi(s);
     const kok = k.add([k.pos(0, 0), k.scale(1), k.rotate(0), k.z(0)]);
-    const parca = {};
+    const parca = {}, kiyafet = {};
     const boya = renk ? [k.color(...renk)] : [];
     let genislik, yukseklik;
     if (P) {
@@ -26,6 +27,14 @@ window.KARAKTER = (k, VERI) => {
         const ax = ((p.pivot[0] - p.x) / p.w) * 2 - 1, ay = ((p.pivot[1] - p.y) / p.h) * 2 - 1;
         parca[p.hareket] = kok.add([k.sprite(sablonId + "-" + p.ad), k.pos(p.pivot[0] - genislik / 2, p.pivot[1] - yukseklik), k.anchor(k.vec2(ax, ay)), k.rotate(0), ...boya]);
       });
+      // Kıyafet bölgeleri: parçanın tam üstünde duran gri katman. Gizli başlar, boya() açar ve renklendirir.
+      Object.entries((P && s.kiyafet) || {}).forEach(([bolge, katlar]) => Object.entries(katlar).forEach(([ad, yol]) => {
+        const p = P.parcalar.find((p) => p.ad === ad);
+        if (!p || !parca[p.hareket]) return;
+        const kat = parca[p.hareket].add([k.sprite(yol), k.anchor(parca[p.hareket].anchor), k.color(255, 255, 255)]);
+        kat.hidden = true;
+        (kiyafet[bolge] = kiyafet[bolge] || []).push(kat);
+      }));
     } else {
       const g = kok.add([k.sprite(sablonId), k.anchor("bot"), ...boya]);
       genislik = g.width; yukseklik = g.height;
@@ -39,7 +48,15 @@ window.KARAKTER = (k, VERI) => {
     if (kolSol) elSol = { parca: parca["kol-sol"], nokta: k.vec2(kolSol.x + kolSol.w * 0.14 - kolSol.pivot[0], kolSol.y + kolSol.h * 0.5 - kolSol.pivot[1]) };
     if (s.eller === 1) elSol = el;
     const agiz = k.vec2(genislik * (s.agizX || 0), -yukseklik * (s.agiz || 0.74));
-    return { kok, parca, genislik, yukseklik, boy: s.boy, el, elSol, eller: s.eller || 2, agiz };
+    return { kok, parca, kiyafet, genislik, yukseklik, boy: s.boy, el, elSol, eller: s.eller || 2, agiz };
+  }
+
+  // Karakterin kendi kıyafetini boyar. renk yoksa çizimdeki rengi geri gelir.
+  function boya(kr, bolge, renk) {
+    (kr.kiyafet[bolge] || []).forEach((kat) => {
+      kat.hidden = !renk;
+      if (renk) kat.color = k.rgb(...renk);
+    });
   }
 
   // Bir nesnenin kendi koordinatındaki noktayı ebeveyninin koordinatına çevirir: ölçek, dönme, konum.
@@ -84,5 +101,5 @@ window.KARAKTER = (k, VERI) => {
     if (p["kuyruk"]) p["kuyruk"].angle = aci.ku;
   }
 
-  return { yukle, kur, canlandir, elYeri, agizYeri, yer };
+  return { yukle, kur, canlandir, elYeri, agizYeri, yer, boya };
 };

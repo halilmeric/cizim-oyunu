@@ -29,8 +29,22 @@ window.OYUN_VERI = {
   karakterler: {
     // resim: hacimli PNG. parcalar: araclar/parcala.py çıktısı (yoksa karakter tek parça oynar).
     // boy: ekranın önündeki piksel boyu. agiz: ağzın yüksekliği (0 ayak, 1 baş). Verilmezse 0.74.
-    kedi: { resim: "cizimler/hacimli/kedi.png", parcalar: "kedi", boy: 300, giyim: { govde: [0, 0.54, 0.4] } },
-    kiz: { resim: "cizimler/hacimli/kiz.png", parcalar: "kiz", boy: 360 },
+    // kiyafet: karakterin kendi kıyafetinin bölgeleri (araclar/kiyafet.py üretir). Her bölgede parça adı ve katman resmi.
+    // Tişört ya da elbise giyince bu bölgeler kıyafetin rengine boyanır. Bölgesi olmayan karakter kıyafeti üstüne giyer.
+    kedi: {
+      resim: "cizimler/hacimli/kedi.png", parcalar: "kedi", boy: 300, giyim: { govde: [0, 0.54, 0.4] },
+      kiyafet: {
+        ust: { "govde": "cizimler/kedi/govde-ust.png", "kol-sol": "cizimler/kedi/kol-sol-ust.png", "kol-sag": "cizimler/kedi/kol-sag-ust.png" },
+        alt: { "govde": "cizimler/kedi/govde-alt.png", "bacak-sol": "cizimler/kedi/bacak-sol-alt.png", "bacak-sag": "cizimler/kedi/bacak-sag-alt.png" },
+      },
+    },
+    kiz: {
+      resim: "cizimler/hacimli/kiz.png", parcalar: "kiz", boy: 360,
+      kiyafet: {
+        ust: { "govde": "cizimler/kiz/govde-ust.png" },
+        alt: { "govde": "cizimler/kiz/govde-alt.png", "bacak-sol": "cizimler/kiz/bacak-sol-alt.png", "bacak-sag": "cizimler/kiz/bacak-sag-alt.png" },
+      },
+    },
     ayi: { resim: "cizimler/hacimli/ayi.png", boy: 310 },
     // Evcil hayvan: kendi kendine gezer. Tek eli ağzıdır.
     // agizX ve el: ağzın ve elin yeri (genişliğin ve yüksekliğin oranı). portre: simgede görünen parça.
@@ -86,8 +100,12 @@ window.OYUN_VERI = {
     tava: { resim: "cizimler/esya/tava.png", boy: 34, eylem: "karistir", ocak: true },
     bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic" },
     kumanda: { resim: "cizimler/esya/kumanda.png", boy: 50, eylem: "kumanda" },
-    elbise: { resim: "cizimler/esya/elbise.png", boy: 150, eylem: "giy", giy: "govde" },
-    tisort: { resim: "cizimler/esya/tisort.png", boy: 100, eylem: "giy", giy: "govde" },
+    // boya: giyince karakterin kendi kıyafetinin hangi bölgeleri bu renge boyanır (karakterin "kiyafet" verisi).
+    elbise: { resim: "cizimler/esya/elbise.png", boy: 150, eylem: "giy", giy: "govde", boya: ["ust", "alt"], renk: [245, 120, 170] },
+    "elbise-mor": { resim: "cizimler/esya/elbise-mor.png", boy: 150, eylem: "giy", giy: "govde", boya: ["ust", "alt"], renk: [165, 120, 230] },
+    tisort: { resim: "cizimler/esya/tisort.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [80, 160, 235] },
+    "tisort-sari": { resim: "cizimler/esya/tisort-sari.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [255, 205, 60] },
+    "tisort-yesil": { resim: "cizimler/esya/tisort-yesil.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [110, 200, 100] },
     sapka: { resim: "cizimler/esya/sapka.png", boy: 50, eylem: "giy", giy: "bas" },
   },
 
@@ -266,8 +284,10 @@ window.OYUN_VERI = {
           tur: "dolap", x: 800, y: 140, w: 200, h: 326,
           resim: "cizimler/mekan/gardirop-acik.png", x0: 736, y0: 124,
           raflar: [
+            // sira: biri alınınca rafa sıradaki renk gelir.
             { sablon: "sapka", x: 900, y: 205 },
-            { sablon: "elbise", x: 850, y: 360 }, { sablon: "tisort", x: 950, y: 330 },
+            { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 850, y: 360 },
+            { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 950, y: 330 },
             { sablon: "sapka", x: 900, y: 452 },
           ],
         },

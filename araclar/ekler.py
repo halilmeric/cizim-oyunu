@@ -3,7 +3,7 @@
 Kullanım: python3 araclar/ekler.py
 Çıktı:
   cizimler/mekan/tv-dolabi-acik.png, mutfak-dolap-acik.png, gardirop-acik.png  (açık dolaplar)
-  cizimler/esya/<ad>.png       tencere, tava, bardak, kumanda, elbise, tisort, sapka
+  cizimler/esya/<ad>.png       tencere, tava, bardak, kumanda, elbise(-mor), tisort(-sari, -yesil), sapka
   cizimler/hacimli/kopek.png   evcil köpek
   cizimler/dunya/arac-*.png    sokaktan geçen araçlar
 Dolapların ekrandaki sol üst köşesi (x0, y0) çalışınca yazılır. js/veri.js bu sayıları kullanır.
@@ -105,9 +105,9 @@ def esya_kumanda():
     return kirp(t.bitir())
 
 
-def esya_elbise():
+def esya_elbise(renk=(245, 120, 170, 255)):
     t = Tuval(200, 240)
-    t.cokgen([(70, 10), (130, 10), (150, 95), (195, 230), (5, 230), (50, 95)], (245, 120, 170, 255))
+    t.cokgen([(70, 10), (130, 10), (150, 95), (195, 230), (5, 230), (50, 95)], renk)
     t.cokgen([(55, 90), (145, 90), (150, 108), (50, 108)], (255, 230, 120, 255), cizgi=2)
     for x, y in [(70, 150), (120, 140), (95, 190), (150, 195), (45, 200)]:
         t.elips(x - 9, y - 9, x + 9, y + 9, (255, 255, 255, 255), cizgi=0, guc=0.5)
@@ -115,10 +115,10 @@ def esya_elbise():
     return kirp(t.bitir())
 
 
-def esya_tisort():
+def esya_tisort(renk=(80, 160, 235, 255)):
     t = Tuval(240, 200)
     t.cokgen([(80, 10), (160, 10), (230, 50), (205, 95), (180, 80), (180, 195), (60, 195), (60, 80), (35, 95), (10, 50)],
-             (80, 160, 235, 255))
+             renk)
     t.cizgi([(95, 10), (120, 32), (145, 10)], KALEM, 3)
     x, y = 120, 115
     t.cokgen([(x, y - 30), (x + 9, y - 9), (x + 30, y - 8), (x + 13, y + 6), (x + 18, y + 28), (x, y + 15),
@@ -206,6 +206,10 @@ def main():
     for ad, f in [("tencere", esya_tencere), ("tava", esya_tava), ("bardak", esya_bardak), ("kumanda", esya_kumanda),
                   ("elbise", esya_elbise), ("tisort", esya_tisort), ("sapka", esya_sapka)]:
         f().save(yol("esya", ad + ".png"))
+    # Renk çeşitleri. Renkler js/veri.js'deki "renk" değeriyle aynıdır: giyince karakterin kıyafeti bu renge boyanır.
+    esya_tisort((255, 205, 60, 255)).save(yol("esya", "tisort-sari.png"))
+    esya_tisort((110, 200, 100, 255)).save(yol("esya", "tisort-yesil.png"))
+    esya_elbise((165, 120, 230, 255)).save(yol("esya", "elbise-mor.png"))
     kopek().save(yol("hacimli", "kopek.png"))
     araba((230, 70, 70, 255), (240, 110, 100, 255)).save(yol("dunya", "arac-araba.png"))
     araba((255, 205, 60, 255), (255, 220, 110, 255)).save(yol("dunya", "arac-taksi.png"))

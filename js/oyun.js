@@ -464,7 +464,9 @@ k.scene("mekan", (mekanId) => {
     kaydet();
   }
   function giysiCikar(o) {
-    const p = o.kok.pos;
+    const p = o.kok.pos, e = VERI.esyalar[o.v.sablon];
+    (e.boya || []).forEach((b) => K.boya(o.giyili.kr, b, null));
+    o.kok.hidden = false;
     o.zemY = o.giyili.zemY; o.v.x = p.x; o.h = Math.max(0, o.zemY - p.y);
     o.giyili = null; delete o.v.giyili;
     o.kok.angle = 0;
@@ -581,7 +583,14 @@ k.scene("mekan", (mekanId) => {
     o.kok.pos = k.vec2(r.x, r.y);
     o.kok.scale = k.vec2(derinlik(o.zemY));
     r.bos = true; r.resim.hidden = true;
-    k.wait(1.5, () => { r.bos = false; r.resim.hidden = !!(n.acik && n.acik.hidden); });
+    k.wait(1.5, () => {
+      // Rafın renk sırası varsa sıradaki renk gelir.
+      if (r.sira) {
+        r.sablon = r.sira[(r.sira.indexOf(r.sablon) + 1) % r.sira.length];
+        r.resim.use(k.sprite("esya-" + r.sablon, { height: VERI.esyalar[r.sablon].boy * 0.62 }));
+      }
+      r.bos = false; r.resim.hidden = !!(n.acik && n.acik.hidden);
+    });
     kaydet();
     return o;
   }
@@ -967,6 +976,10 @@ k.scene("mekan", (mekanId) => {
       o.kok.z = sahip.kok.z + 0.4;
       o.zemY = sahip.zemY; o.v.x = sahip.v.x; o.v.y = sahip.v.y; o.h = 0;
       o.golge.hidden = true;
+      // Karakterin kıyafet bölgesi varsa kıyafet görünmez, karakterin kendi kıyafeti bu renge boyanır.
+      const e = VERI.esyalar[o.v.sablon], boyar = e.boya && e.boya.some((b) => kr.kiyafet[b]);
+      o.kok.hidden = !!boyar;
+      if (boyar) e.boya.forEach((b) => K.boya(kr, b, e.renk));
     }
     // Elde duran eşya elin ucunda durur. Yenirken ağza gider ve her ısırıkta küçülür.
     function eldeGuncelle(o) {
