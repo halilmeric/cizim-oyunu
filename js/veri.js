@@ -405,14 +405,23 @@ window.OYUN_VERI = {
     },
     okul: {
       ad: "Okul", simge: "okul",
-      resim: "cizimler/mekan/okul.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "okul" }],
+      // Sınıf resminin kendi perspektifi var: arka duvar daha yukarıda, kapı daha dar.
+      resim: "cizimler/mekan/okul.jpg",
+      zemin: { ust: 380, alt: 705, sol: 30, sag: 1250, ufuk: { x: 660, y: 58 }, arka: { sol: 321, sag: 1000, y: 342 } },
+      olcek: 0.65, // sıralar küçük çizili: karakterler de küçük görünür
+      giris: { x: 240, y: 590 },
+      kapilar: [{ x: 70, y: 200, w: 105, h: 355, hedef: "dunya", yer: "okul" }],
       calisan: {
-        meslek: "ogretmen", x: 960, y: 500,
+        meslek: "ogretmen", x: 1010, y: 480,
         selam: "Günaydın çocuklar, hoş geldiniz!",
         sozler: ["Kitaplarınızı açın, bugün okuma yapacağız.", "Bugün resim dersimiz var.", "Aferin, çok güzel cevap!", "Parmak kaldırıp söz alalım.", "Teneffüs zili çaldı!"],
       },
-      noktalar: [sandalye(360, 476), sandalye(620, 476)],
+      // Öğrenci sıralarının ve öğretmen masasının sandalyeleri.
+      noktalar: [
+        sandalye(395, 460), sandalye(677, 460), sandalye(893, 460),
+        sandalye(316, 609), sandalye(586, 612), sandalye(686, 609),
+        sandalye(1181, 660),
+      ],
     },
     kafe: {
       ad: "Kafe", simge: "kafe",
