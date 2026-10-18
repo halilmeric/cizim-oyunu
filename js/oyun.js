@@ -1,219 +1,219 @@
-// Oyunun ana kodu: yürüme, kapılar, eşya toplama ve kayıt.
+// Oyun motoru: sürükle-bırak, düşme, dokun-yürü, kapılar ve kayıt.
 
 const VERI = window.OYUN_VERI;
-const KAYIT_ANAHTARI = "cizim-oyunu-kayit";
+const KAYIT_ANAHTARI = "cizim-dunyasi-v1";
+const SURUKLE_ESIGI = 12; // piksel; daha az kayan dokunuş "dokunma" sayılır
+const YERCEKIMI = 2600;
 
-const k = kaplay({
-  width: 1280,
-  height: 720,
-  letterbox: true,
-  background: [40, 40, 60],
-  global: false,
-  crisp: false,
-});
-
+const k = kaplay({ width: 1280, height: 720, letterbox: true, background: [40, 40, 60], global: false, crisp: false });
 const G = window.GECICI(k);
+const K = window.KARAKTER(k, VERI);
 
-// --- Kayıt ---
-function kayitOku() {
+// --- Dünya durumu ve kayıt ---
+function dunyaOku() {
   try {
     const s = JSON.parse(localStorage.getItem(KAYIT_ANAHTARI));
-    if (s && VERI.mekanlar[s.mekan]) return s;
+    if (s && VERI.mekanlar[s.mekan] && Array.isArray(s.varliklar)) return s;
   } catch (e) {}
-  return { mekan: VERI.baslangic.mekan, x: VERI.baslangic.x, y: VERI.baslangic.y, toplanan: [], karakter: 0 };
+  return JSON.parse(JSON.stringify(VERI.baslangic));
 }
-function kayitYaz() {
-  try { localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(durum)); } catch (e) {}
+const dunya = dunyaOku();
+function kaydet() {
+  try { localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(dunya)); } catch (e) {}
 }
-const durum = kayitOku();
 
-// --- Resimler ---
-VERI.karakterler.forEach((c) => {
-  const P = parcaVerisi(c);
-  if (P) P.parcalar.forEach((p) => k.loadSprite(c.id + "-" + p.ad, p.resim));
-  else k.loadSprite(c.id, c.resim);
-});
-function parcaVerisi(c) {
-  return c.parcalar && window.KARAKTER_PARCALARI ? window.KARAKTER_PARCALARI[c.parcalar] : null;
-}
+K.yukle();
 Object.entries(VERI.mekanlar).forEach(([id, m]) => { if (m.resim) k.loadSprite("mekan-" + id, m.resim); });
+Object.entries(VERI.esyalar).forEach(([id, e]) => { if (e.resim) k.loadSprite("esya-" + id, e.resim); });
 
-const TUM_ESYALAR = Object.values(VERI.mekanlar).flatMap((m) => m.esyalar);
-
-k.scene("mekan", ({ mekanId, x, y }) => {
+k.scene("mekan", (mekanId) => {
   const m = VERI.mekanlar[mekanId];
   const z = m.zemin;
-  durum.mekan = mekanId;
-  kayitYaz();
+  dunya.mekan = mekanId;
+  kaydet();
 
-  // Arka plan
   if (m.resim) k.add([k.sprite("mekan-" + mekanId, { width: 1280, height: 720 }), k.z(-100)]);
   else G.mekanlar[m.gecici]();
+  m.kapilar.forEach((d) => G.kapi(d, !!m.resim));
 
-  // Kapılar
-  const kapilar = m.kapilar.map((d) => {
-    G.kapi(d, !!m.resim);
-    return { d, alan: k.add([k.rect(d.w, d.h), k.pos(d.x, d.y), k.area(), k.opacity(0), k.z(-90)]) };
-  });
+  const derinlik = (y) => 0.72 + 0.28 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)));
+  const zemineSabitle = (y) => Math.max(z.ust, Math.min(z.alt, y));
 
-  // Eşyalar
-  const esyalar = m.esyalar
-    .filter((e) => !durum.toplanan.includes(e.id))
-    .map((e) => ({ e, obj: k.add([...G.esya[e.tur](), k.pos(e.x, e.y - 30), k.anchor("center"), k.area(), k.rotate(0), k.scale(1), k.z(e.y)]) }));
+  // --- Varlıkları kur ---
+  // Her varlık: v (kayıt), zemY (zemindeki derinlik), h (zeminden yükseklik), hal, hedef.
+  const varliklar = dunya.varliklar.filter((v) => v.mekan === mekanId).map(varlikKur);
 
-  // Karakter
-  const kar = () => VERI.karakterler[durum.karakter % VERI.karakterler.length];
-  const ayak = k.vec2(x, y);
-  let hedef = null, varinca = null, yon = 1, elSalla = 0;
-
-  // Karakter bir kök nesnedir. Parçalı çizimde kol, bacak ve kuyruk kökün çocuklarıdır.
-  let govde, parca, govdeG, govdeY;
-  function karakterKur() {
-    if (govde) govde.destroy();
-    const c = kar(), P = parcaVerisi(c);
-    govde = k.add([k.pos(ayak), k.scale(1), k.rotate(0), k.z(ayak.y)]);
-    parca = {};
-    if (P) {
-      govdeG = P.genislik; govdeY = P.yukseklik;
-      [...P.parcalar].sort((a, b) => a.z - b.z).forEach((p) => {
-        const ax = ((p.pivot[0] - p.x) / p.w) * 2 - 1, ay = ((p.pivot[1] - p.y) / p.h) * 2 - 1;
-        parca[p.hareket] = govde.add([k.sprite(c.id + "-" + p.ad), k.pos(p.pivot[0] - govdeG / 2, p.pivot[1] - govdeY), k.anchor(k.vec2(ax, ay)), k.rotate(0)]);
-      });
+  function varlikKur(v) {
+    const o = { v, zemY: zemineSabitle(v.y), h: 0, vy: 0, yon: 1, hal: "dur", hedef: null, varinca: null, salla: 0 };
+    if (v.tur === "karakter") {
+      o.kr = K.kur(v.sablon, v.renk);
+      o.kok = o.kr.kok;
     } else {
-      const s = govde.add([k.sprite(c.id), k.anchor("bot")]);
-      govdeG = s.width; govdeY = s.height;
+      const s = VERI.esyalar[v.sablon];
+      o.boy = s.boy;
+      o.kok = k.add([k.pos(0, 0), k.scale(1), k.rotate(0), k.z(0)]);
+      if (s.resim) o.kok.add([k.sprite("esya-" + v.sablon, { height: s.boy }), k.anchor("bot")]);
+      else G.sus[s.sekil](o.kok.add([...G.esya[s.sekil](), k.pos(0, -s.boy / 2), k.anchor("center")]));
     }
-  }
-  karakterKur();
-
-  function olcek() {
-    const t = (ayak.y - z.ust) / (z.alt - z.ust);
-    return (kar().boy / govdeY) * (0.72 + 0.28 * Math.max(0, Math.min(1, t)));
-  }
-  function karakteraDokundu(p) {
-    const s = olcek();
-    return Math.abs(p.x - ayak.x) < (govdeG * s) / 2 && p.y < ayak.y && p.y > ayak.y - govdeY * s;
+    return o;
   }
 
-  // Parçaları oynatır. Açı artınca parça saat yönünde döner.
-  function canlandir(t, yuruyor) {
-    const f = Math.sin(t * 11);
-    const sallar = t < elSalla;
-    if (parca["kol-sol"]) parca["kol-sol"].angle = yuruyor ? f * 26 : Math.sin(t * 1.8) * 4;
-    if (parca["kol-sag"]) parca["kol-sag"].angle = sallar ? -40 + Math.sin(t * 14) * 22 : yuruyor ? f * 26 : -Math.sin(t * 1.8) * 4;
-    if (parca["bacak-sol"]) parca["bacak-sol"].angle = yuruyor ? f * 12 : 0;
-    if (parca["bacak-sag"]) parca["bacak-sag"].angle = yuruyor ? -f * 12 : 0;
-    if (parca["kuyruk"]) parca["kuyruk"].angle = Math.sin(t * (yuruyor ? 8 : 2.5)) * (yuruyor ? 16 : 10);
+  function olcek(o) {
+    return o.kr ? (o.kr.boy / o.kr.yukseklik) * derinlik(o.zemY) : derinlik(o.zemY);
   }
 
-  function yuru(p, sonra = null) {
-    hedef = k.vec2(Math.max(z.sol, Math.min(z.sag, p.x)), Math.max(z.ust, Math.min(z.alt, p.y)));
-    varinca = sonra;
+  // Ekrandaki noktaya dokunulan en öndeki varlık.
+  function dokunulan(p) {
+    const adaylar = varliklar.filter((o) => {
+      const s = olcek(o), ay = o.zemY - o.h;
+      if (o.kr) return Math.abs(p.x - o.v.x) < (o.kr.genislik * s) / 2 && p.y < ay + 10 && p.y > ay - o.kr.yukseklik * s;
+      return p.dist(k.vec2(o.v.x, ay - (o.boy * s) / 2)) < o.boy * s * 0.75;
+    });
+    adaylar.sort((a, b) => (b === tutulan ? 1 : 0) - (a === tutulan ? 1 : 0) || (b.kr ? 0 : 1) - (a.kr ? 0 : 1) || b.zemY - a.zemY);
+    return adaylar[0] || null;
+  }
+  const kapiBul = (p) => m.kapilar.find((d) => p.x > d.x && p.x < d.x + d.w && p.y > d.y && p.y < d.y + d.h);
+
+  // --- Seçili karakter: dokun-yürü onu yürütür ---
+  let secili = varliklar.find((o) => o.kr && o.v.id === dunya.secili) || varliklar.find((o) => o.kr) || null;
+  const isaret = k.add([k.polygon([k.vec2(-14, -12), k.vec2(14, -12), k.vec2(0, 6)]), k.pos(0, 0), k.color(255, 210, 50), k.outline(3, k.rgb(70, 50, 40)), k.z(4500)]);
+  function sec(o) {
+    if (!o || !o.kr) return;
+    secili = o;
+    dunya.secili = o.v.id;
   }
 
-  // Konuşma balonu
-  let balon = null;
-  function konus(soz) {
-    if (balon) balon.forEach((b) => b.destroy());
-    const kutu = k.add([k.rect(soz.length * 15 + 40, 56, { radius: 18 }), k.pos(0, 0), k.anchor("center"), k.color(255, 255, 255), k.outline(4, k.rgb(70, 50, 40)), k.z(2000)]);
-    const yazi = k.add([k.text(soz, { size: 26 }), k.pos(0, 0), k.anchor("center"), k.color(50, 40, 40), k.z(2001)]);
-    balon = [kutu, yazi];
-    const b = balon;
-    k.wait(2.2, () => { b.forEach((o) => o.destroy()); if (balon === b) balon = null; });
+  function yuru(o, p, sonra = null) {
+    o.hedef = k.vec2(Math.max(z.sol, Math.min(z.sag, p.x)), zemineSabitle(p.y));
+    o.varinca = sonra;
   }
 
-  function topla(item) {
-    durum.toplanan.push(item.e.id);
-    kayitYaz();
-    esyalar.splice(esyalar.indexOf(item), 1);
-    konus(item.e.mesaj);
-    const o = item.obj;
-    k.tween(o.pos.y, o.pos.y - 120, 0.6, (v) => (o.pos.y = v), k.easings.easeOutQuad);
-    k.tween(1, 0, 0.6, (v) => (o.scale = k.vec2(v)), k.easings.easeInQuad).onEnd(() => o.destroy());
-    hudCiz();
+  // Varlığı başka mekana gönderir. Karakter ise kamera da onunla gider.
+  function kapidanGec(o, d) {
+    o.v.mekan = d.hedef;
+    // Eşyalar girişte üst üste binmesin diye biraz dağılır.
+    o.v.x = d.giris.x + (o.kr ? 0 : k.rand(-80, 80)); o.v.y = d.giris.y + (o.kr ? 0 : k.rand(0, 80));
+    if (o.kr) { dunya.secili = o.v.id; kaydet(); k.go("mekan", d.hedef); return; }
+    varliklar.splice(varliklar.indexOf(o), 1);
+    o.kok.destroy();
+    kaydet();
   }
 
-  // Dokunma ve tıklama
+  // --- Dokunma ve sürükleme ---
+  let tutulan = null, basla = null, kayma = null, surukluyor = false;
+
   k.onMousePress(() => {
     const p = k.mousePos();
-    if (hudTikla(p)) return;
-    if (karakteraDokundu(p)) { elSalla = k.time() + 1.8; return konus(kar().soz); }
-    const item = esyalar.find((i) => i.obj.hasPoint(p));
-    if (item) return yuru(k.vec2(item.e.x, item.e.y), () => topla(item));
-    const kapi = kapilar.find((kp) => kp.alan.hasPoint(p));
-    if (kapi) return yuru(k.vec2(kapi.d.varis.x, kapi.d.varis.y), () => k.go("mekan", { mekanId: kapi.d.hedef, ...kapi.d.giris }));
-    yuru(p);
+    basla = p;
+    surukluyor = false;
+    tutulan = dokunulan(p);
+    if (tutulan) kayma = k.vec2(tutulan.v.x - p.x, tutulan.zemY - tutulan.h - p.y);
   });
 
+  k.onMouseMove(() => {
+    if (!tutulan || !basla) return;
+    const p = k.mousePos();
+    if (!surukluyor && p.dist(basla) < SURUKLE_ESIGI) return;
+    if (!surukluyor) {
+      surukluyor = true;
+      tutulan.hedef = null;
+      tutulan.vy = 0;
+      if (tutulan.kr) sec(tutulan);
+    }
+    // Ayak noktası parmağı izler. Zemin bandındaysa derinlik değişir, üstündeyse karakter havaya kalkar.
+    const ayakX = p.x + kayma.x, ayakY = p.y + kayma.y;
+    tutulan.v.x = Math.max(20, Math.min(1260, ayakX));
+    if (ayakY >= z.ust) { tutulan.zemY = zemineSabitle(ayakY); tutulan.h = 0; }
+    else tutulan.h = tutulan.zemY - ayakY;
+    tutulan.hal = "tutuluyor";
+  });
+
+  k.onMouseRelease(() => {
+    const p = k.mousePos();
+    const o = tutulan;
+    tutulan = null;
+    if (surukluyor && o) {
+      surukluyor = false;
+      o.hal = "dur";
+      const d = kapiBul(p);
+      if (d) return kapidanGec(o, d);
+      if (o.h <= 0) { o.v.y = o.zemY; kaydet(); }
+      return;
+    }
+    if (!basla) return;
+    basla = null;
+    // Dokunma
+    if (o && o.kr) {
+      sec(o);
+      o.salla = k.time() + 1.6;
+      const s = olcek(o);
+      const kl = G.kalp(o.v.x, o.zemY - o.h - o.kr.yukseklik * s - 30);
+      k.tween(0, 1, 1.2, (t) => { kl.pos.y -= 1.2; kl.opacity = 1 - t; kl.scale = k.vec2(1 + t * 0.3); }).onEnd(() => kl.destroy());
+      kaydet();
+      return;
+    }
+    if (o) { o.vy = -700; o.h = Math.max(o.h, 1); return; } // eşya zıplar
+    const d = kapiBul(p);
+    if (d) {
+      if (secili) return yuru(secili, k.vec2(d.x + d.w / 2, z.ust + 20), () => kapidanGec(secili, d));
+      return k.go("mekan", d.hedef);
+    }
+    if (secili) yuru(secili, p);
+  });
+
+  // --- Her kare ---
   k.onUpdate(() => {
-    let yuruyor = false;
-    if (hedef) {
-      const fark = hedef.sub(ayak);
-      const adim = 340 * k.dt();
-      if (Math.abs(fark.x) > 2) yon = fark.x < 0 ? -1 : 1;
-      if (fark.len() <= adim) {
-        ayak.x = hedef.x; ayak.y = hedef.y; hedef = null;
-        durum.x = ayak.x; durum.y = ayak.y; kayitYaz();
-        if (varinca) { const f = varinca; varinca = null; f(); }
+    const t = k.time(), dt = k.dt();
+    for (const o of varliklar) {
+      let hal = o === tutulan && surukluyor ? "tutuluyor" : "dur";
+      // Düşme
+      if (o !== tutulan && (o.h > 0 || o.vy !== 0)) {
+        o.vy += YERCEKIMI * dt;
+        o.h -= o.vy * dt;
+        if (o.h <= 0) {
+          o.h = 0;
+          // Eşya biraz zıplar, karakter yere basar
+          o.vy = !o.kr && o.vy > 300 ? -o.vy * 0.35 : 0;
+          if (o.vy === 0) { o.v.y = o.zemY; kaydet(); }
+        }
+        if (o.h > 0) hal = "tutuluyor";
+      }
+      // Yürüme
+      if (o.hedef && o.h === 0 && o !== tutulan) {
+        const fark = k.vec2(o.hedef.x - o.v.x, o.hedef.y - o.zemY), adim = 340 * dt;
+        if (Math.abs(fark.x) > 2) o.yon = fark.x < 0 ? -1 : 1;
+        if (fark.len() <= adim) {
+          o.v.x = o.hedef.x; o.zemY = o.hedef.y; o.v.y = o.zemY; o.hedef = null;
+          kaydet();
+          if (o.varinca) { const f = o.varinca; o.varinca = null; f(); }
+        } else {
+          const a = fark.unit().scale(adim);
+          o.v.x += a.x; o.zemY += a.y;
+          hal = "yuru";
+        }
+      }
+      if (hal === "dur" && t < o.salla) hal = "salla";
+      const s = olcek(o);
+      const ziplama = hal === "yuru" ? Math.abs(Math.sin(t * 11)) * 10 : 0;
+      o.kok.pos = k.vec2(o.v.x, o.zemY - o.h - ziplama);
+      o.kok.z = o === tutulan ? 5000 : o.zemY;
+      if (o.kr) {
+        o.kok.angle = hal === "yuru" ? Math.sin(t * 11) * 3 : hal === "tutuluyor" ? Math.sin(t * 7) * 6 : Math.sin(t * 1.6);
+        const nefes = hal === "dur" ? Math.sin(t * 2.4) * 0.015 : 0;
+        o.kok.scale = k.vec2(s * o.yon * (1 - nefes), s * (1 + nefes));
+        K.canlandir(o.kr, t, hal);
       } else {
-        const ad = fark.unit().scale(adim);
-        ayak.x += ad.x; ayak.y += ad.y;
-        yuruyor = true;
+        o.kok.scale = k.vec2(s);
+        o.kok.angle = hal === "tutuluyor" ? Math.sin(t * 8) * 10 : 0;
       }
     }
-    const t = k.time();
-    const s = olcek();
-    // Negatif x ölçeği karakteri aynalar.
-    if (yuruyor) {
-      govde.pos = k.vec2(ayak.x, ayak.y - Math.abs(Math.sin(t * 11)) * 10);
-      govde.angle = Math.sin(t * 11) * 3;
-      govde.scale = k.vec2(s * yon, s);
-    } else {
-      govde.pos = k.vec2(ayak.x, ayak.y);
-      govde.angle = Math.sin(t * 1.6) * 1;
-      govde.scale = k.vec2(s * yon * (1 - Math.sin(t * 2.4) * 0.012), s * (1 + Math.sin(t * 2.4) * 0.015));
+    // Seçili karakterin üstündeki ok
+    isaret.hidden = !secili;
+    if (secili) {
+      const s = olcek(secili);
+      isaret.pos = k.vec2(secili.v.x, secili.zemY - secili.h - secili.kr.yukseklik * s - 18 + Math.sin(t * 4) * 5);
     }
-    govde.z = ayak.y;
-    canlandir(t, yuruyor);
-    if (balon) {
-      const tepe = ayak.y - govdeY * s - 40;
-      balon.forEach((b) => (b.pos = k.vec2(Math.max(160, Math.min(1120, ayak.x)), Math.max(40, tepe))));
-    }
-    // eşyalar hafifçe sallanır
-    esyalar.forEach((i, n) => (i.obj.angle = Math.sin(t * 2 + n) * 8));
   });
-
-  // --- Üst bilgi alanı (HUD) ---
-  let hud = [];
-  let karakterDugmesi = null;
-  function hudCiz() {
-    hud.forEach((h) => h.destroy());
-    hud = [];
-    hud.push(k.add([k.rect(240, 56, { radius: 28 }), k.pos(20, 20), k.color(255, 255, 255), k.opacity(0.9), k.outline(3, k.rgb(70, 50, 40)), k.z(3000)]));
-    hud.push(k.add([k.text(m.ad, { size: 28 }), k.pos(140, 48), k.anchor("center"), k.color(70, 50, 40), k.z(3001)]));
-    const w = 40 + TUM_ESYALAR.length * 64;
-    hud.push(k.add([k.rect(w, 64, { radius: 32 }), k.pos(1260 - w, 16), k.color(255, 255, 255), k.opacity(0.9), k.outline(3, k.rgb(70, 50, 40)), k.z(3000)]));
-    TUM_ESYALAR.forEach((e, i) => {
-      const var_ = durum.toplanan.includes(e.id);
-      hud.push(k.add([...G.esya[e.tur](), k.pos(1260 - w + 52 + i * 64, 48), k.anchor("center"), k.scale(0.7), k.opacity(var_ ? 1 : 0.2), k.z(3001)]));
-    });
-    if (VERI.karakterler.length > 1) {
-      karakterDugmesi = k.add([k.rect(200, 56, { radius: 28 }), k.pos(20, 90), k.color(255, 230, 120), k.outline(3, k.rgb(70, 50, 40)), k.area(), k.z(3000)]);
-      hud.push(karakterDugmesi);
-      hud.push(k.add([k.text("Karakter", { size: 26 }), k.pos(120, 118), k.anchor("center"), k.color(70, 50, 40), k.z(3001)]));
-    }
-  }
-  function hudTikla(p) {
-    if (karakterDugmesi && karakterDugmesi.hasPoint(p)) {
-      durum.karakter = (durum.karakter + 1) % VERI.karakterler.length;
-      kayitYaz();
-      karakterKur();
-      konus(kar().soz);
-      return true;
-    }
-    return false;
-  }
-  hudCiz();
 });
 
-k.onLoad(() => k.go("mekan", { mekanId: durum.mekan, x: durum.x, y: durum.y }));
+k.onLoad(() => k.go("mekan", dunya.mekan));
