@@ -53,7 +53,7 @@ window.KARAKTER = (k, VERI) => {
     return disari(kr.kok, kr.agiz);
   }
 
-  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla", "ye". Açı artınca parça saat yönünde döner.
+  // Parçaları oynatır. hal: "dur", "yuru", "tutuluyor", "salla", "ye", "uyu". Açı artınca parça saat yönünde döner.
   function canlandir(kr, t, hal) {
     const p = kr.parca, f = Math.sin(t * 11);
     const aci = {
@@ -62,6 +62,8 @@ window.KARAKTER = (k, VERI) => {
       tutuluyor: { ks: -30 + Math.sin(t * 16) * 25, kg: 30 - Math.sin(t * 16) * 25, bs: Math.sin(t * 9) * 18, bg: -Math.sin(t * 9) * 18, ku: Math.sin(t * 10) * 25 },
       salla: { ks: Math.sin(t * 1.8) * 4, kg: -40 + Math.sin(t * 14) * 22, bs: 0, bg: 0, ku: Math.sin(t * 6) * 18 },
       ye: { ks: Math.sin(t * 1.8) * 4, kg: -55 + Math.sin(t * 12) * 6, bs: 0, bg: 0, ku: Math.sin(t * 9) * 20 },
+      // Uyurken kollar gövdenin yanına iner.
+      uyu: { ks: -75, kg: 75, bs: 0, bg: 0, ku: Math.sin(t * 1.2) * 5 },
     }[hal];
     if (p["kol-sol"]) p["kol-sol"].angle = aci.ks;
     if (p["kol-sag"]) p["kol-sag"].angle = aci.kg;

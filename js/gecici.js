@@ -52,15 +52,17 @@ window.GECICI = (k) => {
     },
   };
 
-  // Kapı: yazı yok, sadece kapı ve ok simgesi.
-  function kapi(d, resimVar) {
+  // Kapı: yazı yok. Kapının üstünde gidilen yerin simgesi ve bir ok durur.
+  function kapi(d, resimVar, simge) {
     if (!resimVar) {
       r(d.x, d.y, d.w, d.h, [150, 95, 60], cizgi);
       c(d.x + (d.x > 640 ? 24 : d.w - 24), d.y + d.h / 2, 9, [250, 210, 90], -99);
     }
     const sag = d.x > 640, cx = d.x + d.w / 2, cy = d.y - 40, y = sag ? 1 : -1;
-    k.add([k.circle(30), k.pos(cx, cy), k.color(255, 255, 255), k.outline(4, KALEM), k.z(-50)]);
-    k.add([k.polygon([k.vec2(-14 * y, -16), k.vec2(16 * y, 0), k.vec2(-14 * y, 16)]), k.pos(cx + 2 * y, cy), k.color(70, 50, 40), k.z(-49)]);
+    if (simge) k.add([k.sprite("simge-" + simge, { width: 64, height: 64 }), k.pos(cx, cy), k.anchor("center"), k.z(-50)]);
+    else k.add([k.circle(30), k.pos(cx, cy), k.color(255, 255, 255), k.outline(4, KALEM), k.z(-50)]);
+    const ox = simge ? cx + 40 * y : cx + 2 * y, s = simge ? 0.7 : 1;
+    k.add([k.polygon([k.vec2(-14 * y * s, -16 * s), k.vec2(16 * y * s, 0), k.vec2(-14 * y * s, 16 * s)]), k.pos(ox, cy), k.color(70, 50, 40), k.z(-49)]);
   }
 
   // Eşya şekilleri. Merkez noktası eşyanın tabanıdır.
@@ -105,9 +107,9 @@ window.GECICI = (k) => {
   }
 
   // Akan su: musluktan aşağı inen şerit ve dipte sıçrayan damlalar. Dönen nesne hidden ile açılıp kapanır.
-  function su(x, y, boy) {
+  function su(x, y, boy, renk = [70, 155, 235]) {
     const o = k.add([k.pos(x, y), k.z(-40)]);
-    const serit = o.add([k.rect(11, boy, { radius: 5 }), k.anchor("top"), k.color(70, 155, 235), k.opacity(0.9)]);
+    const serit = o.add([k.rect(11, boy, { radius: 5 }), k.anchor("top"), k.color(...renk), k.opacity(0.9)]);
     o.add([k.rect(3, boy, { radius: 2 }), k.pos(-2, 0), k.anchor("top"), k.color(230, 245, 255), k.opacity(0.8)]);
     let sayac = 0;
     o.onUpdate(() => {
@@ -116,7 +118,7 @@ window.GECICI = (k) => {
       sayac -= k.dt();
       if (sayac > 0) return;
       sayac = 0.05;
-      const d = o.add([k.circle(k.rand(2, 4)), k.pos(k.rand(-4, 4), boy), k.color(170, 215, 250), k.opacity(1)]);
+      const d = o.add([k.circle(k.rand(2, 4)), k.pos(k.rand(-4, 4), boy), k.color(...renk.map((c) => Math.min(255, c + 90))), k.opacity(1)]);
       const vx = k.rand(-70, 70);
       let vy = k.rand(-140, -60);
       d.onUpdate(() => {
@@ -180,5 +182,54 @@ window.GECICI = (k) => {
     return o;
   }
 
-  return { mekanlar, kapi, esya, sus, kalp, kirinti, su, kopuk, nota, kagit, sansur };
+  // Fıskiye: yukarı fışkıran su damlaları. Dönen nesne hidden ile açılıp kapanır.
+  function fiskiye(x, y) {
+    const o = k.add([k.pos(x, y), k.z(-40)]);
+    let sayac = 0;
+    o.onUpdate(() => {
+      if (o.hidden) return;
+      sayac -= k.dt();
+      if (sayac > 0) return;
+      sayac = 0.025;
+      const d = o.add([k.circle(k.rand(3, 6)), k.pos(k.rand(-4, 4), 0), k.color(150, 210, 250), k.opacity(0.95)]);
+      const vx = k.rand(-90, 90);
+      let vy = k.rand(-520, -380);
+      d.onUpdate(() => {
+        vy += 900 * k.dt();
+        d.pos.x += vx * k.dt(); d.pos.y += vy * k.dt();
+        if (d.pos.y > 110) d.opacity -= k.dt() * 4;
+        if (d.opacity <= 0) d.destroy();
+      });
+    });
+    return o;
+  }
+
+  // Uyku: başın üstünden yükselen Z harfleri.
+  function zzz(x, y) {
+    const o = k.add([k.text("Z", { size: k.rand(22, 32), font: "sans-serif" }), k.pos(x, y), k.color(90, 90, 170), k.opacity(1), k.anchor("center"), k.z(4800)]);
+    let yas = 0;
+    o.onUpdate(() => {
+      yas += k.dt();
+      o.pos.y -= 40 * k.dt(); o.pos.x += 18 * k.dt();
+      o.opacity = 1 - yas / 1.6;
+      if (yas >= 1.6) o.destroy();
+    });
+  }
+
+  // Parıltı: dört köşeli küçük yıldız. Tarak ve fön için.
+  function parilti(x, y, renk = [255, 220, 90]) {
+    const p = (a, r) => k.vec2(Math.cos(a) * r, Math.sin(a) * r);
+    const n = [];
+    for (let i = 0; i < 8; i++) n.push(p((i * Math.PI) / 4, i % 2 ? 4 : 12));
+    const o = k.add([k.polygon(n), k.pos(x, y), k.color(...renk), k.opacity(1), k.scale(1), k.rotate(0), k.z(4800)]);
+    let yas = 0;
+    o.onUpdate(() => {
+      yas += k.dt();
+      o.angle += 180 * k.dt(); o.pos.y -= 20 * k.dt();
+      o.opacity = 1 - yas / 0.8;
+      if (yas >= 0.8) o.destroy();
+    });
+  }
+
+  return { mekanlar, kapi, esya, sus, kalp, kirinti, su, kopuk, nota, kagit, sansur, fiskiye, zzz, parilti };
 };
