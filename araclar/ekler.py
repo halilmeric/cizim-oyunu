@@ -3,7 +3,7 @@
 Kullanım: python3 araclar/ekler.py
 Çıktı:
   cizimler/mekan/tv-dolabi-acik.png, mutfak-dolap-acik.png, gardirop-acik.png  (açık dolaplar)
-  cizimler/esya/<ad>.png       tencere, tava, bardak, kumanda, elbise(-mor), tisort(-sari, -yesil), sapka
+  cizimler/esya/<ad>.png       tencere, tava, bardak, kumanda, elbise(-mor), tisort(-sari, -yesil), pantolon(-pembe, -kahve), sapka
   cizimler/hacimli/kopek.png   evcil köpek
   cizimler/dunya/arac-*.png    sokaktan geçen araçlar
 Dolapların ekrandaki sol üst köşesi (x0, y0) çalışınca yazılır. js/veri.js bu sayıları kullanır.
@@ -126,6 +126,17 @@ def esya_tisort(renk=(80, 160, 235, 255)):
     return kirp(t.bitir())
 
 
+def esya_pantolon(renk=(70, 110, 190, 255)):
+    t = Tuval(200, 260)
+    t.cokgen([(30, 10), (170, 10), (190, 250), (112, 250), (100, 90), (88, 250), (10, 250)], renk)
+    t.kutu(28, 8, 172, 34, renk, r=6)
+    t.elips(92, 14, 108, 30, (255, 210, 80, 255), cizgi=2, kure=True)
+    t.cizgi([(100, 34), (100, 80)], (70, 50, 40, 255), 2)
+    for x0, x1 in [(14, 86), (114, 186)]:
+        t.cizgi([(x0, 232), (x1, 232)], (70, 50, 40, 255), 2)
+    return kirp(t.bitir())
+
+
 def esya_sapka():
     t = Tuval(240, 130)
     t.elips(6, 80, 234, 124, (250, 200, 90, 255))
@@ -210,6 +221,9 @@ def main():
     esya_tisort((255, 205, 60, 255)).save(yol("esya", "tisort-sari.png"))
     esya_tisort((110, 200, 100, 255)).save(yol("esya", "tisort-yesil.png"))
     esya_elbise((165, 120, 230, 255)).save(yol("esya", "elbise-mor.png"))
+    esya_pantolon().save(yol("esya", "pantolon.png"))
+    esya_pantolon((240, 120, 160, 255)).save(yol("esya", "pantolon-pembe.png"))
+    esya_pantolon((170, 115, 70, 255)).save(yol("esya", "pantolon-kahve.png"))
     kopek().save(yol("hacimli", "kopek.png"))
     araba((230, 70, 70, 255), (240, 110, 100, 255)).save(yol("dunya", "arac-araba.png"))
     araba((255, 205, 60, 255), (255, 220, 110, 255)).save(yol("dunya", "arac-taksi.png"))

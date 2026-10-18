@@ -340,11 +340,11 @@ k.scene("mekan", (mekanId) => {
       if (!o.giyili) delete o.v.giyili;
     }
   });
-  // Kayıtta tezgahta ya da ocakta duran eşyaları yerine koy.
+  // Kayıtta tezgahta, ocakta ya da dolapta duran eşyaları yerine koy.
   varliklar.forEach((o) => {
     if (o.v.yuzey == null) return;
     const n = noktalar[o.v.yuzey];
-    if (o.kr || !n || !["tezgah", "ocak"].includes(n.tur)) { delete o.v.yuzey; delete o.v.goz; return; }
+    if (o.kr || !n || !["tezgah", "ocak", "dolap"].includes(n.tur)) { delete o.v.yuzey; delete o.v.goz; return; }
     o.yuzey = n; o.yuzeyY = o.v.yy; o.zemY = z.ust;
     if (n.tur === "ocak") { o.goz = n.gozler[o.v.goz]; if (o.goz) o.goz.dolu = o; }
   });
@@ -357,7 +357,7 @@ k.scene("mekan", (mekanId) => {
   function dokunulan(p) {
     const adaylar = varliklar.filter((o) => {
       if (o.kr) return karakterUstunde(o, p);
-      if (o.yeniyor) return false;
+      if (o.yeniyor || o.kok.hidden && o.yuzey) return false; // kapalı dolaptaki eşya
       const r = o.giyili ? o.boy * Math.abs(o.kok.scale.y) * 0.4 : Math.max(26, o.boy * olcek(o) * 0.75);
       return p.dist(merkez(o)) < r;
     });
@@ -512,8 +512,13 @@ k.scene("mekan", (mekanId) => {
   // --- Giyinme: kıyafet karakterin gövdesine ya da başına oturur ---
   function giydir(sahip, o) {
     const yer = VERI.esyalar[o.v.sablon].giy;
-    // Aynı yerde başka kıyafet varsa çıkar ve yere düşer.
-    varliklar.filter((e) => e.giyili === sahip && e !== o && VERI.esyalar[e.v.sablon].giy === yer).forEach(giysiCikar);
+    // Aynı yerde ya da aynı bölgeyi boyayan başka kıyafet varsa çıkar ve yere düşer. Örnek: pantolon elbiseyi çıkarır.
+    const boya = VERI.esyalar[o.v.sablon].boya || [];
+    varliklar.filter((e) => {
+      if (e.giyili !== sahip || e === o) return false;
+      const ee = VERI.esyalar[e.v.sablon];
+      return ee.giy === yer || (ee.boya || []).some((b) => boya.includes(b));
+    }).forEach(giysiCikar);
     if (o.elde) { o.elde = null; delete o.v.elde; delete o.v.el; }
     if (o.yuzey) yuzeydenAl(o);
     o.giyili = sahip; o.v.giyili = sahip.v.id;
@@ -531,7 +536,7 @@ k.scene("mekan", (mekanId) => {
     o.kok.angle = 0;
   }
 
-  // --- Tezgah ve ocak: eşya üstüne konur, düşmez ---
+  // --- Tezgah, ocak ve dolap: eşya üstüne ya da içine konur, düşmez. Kapalı dolaptaki eşya görünmez. ---
   function yuzeyeKoy(o, n, p) {
     if (n.tur === "ocak") {
       if (!VERI.esyalar[o.v.sablon].ocak) return false;
@@ -539,6 +544,12 @@ k.scene("mekan", (mekanId) => {
       if (!g) return false;
       o.goz = g; g.dolu = o; o.v.goz = n.gozler.indexOf(g);
       o.v.x = g.x; o.yuzeyY = g.y + 3;
+    } else if (n.tur === "dolap") {
+      // Dolapta eşya bir rafın üstüne oturur: bırakılan yerin altındaki en yakın raf.
+      const raflar = [...new Set(n.raflar.map((r) => r.y))].sort((a, b) => a - b);
+      o.v.x = Math.max(n.x + 25, Math.min(n.x + n.w - 25, p.x));
+      o.yuzeyY = raflar.find((y) => y >= p.y - 20) || raflar[raflar.length - 1];
+      for (let i = 0; i < 4; i++) G.parilti(o.v.x + k.rand(-25, 25), o.yuzeyY - k.rand(0, 40));
     } else {
       o.v.x = Math.max(n.x + 25, Math.min(n.x + n.w - 25, p.x));
       o.yuzeyY = n.ust;
@@ -552,6 +563,7 @@ k.scene("mekan", (mekanId) => {
     const p = o.kok.pos;
     if (o.goz) { o.goz.dolu = null; o.goz = null; }
     o.yuzey = null; delete o.v.yuzey; delete o.v.goz; delete o.v.yy;
+    o.kok.hidden = false;
     o.zemY = z.ust; o.v.x = p.x; o.h = Math.max(0, o.zemY - p.y);
   }
   // Üç ısırık: her ısırıkta eşya küçülür, kırıntı düşer. Sonunda eşya biter, kalp çıkar.
@@ -844,7 +856,7 @@ k.scene("mekan", (mekanId) => {
       const d = kapiBul(p) || yerBul(p);
       if (d) return kapidanGec(o, d);
       if (!o.kr && karakteraBirak(o, p)) return;
-      if (!o.kr) for (const n of noktalar) if ((n.tur === "ocak" || n.tur === "tezgah") && icinde(n, p) && yuzeyeKoy(o, n, p)) return;
+      if (!o.kr) for (const n of noktalar) if (["ocak", "tezgah", "dolap"].includes(n.tur) && icinde(n, p) && yuzeyeKoy(o, n, p)) return;
       if (o.kr) {
         const n = noktaBul(p, OTURAK);
         if (n && !n.dolu) return otur(o, n);
@@ -1051,19 +1063,20 @@ k.scene("mekan", (mekanId) => {
       o.kok.angle = t < o.salla ? Math.sin(t * 30) * 10 : 0;
       o.kok.z = -86;
       o.golge.hidden = true;
+      o.kok.hidden = !!(o.yuzey.acik && o.yuzey.acik.hidden);
       if (o.goz && !o.goz.ates.hidden) {
         o.buhar = (o.buhar || 0) - dt;
         if (o.buhar <= 0) { o.buhar = 0.2; G.kopuk(o.v.x + k.rand(-15, 15), o.yuzeyY - o.boy * s, -85, k.rand(4, 8)); }
       }
     }
     // Giyilen kıyafet karakterle birlikte durur, döner ve küçülür. Yeri karakterin giyim verisinden gelir.
-    // govde: [x, omuz çizgisi, en]. Kıyafetin üstü omuza değer. bas: [x, başın tepesi, en]. Şapka tepeye oturur.
+    // govde: [x, omuz çizgisi, en]. Kıyafetin üstü omuza değer. alt: [x, bel çizgisi, en]. Pantolonun üstü bele değer. bas: [x, başın tepesi, en]. Şapka tepeye oturur.
     function giyiliGuncelle(o) {
       const sahip = o.giyili, kr = sahip.kr, yer = VERI.esyalar[o.v.sablon].giy;
-      const g = { govde: [0, 0.63, 0.46], bas: [0, 0.9, 0.42], ...(VERI.karakterler[sahip.v.sablon].giyim || {}) }[yer];
+      const g = { govde: [0, 0.63, 0.46], alt: [0, 0.42, 0.4], bas: [0, 0.9, 0.42], ...(VERI.karakterler[sahip.v.sablon].giyim || {}) }[yer];
       const sx = (g[2] * kr.genislik * sahip.kok.scale.x) / o.en;
       const sy = Math.abs(sx) * Math.abs(sahip.kok.scale.y / sahip.kok.scale.x);
-      const alt = yer === "govde" ? g[1] - (o.boy * sy) / (kr.yukseklik * Math.abs(sahip.kok.scale.y)) : g[1];
+      const alt = yer !== "bas" ? g[1] - (o.boy * sy) / (kr.yukseklik * Math.abs(sahip.kok.scale.y)) : g[1];
       o.kok.pos = K.yer(kr, g[0], alt);
       o.kok.scale = k.vec2(sx, sy);
       o.kok.angle = sahip.kok.angle;

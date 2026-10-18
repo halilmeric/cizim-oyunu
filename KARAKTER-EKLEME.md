@@ -30,7 +30,7 @@ Kıyafet yeri farklıysa `giyim: { govde: [x, omuz, en], bas: [x, tepe, en] }` y
 
 Karakterin kendi kıyafeti boyanabilir. Önce `araclar/kiyafet.py` içine karakterin renk aralıklarını yazın ve çalıştırın.
 Program `cizimler/<karakter>/<parça>-ust.png` ve `-alt.png` dosyalarını üretir. Bu dosyaları karaktere `kiyafet: { ust: { govde: "cizimler/.../govde-ust.png" }, alt: {...} }` olarak yazın.
-Karakter tişört giyince `ust` bölgesi tişörtün rengine boyanır. Elbise `ust` ve `alt` bölgesini boyar.
+Karakter tişört giyince `ust` bölgesi tişörtün rengine boyanır. Pantolon `alt` bölgesini, elbise ikisini boyar.
 
 Tek parça karakter de yürür, oturur, yatar, salıncağa biner, eşya tutar ve yer.
 Kolları ve bacakları ayrı oynasın istenirse:
@@ -44,7 +44,7 @@ Sonra `index.html` dosyasına `cizimler/tavsan/parcalar.js` satırı ve karakter
    - Yiyecek: `yenir: [r, g, b]` (kırıntı rengi).
    - Oyuncak ya da araç: `eylem: "..."`. Seçenekler: at, sur, konus, oku, ic, fircala, yaz,
      yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
-   - Kıyafet: `eylem: "giy", giy: "govde"` ya da `giy: "bas"`. Karaktere bırakılınca giyilir.
+   - Kıyafet: `eylem: "giy", giy: "govde"`, `giy: "alt"` (pantolon) ya da `giy: "bas"`. Karaktere bırakılınca giyilir.
      `boya: ["ust"]` ve `renk: [r, g, b]` yazılırsa karakterin kendi kıyafeti bu renge boyanır.
    - Tencere gibi ocağa konan eşya: `ocak: true`.
 3. Yeni bir eylem gerekirse `js/oyun.js` içinde `EYLEM_SURE` ve `eylemKaresi` bölümüne eklenir.

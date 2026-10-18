@@ -12,7 +12,8 @@ Sağ üstteki yüzlere dokununca o karaktere gidilir. Sokaktan ara sıra araba v
 Köpek kendi kendine gezer.
 
 Evde: TV'ye ya da kumandaya dokununca TV açılır, odadakiler dans eder. Dolaplar açılır:
-TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var. Tişört ya da elbise giyen karakterin kendi kıyafeti o renge boyanır.
+TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var. Tişört, pantolon ya da elbise giyen karakterin kendi kıyafeti o renge boyanır.
+Ortada kalan eşyalar dolaplara konabilir. Dolap kapanınca içindekiler görünmez, açınca geri alınır.
 Tencere ve tava ocağa konur. Ocağa dokununca kırmızı yanar, tencereden buhar çıkar. Bardak ve diğer eşyalar tezgaha konur.
 Kıyafet karaktere bırakılınca giyilir. Karakterler iki elde iki eşya tutar. Yatak başındaki lamba yanar.
 Klozette oturan karakter 10 saniye sonra kendi kalkar.

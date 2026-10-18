@@ -52,7 +52,7 @@ window.OYUN_VERI = {
     kopek: {
       resim: "cizimler/hacimli/kopek.png", boy: 150, evcil: true, eller: 1,
       agiz: 0.5, agizX: 0.42, el: [0.42, 0.5], portre: [0.5, 0, 0.5, 0.6],
-      giyim: { govde: [-0.1, 0.62, 0.5], bas: [0.2, 0.86, 0.36] },
+      giyim: { govde: [-0.1, 0.62, 0.5], alt: [-0.1, 0.45, 0.5], bas: [0.2, 0.86, 0.36] },
     },
   },
   esyalar: {
@@ -61,7 +61,7 @@ window.OYUN_VERI = {
     // eylem: elinde tutan karaktere dokununca yaptığı hareket.
     //   at: fırlatır. sur: yerde sürer. Diğerleri elde oynanır:
     //   konus, oku, ic, fircala, yaz, yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
-    //   giy: karakter üstüne giyer. giy değeri yeridir: govde ya da bas.
+    //   giy: karakter üstüne giyer. giy değeri yeridir: govde, alt (pantolon) ya da bas.
     // ocak: ocağın gözüne konabilir.
     top: { resim: "cizimler/esya/top.png", boy: 74, eylem: "at" },
     telefon: { resim: "cizimler/esya/telefon.png", boy: 62, eylem: "konus" },
@@ -106,6 +106,9 @@ window.OYUN_VERI = {
     tisort: { resim: "cizimler/esya/tisort.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [80, 160, 235] },
     "tisort-sari": { resim: "cizimler/esya/tisort-sari.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [255, 205, 60] },
     "tisort-yesil": { resim: "cizimler/esya/tisort-yesil.png", boy: 100, eylem: "giy", giy: "govde", boya: ["ust"], renk: [110, 200, 100] },
+    pantolon: { resim: "cizimler/esya/pantolon.png", boy: 110, eylem: "giy", giy: "alt", boya: ["alt"], renk: [70, 110, 190] },
+    "pantolon-pembe": { resim: "cizimler/esya/pantolon-pembe.png", boy: 110, eylem: "giy", giy: "alt", boya: ["alt"], renk: [240, 120, 160] },
+    "pantolon-kahve": { resim: "cizimler/esya/pantolon-kahve.png", boy: 110, eylem: "giy", giy: "alt", boya: ["alt"], renk: [170, 115, 70] },
     sapka: { resim: "cizimler/esya/sapka.png", boy: 50, eylem: "giy", giy: "bas" },
   },
 
@@ -159,6 +162,7 @@ window.OYUN_VERI = {
   //     musluk: su akar ya da durur. su: suyun başladığı yer, boyu ve rengi.
   //     fiskiye: yukarı fışkıran su. acik: başta açık mı.
   //     dolap: dokununca açılır ya da kapanır. resim: açık hali, sol üst köşesi x0, y0.
+  //            Dolaba bırakılan eşya içinde saklanır. Dolap açıkken görünür ve geri alınır.
   //     raf: hep açık raf. Dolap ve rafta raflar: yiyecek ve eşyalar. Biri alınınca yerine yenisi gelir.
   //     kuvet: karakter bırakılınca içine girer, sadece başı görünür.
   //     klozet: karakter oturur, beli piksel sansürle örtülür. Kalkınca sifon çekilir.
@@ -314,7 +318,7 @@ window.OYUN_VERI = {
             { sablon: "sapka", x: 900, y: 205 },
             { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 850, y: 360 },
             { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 950, y: 330 },
-            { sablon: "sapka", x: 900, y: 452 },
+            { sablon: "pantolon", sira: ["pantolon", "pantolon-pembe", "pantolon-kahve"], x: 900, y: 452 },
           ],
         },
       ],
