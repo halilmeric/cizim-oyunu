@@ -177,60 +177,34 @@ window.OYUN_VERI = {
   //     bitki: dikili çiçekler. hal: başlangıç hali (0 filiz, 1 tomurcuk, 2 çiçek). Taşınmaz. Sulama kabını tutan karaktere dokununca gider ve en yakın çiçeği sular.
   //   calisan: mekanın sabit kişisi. Gelen karaktere selam verir. Dokununca sozler'den birini söyler.
   mekanlar: {
-    // Mahalle haritası. Geniş bir sokak: kamera sağa sola kayar.
+    // Kasaba haritası. Kuşbakışı tek resim: kamera dört yöne kayar.
     dunya: {
       ad: "Meriç Sokağı", simge: "harita", tur: "dunya",
-      genislik: 6520,
-      taban: 472, // binaların oturduğu çizgi
-      zemin: { ust: 482, alt: 705, sol: 30, sag: 6490 },
-      olcek: 0.55, // haritada karakter ve eşyalar küçük görünür
-      zeminResim: "cizimler/dunya/zemin.jpg", // 1280 piksellik parça yan yana tekrar eder
-      // Sokaktan ara sıra geçen araçlar.
-      araclar: ["cizimler/dunya/arac-araba.png", "cizimler/dunya/arac-taksi.png", "cizimler/dunya/arac-mavi.png", "cizimler/dunya/arac-otobus.png"],
-      giris: { x: 420, y: 600 },
-      // Haritadaki yerler. x: resmin sol kenarı, alt kenarı tabana oturur.
-      // kapi: resmin alt kenarından ölçülen kapı (x, w, h). hedef: kapıdan girilen mekan.
+      // Resim iki yarıdır: Kaplay 2048 pikselden geniş tek resim yükleyemez. Yarılar soldan sağa yan yana durur.
+      haritaResim: ["cizimler/dunya/kasaba-1.jpg", "cizimler/dunya/kasaba-2.jpg"],
+      genislik: 2560, yukseklik: 1429,
+      zemin: { ust: 300, alt: 1410, sol: 30, sag: 2530 },
+      olcek: 0.4, // haritada karakter ve eşyalar küçük görünür
+      derinlikUst: 0.8, // en üstte (uzakta) boy bu kadar küçülür
+      giris: { x: 1120, y: 580 },
+      // Haritadaki yerler. alan: dokununca ya da üstüne bırakınca o yere gidilen dikdörtgen.
+      // on: karakterin kapıya yürüdüğü ve dışarı çıkınca durduğu nokta. hedef: girilen mekan.
       yerler: [
-        { id: "ev1", resim: "cizimler/dis/ev1.png", x: 180, kapi: { x: 136, w: 88, h: 176 }, hedef: "oda" },
-        { id: "bahce1", resim: "cizimler/dis/bahce1.png", x: 570, kapi: { x: 118, w: 90, h: 120 }, hedef: "bahce1" },
-        { id: "ev2", resim: "cizimler/dis/ev2.png", x: 920, kapi: { x: 162, w: 96, h: 182 }, hedef: "ev2-salon" },
-        { id: "bahce2", resim: "cizimler/dis/bahce2.png", x: 1370, kapi: { x: 118, w: 90, h: 120 }, hedef: "bahce2" },
-        { id: "ev3", resim: "cizimler/dis/ev3.png", x: 1740, kapi: { x: 146, w: 78, h: 152 }, hedef: "ev3-oda" },
-        { id: "park", resim: "cizimler/dis/park.png", x: 2080, kapi: { x: 196, w: 100, h: 130 }, hedef: "park" },
-        { id: "oyun", resim: "cizimler/dis/oyun.png", x: 2610, kapi: { x: 160, w: 92, h: 120 }, hedef: "oyun" },
-        { id: "okul", resim: "cizimler/dis/okul.png", x: 3090, kapi: { x: 182, w: 116, h: 168 }, hedef: "okul" },
-        { id: "kafe", resim: "cizimler/dis/kafe.png", x: 3630, kapi: { x: 177, w: 108, h: 170 }, hedef: "kafe" },
-        { id: "market", resim: "cizimler/dis/market.png", x: 3990, kapi: { x: 192, w: 123, h: 160 }, hedef: "market" },
-        { id: "oyuncakci", resim: "cizimler/dis/oyuncakci.png", x: 4380, kapi: { x: 182, w: 113, h: 180 }, hedef: "oyuncakci" },
-        { id: "hastane", resim: "cizimler/dis/hastane.png", x: 4760, kapi: { x: 154, w: 112, h: 164 }, hedef: "hastane" },
-        { id: "kuafor", resim: "cizimler/dis/kuafor.png", x: 5240, kapi: { x: 166, w: 99, h: 160 }, hedef: "kuafor" },
-        { id: "kutuphane", resim: "cizimler/dis/kutuphane.png", x: 5590, kapi: { x: 136, w: 108, h: 196 }, hedef: "kutuphane" },
-        { id: "pastane", resim: "cizimler/dis/pastane.png", x: 6030, kapi: { x: 177, w: 108, h: 170 }, hedef: "pastane" },
-      ],
-      // Süsler: dokunulmaz, sadece görünür. x: orta nokta, y: taban. arka: binaların arkasında durur.
-      susler: [
-        { resim: "cizimler/dunya/cam.png", x: 40, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 880, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 1700, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 2580, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 3590, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 4740, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 5990, y: 430, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 90, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 2050, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 3600, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 6430, y: 474, arka: true },
-        { resim: "cizimler/dunya/lamba.png", x: 556, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 1356, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 2585, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 3966, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 4730, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 5562, y: 486 },
-        { resim: "cizimler/dunya/cicek.png", x: 1710, y: 476 },
-        { resim: "cizimler/dunya/cali.png", x: 150, y: 478 },
-        { resim: "cizimler/dunya/cali.png", x: 3570, y: 478 },
-        { resim: "cizimler/dunya/cali.png", x: 5200, y: 478 },
-        { resim: "cizimler/dunya/cicek.png", x: 3060, y: 476 },
+        { id: "ev1", alan: { x: 190, y: 100, w: 420, h: 420 }, on: { x: 525, y: 540 }, hedef: "oda" },
+        { id: "bahce1", alan: { x: 160, y: 520, w: 520, h: 260 }, on: { x: 400, y: 650 }, hedef: "bahce1" },
+        { id: "pastane", alan: { x: 625, y: 120, w: 415, h: 360 }, on: { x: 965, y: 500 }, hedef: "pastane" },
+        { id: "oyun", alan: { x: 1040, y: 160, w: 225, h: 350 }, on: { x: 1160, y: 520 }, hedef: "oyun" },
+        { id: "park", alan: { x: 1265, y: 160, w: 265, h: 350 }, on: { x: 1300, y: 520 }, hedef: "park" },
+        { id: "okul", alan: { x: 1530, y: 80, w: 365, h: 400 }, on: { x: 1712, y: 495 }, hedef: "okul" },
+        { id: "ev2", alan: { x: 2010, y: 120, w: 375, h: 390 }, on: { x: 2120, y: 530 }, hedef: "ev2-salon" },
+        { id: "bahce2", alan: { x: 1880, y: 510, w: 680, h: 260 }, on: { x: 1930, y: 660 }, hedef: "bahce2" },
+        { id: "market", alan: { x: 720, y: 615, w: 350, h: 360 }, on: { x: 1000, y: 965 }, hedef: "market" },
+        { id: "kutuphane", alan: { x: 1130, y: 585, w: 340, h: 375 }, on: { x: 1300, y: 965 }, hedef: "kutuphane" },
+        { id: "oyuncakci", alan: { x: 1512, y: 610, w: 360, h: 270 }, on: { x: 1900, y: 930 }, hedef: "oyuncakci" },
+        { id: "hastane", alan: { x: 1464, y: 880, w: 424, h: 500 }, on: { x: 1640, y: 1395 }, hedef: "hastane" },
+        { id: "kuafor", alan: { x: 720, y: 990, w: 360, h: 390 }, on: { x: 1005, y: 1395 }, hedef: "kuafor" },
+        { id: "kafe", alan: { x: 1085, y: 990, w: 355, h: 390 }, on: { x: 1368, y: 1395 }, hedef: "kafe" },
+        { id: "ev3", alan: { x: 0, y: 800, w: 610, h: 580 }, on: { x: 290, y: 1300 }, hedef: "ev3-oda" },
       ],
     },
 
@@ -566,10 +540,10 @@ window.OYUN_VERI = {
   baslangic: {
     mekan: "dunya",
     varliklar: [
-      { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "dunya", x: 380, y: 600 },
-      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "dunya", x: 470, y: 620 },
-      { id: "kopek1", tur: "karakter", sablon: "kopek", mekan: "dunya", x: 600, y: 660 },
-      { id: "top4", tur: "esya", sablon: "top", mekan: "dunya", x: 640, y: 640 },
+      { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "dunya", x: 1080, y: 570 },
+      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "dunya", x: 1160, y: 585 },
+      { id: "kopek1", tur: "karakter", sablon: "kopek", mekan: "dunya", x: 1250, y: 600 },
+      { id: "top4", tur: "esya", sablon: "top", mekan: "dunya", x: 1320, y: 590 },
       { id: "telefon1", tur: "esya", sablon: "telefon", mekan: "oda", x: 330, y: 650 },
       { id: "kitap1", tur: "esya", sablon: "kitap", mekan: "oda", x: 930, y: 660 },
       { id: "top1", tur: "esya", sablon: "top", mekan: "oda", x: 640, y: 665 },

@@ -24,11 +24,19 @@ function dunyaOku() {
       s.varliklar.forEach((v) => bilinen.add(v.id));
       VERI.baslangic.varliklar.forEach((v) => { if (!bilinen.has(v.id)) { s.varliklar.push(JSON.parse(JSON.stringify(v))); bilinen.add(v.id); } });
       s.bilinen = [...bilinen];
+      // Eski kayıt uzun sokak haritasından gelir. Haritadakiler yeni kasabanın başlangıç yerine taşınır.
+      if (s.harita !== 2) {
+        const g = VERI.mekanlar.dunya.giris;
+        s.varliklar.filter((v) => v.mekan === "dunya").forEach((v, i) => { v.x = g.x + (i % 6) * 70 - 140; v.y = g.y + Math.floor(i / 6) * 40; });
+        delete s.kamera; delete s.kameraY;
+        s.harita = 2;
+      }
       return s;
     }
   } catch (e) {}
   const yeni = JSON.parse(JSON.stringify(VERI.baslangic));
   yeni.bilinen = yeni.varliklar.map((v) => v.id);
+  yeni.harita = 2;
   return yeni;
 }
 const dunya = dunyaOku();
@@ -53,8 +61,9 @@ Object.entries(VERI.karakterler).forEach(([id, s]) => k.loadSprite("portre-" + i
 function mekanResimleri(id) {
   const m = VERI.mekanlar[id], r = [];
   if (m.resim) r.push(m.resim);
+  (m.haritaResim || []).forEach((h) => r.push(h));
   if (m.zeminResim) r.push(m.zeminResim);
-  (m.yerler || []).forEach((y) => r.push(y.resim));
+  (m.yerler || []).forEach((y) => { if (y.resim) r.push(y.resim); });
   (m.susler || []).forEach((s) => r.push(s.resim));
   (m.araclar || []).forEach((a) => r.push(a));
   (m.noktalar || []).forEach((n) => { if (n.resim) r.push(n.resim); });
@@ -86,6 +95,7 @@ function gec(hedef) {
 // Haritada bir yerin kapısı: dünya koordinatında dikdörtgen.
 const DUNYA = VERI.mekanlar.dunya;
 function yerKapisi(y) {
+  if (y.alan) return { ...y.alan, on: y.on, hedef: y.hedef, yer: y.id };
   const taban = DUNYA.taban || 472;
   return { x: y.x + y.kapi.x, y: taban - y.kapi.h, w: y.kapi.w, h: y.kapi.h, hedef: y.hedef, yer: y.id };
 }
@@ -94,6 +104,7 @@ function girisYeri(d) {
   if (d.giris) return d.giris;
   if (d.hedef === "dunya") {
     const y = DUNYA.yerler.find((y) => y.id === d.yer);
+    if (y && y.on) return y.on;
     if (y) { const kp = yerKapisi(y); return { x: kp.x + kp.w / 2, y: DUNYA.zemin.ust + 50 }; }
   }
   return VERI.mekanlar[d.hedef].giris || { x: 640, y: 600 };
@@ -103,15 +114,17 @@ k.scene("mekan", (mekanId) => {
   const m = VERI.mekanlar[mekanId];
   const z = m.zemin;
   const genis = m.genislik || EKRAN_W;
+  const yuksek = m.yukseklik || EKRAN_H;
   const harita = m.tur === "dunya";
   dunya.mekan = mekanId;
   kaydet();
 
   // --- Arka plan ---
   if (m.resim) k.add([k.sprite(m.resim, { width: EKRAN_W, height: EKRAN_H }), k.z(-100)]);
+  (m.haritaResim || []).forEach((h, i, t) => k.add([k.sprite(h, { width: genis / t.length, height: yuksek }), k.pos((i * genis) / t.length, 0), k.z(-100)]));
   if (m.zeminResim) for (let x = 0; x < genis; x += EKRAN_W) k.add([k.sprite(m.zeminResim), k.pos(x, 0), k.z(-100)]);
   (m.susler || []).forEach((s) => k.add([k.sprite(s.resim), k.pos(s.x, s.y), k.anchor("bot"), k.z(s.arka ? -99.5 : -98)]));
-  (m.yerler || []).forEach((y) => k.add([k.sprite(y.resim), k.pos(y.x, m.taban || 472), k.anchor("botleft"), k.z(-99)]));
+  (m.yerler || []).filter((y) => y.resim).forEach((y) => k.add([k.sprite(y.resim), k.pos(y.x, m.taban || 472), k.anchor("botleft"), k.z(-99)]));
   if (!m.resim && !m.zeminResim && m.gecici) G.mekanlar[m.gecici]();
 
   // --- Kapılar ---
@@ -125,6 +138,7 @@ k.scene("mekan", (mekanId) => {
   const yerBul = (p) => {
     if (!harita) return null;
     const y = m.yerler.find((y) => {
+      if (y.alan) return false; // alanı olan yer kapiBul ile bulunur
       const s = k.getSprite(y.resim), w = s && s.data ? s.data.width : 300, h = s && s.data ? s.data.height : 300;
       return p.x > y.x && p.x < y.x + w && p.y > (m.taban || 472) - h && p.y < (m.taban || 472);
     });
@@ -215,7 +229,8 @@ k.scene("mekan", (mekanId) => {
     return null;
   }
 
-  const derinlik = (y) => (0.62 + 0.38 * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)))) * (m.olcek || 1);
+  const ust = m.derinlikUst ?? 0.62;
+  const derinlik = (y) => (ust + (1 - ust) * Math.max(0, Math.min(1, (y - z.ust) / (z.alt - z.ust)))) * (m.olcek || 1);
   const zemineSabitle = (y) => Math.max(z.ust, Math.min(z.alt, y));
   // Odada zemin arkaya doğru daralır. y derinliğinde basılabilen en sol ve en sağ x.
   function xSinir(y) {
@@ -280,9 +295,13 @@ k.scene("mekan", (mekanId) => {
     c.konusma = k.time() + 0.6 + metin.length * 0.04;
   }
 
-  // --- Kamera: geniş mekanda (harita) sağa sola kayar ---
-  let kameraX = EKRAN_W / 2, takip = false, panYon = 0;
-  const kameraSinirla = () => { kameraX = Math.max(EKRAN_W / 2, Math.min(genis - EKRAN_W / 2, kameraX)); };
+  // --- Kamera: geniş mekanda (harita) sağa sola, yüksek mekanda yukarı aşağı kayar ---
+  let kameraX = EKRAN_W / 2, kameraY = EKRAN_H / 2, takip = false, panYon = 0;
+  const kayar = genis > EKRAN_W || yuksek > EKRAN_H;
+  const kameraSinirla = () => {
+    kameraX = Math.max(EKRAN_W / 2, Math.min(genis - EKRAN_W / 2, kameraX));
+    kameraY = Math.max(EKRAN_H / 2, Math.min(yuksek - EKRAN_H / 2, kameraY));
+  };
   const ekran = () => k.mousePos();
   const fare = () => k.toWorld(k.mousePos());
 
@@ -486,7 +505,7 @@ k.scene("mekan", (mekanId) => {
       kaldir(o);
       if (o === secili) secili = null;
       dunya.secili = o.v.id;
-      if (d.hedef === "dunya") dunya.kamera = g.x;
+      if (d.hedef === "dunya") { dunya.kamera = g.x; dunya.kameraY = g.y; }
       return gec(d.hedef);
     }
     kaldir(o);
@@ -698,7 +717,7 @@ k.scene("mekan", (mekanId) => {
     return o;
   }
   if (!harita) dugme(66, 66, (o) => o.add([k.sprite("simge-harita", { width: 88, height: 88 }), k.anchor("center"), k.fixed()]), "harita");
-  else {
+  else if (!m.yukseklik) {
     for (const yon of [-1, 1]) {
       dugme(yon < 0 ? 50 : EKRAN_W - 50, 330, (o) => {
         o.add([k.circle(36), k.color(255, 255, 255), k.outline(4, KALEM), k.opacity(0.85), k.fixed()]);
@@ -744,7 +763,7 @@ k.scene("mekan", (mekanId) => {
       if (o && !o.oturak && !o.kuvet) { o.salla = k.time() + 1.2; kalpCikar(o); }
       return kaydet();
     }
-    if (v.mekan === "dunya") dunya.kamera = v.x;
+    if (v.mekan === "dunya") { dunya.kamera = v.x; dunya.kameraY = v.y; }
     gec(v.mekan);
   }
   // Harita düğmesi: seçili karakter bu yerin kapısından sokağa çıkar, yerin önünde durur.
@@ -774,9 +793,10 @@ k.scene("mekan", (mekanId) => {
   // Kameranın başlangıç yeri: haritada kayıtlı yer, yoksa seçili karakter.
   if (harita) {
     kameraX = dunya.kamera != null ? dunya.kamera : secili ? secili.v.x : m.giris.x;
+    kameraY = dunya.kameraY != null ? dunya.kameraY : secili ? secili.v.y : m.giris.y;
     kameraSinirla();
   }
-  k.setCamPos(kameraX, EKRAN_H / 2);
+  k.setCamPos(kameraX, kameraY);
 
   // --- Sokaktan araç geçer: ara sıra bir araba ya da otobüs ekranın bir ucundan öbür ucuna gider ---
   // Uzak şeritte sola, yakın şeritte sağa gider. Önünde karakter varsa korna çalar.
@@ -835,15 +855,15 @@ k.scene("mekan", (mekanId) => {
     if (!tutulan) { const r = rafBul(p); if (r) tutulan = raftanAl(r); }
     if (tutulan) kayma = k.vec2(tutulan.kok.pos.x - p.x, tutulan.kok.pos.y - p.y);
     // Boş yerde parmak kayarsa harita kayar.
-    else if (genis > EKRAN_W) kaydirma = { x0: e.x, kam0: kameraX };
+    else if (kayar) kaydirma = { x0: e.x, y0: e.y, kam0: kameraX, kamY0: kameraY };
   });
 
   k.onMouseMove(() => {
     if (basiliDugme) return;
     if (kaydirma) {
-      const dx = ekran().x - kaydirma.x0;
-      if (!kaydiriyor && Math.abs(dx) > SURUKLE_ESIGI) kaydiriyor = true;
-      if (kaydiriyor) { kameraX = kaydirma.kam0 - dx; takip = false; kameraSinirla(); }
+      const dx = ekran().x - kaydirma.x0, dy = ekran().y - kaydirma.y0;
+      if (!kaydiriyor && Math.hypot(dx, dy) > SURUKLE_ESIGI) kaydiriyor = true;
+      if (kaydiriyor) { kameraX = kaydirma.kam0 - dx; kameraY = kaydirma.kamY0 - dy; takip = false; kameraSinirla(); }
       return;
     }
     if (!tutulan || !basla) return;
@@ -877,7 +897,7 @@ k.scene("mekan", (mekanId) => {
     if (kaydiriyor || kaydirma) {
       const kaydi = kaydiriyor;
       kaydiriyor = false; kaydirma = null;
-      if (kaydi) { basla = null; dunya.kamera = kameraX; kaydet(); return; }
+      if (kaydi) { basla = null; dunya.kamera = kameraX; dunya.kameraY = kameraY; kaydet(); return; }
     }
     const p = fare();
     const o = tutulan;
@@ -942,7 +962,8 @@ k.scene("mekan", (mekanId) => {
     if (n && n.tur === "salincak" && !n.dolu) { n.genlik = Math.min(30, n.genlik + 14); return; }
     const d = kapiBul(p) || yerBul(p);
     if (d) {
-      if (secili && !secili.oturak) return yuru(secili, k.vec2(d.x + d.w / 2, z.ust + 20), () => kapidanGec(secili, d));
+      const on = d.on ? k.vec2(d.on.x, d.on.y) : k.vec2(d.x + d.w / 2, z.ust + 20);
+      if (secili && !secili.oturak) return yuru(secili, on, () => kapidanGec(secili, d));
       return gec(d.hedef);
     }
     if (secili && !secili.oturak && !secili.kuvet) yuru(secili, p);
@@ -1317,19 +1338,25 @@ k.scene("mekan", (mekanId) => {
       isaret.scale = k.vec2(harita ? 0.8 : 1);
     }
     // Kamera: okla ya da kenara sürüklenen varlıkla kayar, yürüyen seçili karakteri izler.
-    if (genis > EKRAN_W) {
+    if (kayar) {
       if (panYon) { kameraX += panYon * 900 * dt; takip = false; }
       else if (tutulan && surukluyor) {
-        const ex = ekran().x;
-        if (ex < 110) kameraX -= 700 * dt;
-        else if (ex > EKRAN_W - 110) kameraX += 700 * dt;
-      } else if (takip && secili && varliklar.includes(secili)) kameraX += (secili.v.x - kameraX) * Math.min(1, dt * 3);
+        const e = ekran();
+        if (e.x < 110) kameraX -= 700 * dt;
+        else if (e.x > EKRAN_W - 110) kameraX += 700 * dt;
+        if (e.y < 90) kameraY -= 500 * dt;
+        else if (e.y > EKRAN_H - 90) kameraY += 500 * dt;
+      } else if (takip && secili && varliklar.includes(secili)) {
+        kameraX += (secili.v.x - kameraX) * Math.min(1, dt * 3);
+        kameraY += (secili.zemY - 120 - kameraY) * Math.min(1, dt * 3);
+      }
       const once = kameraX;
       kameraSinirla();
       if (once !== kameraX) panYon = 0;
-      k.setCamPos(kameraX, EKRAN_H / 2);
+      k.setCamPos(kameraX, kameraY);
       if (tutulan && surukluyor) tasi();
       dunya.kamera = kameraX;
+      dunya.kameraY = kameraY;
       for (const d of dugmeler) if (d.tur === "kaydir") d.o.hidden = d.yon < 0 ? kameraX <= EKRAN_W / 2 + 1 : kameraX >= genis - EKRAN_W / 2 - 1;
     }
   });

@@ -5,11 +5,12 @@ Kızımın çizdiği karakterler ve mekanlarla Toca Boca World tarzı serbest bi
 ## Oynamak
 `index.html` dosyasını bir web sunucusuyla aç. Örnek: `python3 -m http.server`, sonra `http://localhost:8000`.
 
-Oyun mahalle haritasında açılır. Sokakta 3 ev, 2 bahçe, park, oyun alanı, okul, kafe, market,
-oyuncakçı, hastane, kuaför, kütüphane ve pastane var. Bir binaya dokununca seçili karakter yürür ve içeri girer.
-Harita parmakla ya da iki yandaki oklarla kayar. Odada sol üstteki düğme haritaya döner.
-Sağ üstteki yüzlere dokununca o karaktere gidilir. Sokaktan ara sıra araba ve otobüs geçer.
-Köpek kendi kendine gezer.
+Oyun kasaba haritasında açılır. Harita kuşbakışı tek bir resimdir (`cizimler/dunya/kasaba-1.jpg` ve `kasaba-2.jpg`).
+Kasabada 3 ev, 2 bahçe, park, oyun alanı, okul, kafe, market, oyuncakçı, hastane, kuaför, kütüphane ve pastane var.
+Bir binaya dokununca seçili karakter kapısına yürür ve içeri girer. Karakter binanın üstüne sürüklenince de girer.
+Harita parmakla dört yöne kayar. Karakter yukarıya, yani uzağa gittikçe küçülür. Odada sol üstteki düğme haritaya döner.
+Sağ üstteki yüzlere dokununca o karaktere gidilir. Köpek kendi kendine gezer.
+Binaların dokunulan alanı ve kapı önü `js/veri.js` içinde `dunya.yerler` listesindedir (`alan` ve `on`).
 
 Evde: TV'ye ya da kumandaya dokununca TV açılır, odadakiler dans eder. Dolaplar açılır:
 TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak odası dolabında kıyafetler var. Tişört, pantolon ya da elbise giyen karakterin kendi kıyafeti o renge boyanır.
