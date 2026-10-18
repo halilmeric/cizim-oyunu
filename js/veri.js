@@ -22,22 +22,44 @@ window.OYUN_VERI = {
   esyalar: {
     // resim: eşyanın PNG dosyası. boy: ekranın önündeki piksel boyu.
     // yenir: karakterin ağzına götürülünce yenir. Değer kırıntının rengidir.
-    top: { resim: "cizimler/esya/top.png", boy: 74 },
-    telefon: { resim: "cizimler/esya/telefon.png", boy: 62 },
-    kitap: { resim: "cizimler/esya/kitap.png", boy: 58 },
+    // eylem: elinde tutan karaktere dokununca yaptığı hareket.
+    //   at: fırlatır. sur: yerde sürer. konus, oku, ic, fircala, yaz, yika, kurula, sik: elde oynanan hareketler.
+    top: { resim: "cizimler/esya/top.png", boy: 74, eylem: "at" },
+    telefon: { resim: "cizimler/esya/telefon.png", boy: 62, eylem: "konus" },
+    kitap: { resim: "cizimler/esya/kitap.png", boy: 58, eylem: "oku" },
     tahin: { resim: "cizimler/esya/tahin.png", boy: 70, yenir: [200, 160, 90] },
     elma: { resim: "cizimler/esya/elma.png", boy: 50, yenir: [235, 225, 180] },
     sut: { resim: "cizimler/esya/sut.png", boy: 84, yenir: [250, 250, 255] },
-    kupa: { resim: "cizimler/esya/kupa.png", boy: 48 },
-    ordek: { resim: "cizimler/esya/ordek.png", boy: 60 },
-    sabun: { resim: "cizimler/esya/sabun.png", boy: 34 },
-    sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82 },
+    kupa: { resim: "cizimler/esya/kupa.png", boy: 48, eylem: "ic" },
+    ordek: { resim: "cizimler/esya/ordek.png", boy: 60, eylem: "sik" },
+    sabun: { resim: "cizimler/esya/sabun.png", boy: 34, eylem: "yika" },
+    sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82, eylem: "yika" },
+    muz: { resim: "cizimler/esya/muz.png", boy: 34, yenir: [250, 235, 170] },
+    havuc: { resim: "cizimler/esya/havuc.png", boy: 70, yenir: [245, 150, 60] },
+    ekmek: { resim: "cizimler/esya/ekmek.png", boy: 50, yenir: [225, 175, 110] },
+    peynir: { resim: "cizimler/esya/peynir.png", boy: 42, yenir: [255, 220, 110] },
+    cilek: { resim: "cizimler/esya/cilek.png", boy: 40, yenir: [230, 60, 80] },
+    karpuz: { resim: "cizimler/esya/karpuz.png", boy: 46, yenir: [245, 90, 100] },
+    kurabiye: { resim: "cizimler/esya/kurabiye.png", boy: 42, yenir: [215, 165, 95] },
+    dondurma: { resim: "cizimler/esya/dondurma.png", boy: 74, yenir: [250, 190, 210] },
+    portakal: { resim: "cizimler/esya/portakal.png", boy: 48, yenir: [250, 170, 60] },
+    "portakal-suyu": { resim: "cizimler/esya/portakal-suyu.png", boy: 76, yenir: [255, 190, 60] },
+    pasta: { resim: "cizimler/esya/pasta.png", boy: 64, yenir: [255, 225, 235] },
+    araba: { resim: "cizimler/esya/araba.png", boy: 60, eylem: "sur" },
+    kup: { resim: "cizimler/esya/kup.png", boy: 54, eylem: "at" },
+    boya: { resim: "cizimler/esya/boya.png", boy: 22, eylem: "yaz" },
+    "dis-fircasi": { resim: "cizimler/esya/dis-fircasi.png", boy: 26, eylem: "fircala" },
+    "dis-macunu": { resim: "cizimler/esya/dis-macunu.png", boy: 28, eylem: "fircala" },
+    havlu: { resim: "cizimler/esya/havlu.png", boy: 44, eylem: "kurula" },
   },
 
   // Mekanlar. resim: arka plan. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
   // noktalar: dokununca bir şey olan yerler.
   //   musluk: su akar ya da durur. su: suyun başladığı yer ve boyu.
-  //   dolap: içinden yiyecek çıkar. cikar: çıkabilecek eşyalar.
+  //   dolap: dokununca açılır ya da kapanır. resim: açık hali, sol üst köşesi x0, y0.
+  //          raflar: raftaki yiyecekler. Biri alınınca yerine yenisi gelir.
+  //   kuvet: karakter bırakılınca içine girer, sadece başı görünür. resim: suyun altında kalan ön yüz.
+  //          su: su çizgisi. dip: karakterin ayağının durduğu y. yerler: karakterlerin oturduğu x. Eşyalar suda yüzer.
   mekanlar: {
     oda: {
       resim: "cizimler/mekan/oda.jpg",
@@ -52,7 +74,15 @@ window.OYUN_VERI = {
         { ...KAPI_SAG, hedef: "banyo", giris: { x: 260, y: 580 } },
       ],
       noktalar: [
-        { tur: "dolap", x: 225, y: 140, w: 160, h: 318, cikar: ["elma", "elma", "sut", "tahin"] },
+        {
+          tur: "dolap", x: 225, y: 140, w: 160, h: 318,
+          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 146, y0: 122,
+          raflar: [
+            { sablon: "sut", x: 270, y: 214 }, { sablon: "portakal-suyu", x: 335, y: 214 },
+            { sablon: "peynir", x: 265, y: 284 }, { sablon: "cilek", x: 312, y: 284 }, { sablon: "havuc", x: 350, y: 284 },
+            { sablon: "karpuz", x: 270, y: 354 }, { sablon: "dondurma", x: 340, y: 354 },
+          ],
+        },
         { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
       ],
     },
@@ -63,6 +93,11 @@ window.OYUN_VERI = {
       noktalar: [
         { tur: "musluk", x: 300, y: 255, w: 150, h: 90, su: { x: 393, y: 270, boy: 30 } },
         { tur: "musluk", x: 950, y: 235, w: 95, h: 95, su: { x: 985, y: 270, boy: 45 } },
+        {
+          tur: "kuvet", x: 640, y: 200, w: 400, h: 260,
+          resim: "cizimler/mekan/kuvet-on.png", x0: 637, y0: 303,
+          su: 326, dip: 442, yerler: [{ x: 765 }, { x: 915 }],
+        },
       ],
     },
   },
@@ -85,6 +120,17 @@ window.OYUN_VERI = {
       { id: "ordek1", tur: "esya", sablon: "ordek", mekan: "banyo", x: 720, y: 650 },
       { id: "sabun1", tur: "esya", sablon: "sabun", mekan: "banyo", x: 520, y: 640 },
       { id: "sampuan1", tur: "esya", sablon: "sampuan", mekan: "banyo", x: 420, y: 610 },
+      { id: "araba1", tur: "esya", sablon: "araba", mekan: "oda", x: 560, y: 690 },
+      { id: "kup1", tur: "esya", sablon: "kup", mekan: "oda", x: 800, y: 670 },
+      { id: "boya1", tur: "esya", sablon: "boya", mekan: "oda", x: 220, y: 680 },
+      { id: "muz1", tur: "esya", sablon: "muz", mekan: "mutfak", x: 620, y: 690 },
+      { id: "ekmek1", tur: "esya", sablon: "ekmek", mekan: "mutfak", x: 770, y: 685 },
+      { id: "kurabiye1", tur: "esya", sablon: "kurabiye", mekan: "mutfak", x: 440, y: 690 },
+      { id: "portakal1", tur: "esya", sablon: "portakal", mekan: "mutfak", x: 1000, y: 680 },
+      { id: "pasta1", tur: "esya", sablon: "pasta", mekan: "mutfak", x: 1080, y: 640 },
+      { id: "fircasi1", tur: "esya", sablon: "dis-fircasi", mekan: "banyo", x: 600, y: 690 },
+      { id: "macun1", tur: "esya", sablon: "dis-macunu", mekan: "banyo", x: 880, y: 685 },
+      { id: "havlu1", tur: "esya", sablon: "havlu", mekan: "banyo", x: 1000, y: 640 },
     ],
   },
 };
