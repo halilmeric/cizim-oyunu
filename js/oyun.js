@@ -42,6 +42,8 @@ function kaydet() {
 K.yukle();
 Object.entries(VERI.esyalar).forEach(([id, e]) => { if (e.resim) k.loadSprite("esya-" + id, e.resim); });
 Object.entries(VERI.simgeler).forEach(([ad, yolu]) => k.loadSprite("simge-" + ad, yolu));
+// Karakter simgeleri için her karakterin tam resmi. Simgede sadece başı görünür.
+Object.entries(VERI.karakterler).forEach(([id, s]) => k.loadSprite("portre-" + id, s.resim));
 
 function mekanResimleri(id) {
   const m = VERI.mekanlar[id], r = [];
@@ -337,6 +339,7 @@ k.scene("mekan", (mekanId) => {
 
   // --- Seçili karakter: dokun-yürü onu yürütür ---
   let secili = varliklar.find((o) => o.kr && o.v.id === dunya.secili) || varliklar.find((o) => o.kr) || null;
+  if (secili) dunya.secili = secili.v.id;
   const isaret = k.add([k.polygon([k.vec2(-14, -12), k.vec2(14, -12), k.vec2(0, 6)]), k.pos(0, 0), k.color(255, 210, 50), k.outline(3, KALEM), k.z(4500)]);
   function sec(o) {
     if (!o || !o.kr) return;
@@ -475,7 +478,7 @@ k.scene("mekan", (mekanId) => {
   }
 
   // --- Arayüz: ekrana sabit düğmeler ---
-  // Odada: sol üstte haritaya dönüş. Haritada: iki yanda kaydırma okları.
+  // Odada: sol üstte haritaya dönüş. Haritada: iki yanda kaydırma okları. Her yerde: sağ üstte karakter simgeleri.
   const dugmeler = [];
   function dugme(x, y, ciz, tur, yon = 0) {
     const o = k.add([k.pos(x, y), k.fixed(), k.z(6000), k.opacity(1)]);
@@ -491,6 +494,34 @@ k.scene("mekan", (mekanId) => {
         o.add([k.polygon([k.vec2(-12 * yon, -18), k.vec2(16 * yon, 0), k.vec2(-12 * yon, 18)]), k.color(70, 50, 40), k.fixed()]);
       }, "kaydir", yon);
     }
+  }
+  // Karakter simgeleri: sağ üstte, her karakter için bir yuvarlak. Dokununca o karaktere gidilir.
+  const portreler = dunya.varliklar.filter((v) => v.tur === "karakter").map((v, i) => {
+    let halka;
+    dugme(EKRAN_W - 50 - i * 80, 50, (o) => {
+      halka = o.add([k.circle(42), k.color(255, 210, 50), k.outline(4, KALEM), k.fixed()]);
+      o.add([k.circle(34), k.color(255, 255, 255), k.outline(4, KALEM), k.fixed()]);
+      const sp = o.add([k.sprite("portre-" + v.sablon, { quad: k.quad(0.12, 0, 0.76, 0.44) }), k.anchor("center"), k.pos(0, 4), k.scale(1), k.fixed()]);
+      sp.scale = k.vec2(62 / Math.max(sp.width, sp.height));
+    }, "karakter");
+    dugmeler[dugmeler.length - 1].id = v.id;
+    dugmeler[dugmeler.length - 1].r = 40;
+    return { id: v.id, halka };
+  });
+  // Karaktere git: aynı mekandaysa onu seç, başka mekandaysa o mekana geç.
+  function karaktereGit(id) {
+    const v = dunya.varliklar.find((v) => v.id === id);
+    if (!v) return;
+    dunya.secili = id;
+    if (v.mekan === mekanId) {
+      const o = varliklar.find((o) => o.v === v);
+      sec(o);
+      if (harita) takip = true;
+      if (o && !o.oturak && !o.kuvet) { o.salla = k.time() + 1.2; kalpCikar(o); }
+      return kaydet();
+    }
+    if (v.mekan === "dunya") dunya.kamera = v.x;
+    gec(v.mekan);
   }
   const dugmeBul = (e) => dugmeler.find((d) => !d.o.hidden && e.dist(k.vec2(d.x, d.y)) < d.r);
 
@@ -572,6 +603,7 @@ k.scene("mekan", (mekanId) => {
       const d = basiliDugme;
       basiliDugme = null; panYon = 0;
       if (d.tur === "harita") gec("dunya");
+      if (d.tur === "karakter") karaktereGit(d.id);
       return;
     }
     if (kaydiriyor || kaydirma) {
@@ -872,6 +904,8 @@ k.scene("mekan", (mekanId) => {
       o.kopukSayac = (o.kopukSayac || 0) - dt;
       if (o.kopukSayac <= 0) { o.kopukSayac = 0.18; G.kopuk(yer.x + k.rand(-65, 65), kv.su + k.rand(-4, 4)); }
     }
+    // Seçili karakterin simgesi sarı halkayla belli olur.
+    for (const p of portreler) p.halka.hidden = p.id !== dunya.secili;
     // Seçili karakterin üstündeki ok
     isaret.hidden = !secili;
     if (secili) {
