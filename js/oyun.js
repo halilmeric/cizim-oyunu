@@ -33,6 +33,8 @@ function dunyaOku() {
 }
 const dunya = dunyaOku();
 dunya.acik = dunya.acik || {}; // açık TV, lamba ve ocak gözleri: "mekan:nokta" anahtarı
+dunya.bitki = dunya.bitki || {}; // çiçeklerin hali (0 filiz, 1 tomurcuk, 2 çiçek): "mekan:nokta:sıra" anahtarı
+const KAYBOLMA = 6; // saniye; raftan alınan eşya yerde bu kadar kalınca kaybolur
 function kaydet() {
   try { localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(dunya)); } catch (e) {}
 }
@@ -43,6 +45,8 @@ function kaydet() {
 K.yukle();
 Object.entries(VERI.esyalar).forEach(([id, e]) => { if (e.resim) k.loadSprite("esya-" + id, e.resim); });
 Object.entries(VERI.simgeler).forEach(([ad, yolu]) => k.loadSprite("simge-" + ad, yolu));
+Object.entries(VERI.bitkiler).forEach(([ad, haller]) => haller.forEach((yolu, i) => k.loadSprite("bitki-" + ad + "-" + i, yolu)));
+Object.entries(VERI.calisanlar).forEach(([ad, c]) => { k.loadSprite("calisan-" + ad, c.resim); k.loadSprite("calisan-" + ad + "-konus", c.konus); });
 // Karakter simgeleri için her karakterin tam resmi. Simgede sadece başı görünür.
 Object.entries(VERI.karakterler).forEach(([id, s]) => k.loadSprite("portre-" + id, s.resim));
 
@@ -217,6 +221,59 @@ k.scene("mekan", (mekanId) => {
   }
   const xSabitle = (x, y) => { const [a, b] = xSinir(y); return Math.max(a, Math.min(b, x)); };
 
+  // --- Bitkiler: bahçede dikili çiçekler. Taşınmaz. Sulanınca filiz tomurcuk olur, tomurcuk açar. ---
+  const bitkiler = [];
+  noktalar.filter((n) => n.tur === "bitki").forEach((n) => n.bitkiler.forEach((b, j) => {
+    const anahtar = n.anahtar + ":" + j, hal = dunya.bitki[anahtar] ?? b.hal ?? 0, s = derinlik(b.y) * 0.85;
+    const sp = k.add([k.sprite("bitki-" + b.tur + "-" + hal), k.pos(b.x, b.y), k.anchor("bot"), k.scale(s), k.rotate(0), k.z(b.y)]);
+    bitkiler.push({ ...b, anahtar, hal, s, sp, salla: 0 });
+  }));
+  const bitkiBul = (p) => bitkiler.find((b) => Math.abs(p.x - b.x) < Math.max(30, (b.sp.width * b.s) / 2) && p.y < b.y + 10 && p.y > b.y - b.sp.height * b.s);
+  function enYakinBitki(o, enFazla = Infinity) {
+    const d = (b) => Math.hypot(b.x - o.v.x, (b.y - o.zemY) * 2);
+    const b = bitkiler.slice().sort((a, c) => d(a) - d(c))[0];
+    return b && d(b) < enFazla ? b : null;
+  }
+  function bitkiBuyut(b) {
+    b.salla = k.time() + 0.8;
+    if (b.hal >= 2) {
+      for (let i = 0; i < 3; i++) k.wait(i * 0.25, () => kucukKalp(k.vec2(b.x + k.rand(-30, 30), b.y - b.sp.height * b.s)));
+      return;
+    }
+    b.hal++;
+    dunya.bitki[b.anahtar] = b.hal;
+    b.sp.use(k.sprite("bitki-" + b.tur + "-" + b.hal));
+    for (let i = 0; i < 8; i++) G.parilti(b.x + k.rand(-40, 40), b.y - k.rand(0.2, 1) * b.sp.height * b.s);
+    kaydet();
+  }
+
+  // --- Çalışan: mekanın sabit kişisi. Gelen karaktere selam verir, dokununca mesleğiyle ilgili konuşur. ---
+  const calisan = m.calisan ? (() => {
+    const c = m.calisan, boy = 470 * derinlik(c.y);
+    k.add([k.circle(50), k.pos(c.x, c.y), k.color(40, 25, 20), k.opacity(0.3), k.scale((boy / 470) * 1.7, (boy / 470) * 0.42), k.z(c.y - 0.5)]);
+    const sp = k.add([k.sprite("calisan-" + c.meslek, { height: boy }), k.pos(c.x, c.y), k.anchor("bot"), k.scale(1), k.rotate(0), k.z(c.y)]);
+    return { ...c, boy, sp, sira: Math.floor(Math.random() * c.sozler.length), balon: null, bitis: 0, agiz: false };
+  })() : null;
+  const calisanUstunde = (p) => calisan && Math.abs(p.x - calisan.x) < calisan.boy * 0.22 && p.y < calisan.y + 10 && p.y > calisan.y - calisan.boy;
+  // Konuşma balonu kişinin başının üstünde durur. Ağzı konuşurken açılıp kapanır.
+  function calisanKonus(metin) {
+    const c = calisan;
+    if (c.balon) c.balon.destroy();
+    const x = Math.max(210, Math.min(EKRAN_W - 210, c.x));
+    const b = k.add([k.pos(x, 0), k.z(7000)]);
+    const yazi = b.add([k.text(metin, { size: 26, width: 340, font: "sans-serif", align: "center" }), k.anchor("center"), k.color(70, 50, 40)]);
+    const w = yazi.width + 40, h = yazi.height + 30;
+    b.pos.y = Math.max(h + 16, c.y - c.boy - 26);
+    yazi.pos = k.vec2(0, -h / 2);
+    b.add([k.rect(w, h, { radius: 22 }), k.anchor("bot"), k.color(255, 255, 255), k.outline(4, KALEM), k.z(-1)]);
+    const uc = Math.max(-w / 2 + 24, Math.min(w / 2 - 24, c.x - x));
+    b.add([k.polygon([k.vec2(uc - 14, -3), k.vec2(uc + 14, -3), k.vec2(uc, 22)]), k.color(255, 255, 255), k.outline(4, KALEM), k.z(-2)]);
+    b.add([k.rect(30, 8), k.pos(uc, -2), k.anchor("center"), k.color(255, 255, 255), k.z(-0.5)]);
+    c.balon = b;
+    c.bitis = k.time() + 2.6 + metin.length * 0.05;
+    c.konusma = k.time() + 0.6 + metin.length * 0.04;
+  }
+
   // --- Kamera: geniş mekanda (harita) sağa sola kayar ---
   let kameraX = EKRAN_W / 2, takip = false, panYon = 0;
   const kameraSinirla = () => { kameraX = Math.max(EKRAN_W / 2, Math.min(genis - EKRAN_W / 2, kameraX)); };
@@ -249,6 +306,8 @@ k.scene("mekan", (mekanId) => {
       }
     }
     o.v.x = xSabitle(o.v.x, o.zemY);
+    // Raftan alınan eşyanın kimliği zaman damgasıyla biter. Eski kayıttakiler de geçici sayılır.
+    if (v.tur === "esya" && /\d{12}$/.test(v.id)) v.gecici = true;
     o.yenir = !o.kr && VERI.esyalar[v.sablon].yenir;
     o.eylemTur = !o.kr && VERI.esyalar[v.sablon].eylem;
     o.evcil = o.kr && VERI.karakterler[v.sablon].evcil;
@@ -528,13 +587,19 @@ k.scene("mekan", (mekanId) => {
   }
   // Eşyanın hareketi. Yiyecek yenir; atılan eşya fırlar; diğerleri elde bir süre oynatılır.
   const EYLEM_SURE = { konus: 2.4, oku: 2.6, ic: 1.8, fircala: 2.2, yaz: 2.6, yika: 2.4, kurula: 2.2, sik: 1.2, dinle: 2.4, tara: 2.4, kurut: 2.4, sula: 2.6, kaz: 2.0, kokla: 2.0, karistir: 2.4, kumanda: 1.0 };
-  function eylemYap(sahip, o) {
+  function eylemYap(sahip, o, vardi = false) {
     if (o.yenir) return ye(sahip, o);
     const tur = o.eylemTur;
     if (!tur || o.eylem || o.yeniyor) return;
     if (tur === "giy") return giydir(sahip, o);
     eleVer(sahip, o);
     sahip.hedef = null;
+    // Sulama kabını tutan karakter en yakın çiçeğin yanına yürür, ona döner ve sular.
+    const bitki = tur === "sula" && enYakinBitki(sahip);
+    if (bitki && !vardi) {
+      const yan = sahip.v.x < bitki.x ? -1 : 1;
+      return yuru(sahip, k.vec2(bitki.x + yan * 95, bitki.y + 12), () => { sahip.yon = -yan; eylemYap(sahip, o, true); });
+    }
     if (tur === "at" || tur === "sur") {
       const yer = o.kok.pos;
       eldenBirak(o);
@@ -557,6 +622,7 @@ k.scene("mekan", (mekanId) => {
     k.wait(sure, () => {
       if (o.eylem && o.eylem.kagit) { const kg = o.eylem.kagit; k.wait(1.2, () => kg.destroy()); }
       o.eylem = null;
+      if (tur === "sula" && varliklar.includes(sahip)) { const b = enYakinBitki(sahip, 260); if (b) bitkiBuyut(b); }
     });
   }
   // Bırakılan eşya bir karakterin üstündeyse: yiyecek ağza yakınsa yenir, değilse ele alınır.
@@ -574,7 +640,7 @@ k.scene("mekan", (mekanId) => {
   // Raf biraz sonra yeniden dolar.
   function raftanAl({ n, r }) {
     if (varliklar.filter((o) => !o.kr).length >= 24) return null;
-    const v = { id: r.sablon + Date.now(), tur: "esya", sablon: r.sablon, mekan: mekanId, x: r.x, y: z.ust + 50 };
+    const v = { id: r.sablon + Date.now(), tur: "esya", sablon: r.sablon, mekan: mekanId, x: r.x, y: z.ust + 50, gecici: true };
     dunya.varliklar.push(v);
     dunya.bilinen.push(v.id);
     const o = varlikKur(v);
@@ -817,6 +883,9 @@ k.scene("mekan", (mekanId) => {
     if (o && o.yuzey) { o.salla = k.time() + 0.5; if (o.goz) acKapa(o.goz.ates, o.goz.anahtar); return; }
     if (o && o.yuzuyor) { for (let i = 0; i < 4; i++) G.kopuk(o.v.x + k.rand(-20, 20), o.yuzuyor.su); return; }
     if (o) { o.vy = -700; o.h = Math.max(o.h, 1); return; } // eşya zıplar
+    if (calisanUstunde(p)) { calisan.sira = (calisan.sira + 1) % calisan.sozler.length; return calisanKonus(calisan.sozler[calisan.sira]); }
+    const bk = bitkiBul(p);
+    if (bk) { bk.salla = k.time() + 0.8; if (bk.hal >= 2) kucukKalp(k.vec2(bk.x, bk.y - bk.sp.height * bk.s)); return; }
     const ok = okBul(p);
     if (ok) return gec(ok.hedef);
     const n = noktaBul(p);
@@ -835,6 +904,9 @@ k.scene("mekan", (mekanId) => {
   });
 
   // --- Her kare ---
+  const kaybolacak = [];
+  // Gelen karakter varsa çalışan selam verir. Tabela kaybolunca konuşur.
+  if (calisan && varliklar.some((o) => o.kr)) k.wait(2, () => calisanKonus(calisan.selam));
   k.onUpdate(() => {
     const t = k.time(), dt = k.dt();
     // Salıncaklar: ip asma noktasında döner. Boş salıncak yavaşça durur.
@@ -943,7 +1015,29 @@ k.scene("mekan", (mekanId) => {
       } else {
         o.kok.scale = k.vec2(s);
         o.kok.angle = hal === "tutuluyor" ? Math.sin(t * 8) * 10 : 0;
+        // Raftan alınan eşya yerde kalırsa küçülür ve kaybolur. Elde, üstte ya da tezgahta duran kaybolmaz.
+        if (o.v.gecici) {
+          o.yerde = o !== tutulan && o.h === 0 && !o.vx ? (o.yerde || 0) + dt : 0;
+          if (o.yerde > KAYBOLMA - 0.5) o.kok.scale = k.vec2(s * Math.max(0, (KAYBOLMA - o.yerde) / 0.5));
+          if (o.yerde > KAYBOLMA) kaybolacak.push(o);
+        }
       }
+    }
+    kaybolacak.splice(0).forEach((o) => {
+      for (let i = 0; i < 4; i++) G.parilti(o.v.x + k.rand(-25, 25), o.zemY - k.rand(0, 40), [255, 255, 255]);
+      kaldir(o);
+      dunya.varliklar.splice(dunya.varliklar.indexOf(o.v), 1);
+      kaydet();
+    });
+    // Bitkiler hafifçe sallanır. Sulanınca ya da dokununca daha çok sallanır.
+    for (const b of bitkiler) b.sp.angle = t < b.salla ? Math.sin(t * 20) * 8 : Math.sin(t * 1.5 + b.x) * 2;
+    // Çalışan nefes alır. Konuşurken ağzı açılıp kapanır, balon süre bitince kaybolur.
+    if (calisan) {
+      const c = calisan, konusuyor = t < c.konusma;
+      c.sp.scale = k.vec2(1, 1 + Math.sin(t * 2.4) * 0.012 + (konusuyor ? Math.abs(Math.sin(t * 9)) * 0.01 : 0));
+      const agiz = konusuyor && Math.floor(t * 6) % 2 === 0;
+      if (agiz !== c.agiz) { c.agiz = agiz; c.sp.use(k.sprite("calisan-" + c.meslek + (agiz ? "-konus" : ""), { height: c.boy })); }
+      if (c.balon && t > c.bitis) { c.balon.destroy(); c.balon = null; }
     }
     for (const o of varliklar) {
       if (o.elde) eldeGuncelle(o);

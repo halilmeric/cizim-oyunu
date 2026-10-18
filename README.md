@@ -16,6 +16,14 @@ TV dolabında oyuncaklar, mutfak dolaplarında tencere, tava ve bardak, yatak od
 Tencere ve tava ocağa konur. Ocağa dokununca kırmızı yanar, tencereden buhar çıkar. Bardak ve diğer eşyalar tezgaha konur.
 Kıyafet karaktere bırakılınca giyilir. Karakterler iki elde iki eşya tutar. Yatak başındaki lamba yanar.
 Klozette oturan karakter 10 saniye sonra kendi kalkar.
+Dolaptan ya da raftan alınan eşya yerde 6 saniye kalırsa kaybolur.
+
+Bahçelerde çiçekler dikili. Sulama kabını tutan karaktere dokununca en yakın çiçeğe gider ve sular.
+Sulanan filiz tomurcuk olur, tomurcuk açar.
+
+Her dükkanda, okulda, hastanede, parkta ve oyun alanında mesleğine göre giyinmiş bir çalışan var.
+Karakter gelince selam verir: doktor "Ne rahatsızlığınız vardı?", kuaför "Saçınızı nasıl kesmemi istersiniz?" der.
+Çalışana dokununca mesleğiyle ilgili başka bir şey söyler.
 
 ## Mekanlar
 Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`ev` alanı).
@@ -23,9 +31,9 @@ Toplam 20 sahne: harita ve 19 mekan. Evlerin odaları kendi evine bağlıdır (`
 | Haritadaki yer | Mekanlar |
 | --- | --- |
 | Mavi ev (ev1) | Salon, Mutfak, Banyo, Yatak odası |
-| Ev1 bahçesi | Bahçe (salıncak, sandalye, kum havuzu) |
+| Ev1 bahçesi | Bahçe (salıncak, kaydırak, sandalye, çiçekler) |
 | Kırmızı ev (ev2) | Salon, Çocuk odası |
-| Ev2 bahçesi | Bahçe (kaydırak, sandalye) |
+| Ev2 bahçesi | Bahçe (kaydırak, sandalye, çiçekler) |
 | Sarı ev (ev3) | Küçük ev |
 | Park, Oyun alanı | Fıskiye, bank, salıncak, kaydırak |
 | Okul, Kafe, Market, Oyuncakçı, Hastane, Kuaför, Kütüphane, Pastane | Her biri bir oda |
@@ -35,7 +43,7 @@ Program çizimleri düz çizgi film tarzındadır: düz renk, koyu kalem çizgis
 Parlama ve renk geçişi yoktur. Ağaç, çalı ve bulutlar dairelerin birleşimiyle tek çizgili çizilir.
 Ortak çizim aracı `araclar/uret.py` içindeki `Tuval` ve `duz()` gölgesidir.
 Kızın çizimleri (karakterler, TV, şömine, gökkuşağı) de düz tarza uydurulur: renkleri biraz canlanır, kenarına kalem çizgisi çekilir.
-Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve `ekler.py` sırayla çalıştırılır.
+Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py`, `ekler.py`, `calisanlar.py` ve `bitkiler.py` sırayla çalıştırılır.
 
 ## Dosyalar
 - `js/veri.js`: karakterler, eşyalar, mekanlar, kapılar, haritadaki yerler ve başlangıç hali. Yeni içerik buraya eklenir.
@@ -47,6 +55,8 @@ Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve 
 - `araclar/yerler.py`: diğer odalar, dükkanlar, bahçeler ve park.
 - `araclar/kiyafet.py`: karakterlerin kendi kıyafet bölgeleri (boyanan katman).
 - `araclar/ekler.py`: açık dolaplar, tencere, tava, bardak, kumanda, kıyafetler, köpek ve araçlar.
+- `araclar/calisanlar.py`: mekanlarda çalışan kişiler (doktor, kuaför, garson ve diğerleri).
+- `araclar/bitkiler.py`: bahçe çiçeklerinin üç hali.
 - `araclar/temizle.py`: çizim fotoğrafının arka planını siler, şeffaf PNG yapar.
 - `araclar/hacim.py`: düz bir çizime kabartma ve ışık ekler.
 - `araclar/parcala.py`: bir karakter çizimini hareketli parçalara böler.
@@ -54,6 +64,7 @@ Bütün resimleri yeniden üretmek için: `uret.py`, `dunya.py`, `yerler.py` ve 
 - `cizimler/hacimli/`: karakterler. `cizimler/esya/`: taşınan eşyalar.
 - `cizimler/dunya/`: harita zemini ve süsler. `cizimler/dis/`: haritadaki dış görünümler.
 - `cizimler/mekan/`: iç mekanlar ve bahçeler. `cizimler/simge/`: yer simgeleri.
+- `cizimler/calisan/`: çalışan kişiler. `cizimler/bitki/`: bahçe çiçekleri.
 - `lib/kaplay.js`: Kaplay 3001.0.19 oyun kütüphanesi.
 
 Yeni karakter, eşya ya da mekan eklemek için: [KARAKTER-EKLEME.md](KARAKTER-EKLEME.md).

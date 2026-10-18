@@ -56,6 +56,15 @@ Sonra `index.html` dosyasına `cizimler/tavsan/parcalar.js` satırı ve karakter
 3. Haritadan girilecekse dış görünümü `cizimler/dis/<id>.png` olarak koy ve `dunya.yerler` listesine ekle.
    `kapi`: resmin alt kenarından ölçülen kapı alanı. `hedef`: girilen mekan.
 4. Mekandan haritaya çıkış kapısı: `{ ...KAPI_SOL, hedef: "dunya", yer: "<yer id>" }`.
+5. Çalışan kişi: `calisan: { meslek, x, y, selam, sozler }`. `meslek` için `calisanlar` bölümünde resim olmalı.
+   Karakter gelince `selam` söylenir. Kişiye dokununca `sozler` sırayla söylenir.
+6. Bahçe çiçekleri: `{ tur: "bitki", bitkiler: [{ tur: "lale", x, y, hal }] }`. Türler `bitkiler` bölümündedir.
+   `hal`: 0 filiz, 1 tomurcuk, 2 çiçek. Sulama kabıyla sulanınca bir sonraki hale geçer.
+
+## Çalışan kişiye çizim koymak
+Çalışanlar `araclar/calisanlar.py` ile çizildi. Kızın çizdiği bir doktor gelince iki resim hazırlanır:
+ağzı kapalı (`doktor.png`) ve ağzı açık (`doktor-konus.png`). İkisi aynı boyda olmalı.
+`js/veri.js` içinde `calisanlar.doktor` satırındaki yollar yeni resimlere çevrilir.
 
 ## Kızın çizdiği mekanlar
 Şu an mekan resimleri `araclar/` içindeki programlarla çizildi. Kızın çizdiği bir oda, bahçe ya da bina

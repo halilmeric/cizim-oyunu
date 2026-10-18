@@ -126,6 +126,30 @@ window.OYUN_VERI = {
     pastane: "cizimler/simge/pastane.png",
   },
 
+  // Bahçede dikili çiçekler: üç hal (filiz, tomurcuk, çiçek). araclar/bitkiler.py üretir.
+  // Sulama kabıyla sulanınca bir sonraki hale geçer.
+  bitkiler: {
+    lale: ["cizimler/bitki/lale-0.png", "cizimler/bitki/lale-1.png", "cizimler/bitki/lale-2.png"],
+    papatya: ["cizimler/bitki/papatya-0.png", "cizimler/bitki/papatya-1.png", "cizimler/bitki/papatya-2.png"],
+    aycicegi: ["cizimler/bitki/aycicegi-0.png", "cizimler/bitki/aycicegi-1.png", "cizimler/bitki/aycicegi-2.png"],
+    gul: ["cizimler/bitki/gul-0.png", "cizimler/bitki/gul-1.png", "cizimler/bitki/gul-2.png"],
+  },
+
+  // Mekanlarda çalışan kişiler. araclar/calisanlar.py üretir. konus: ağzı açık hali.
+  // İleride kızın çizimleri bu resimlerin yerine konabilir.
+  calisanlar: {
+    doktor: { resim: "cizimler/calisan/doktor.png", konus: "cizimler/calisan/doktor-konus.png" },
+    kuafor: { resim: "cizimler/calisan/kuafor.png", konus: "cizimler/calisan/kuafor-konus.png" },
+    garson: { resim: "cizimler/calisan/garson.png", konus: "cizimler/calisan/garson-konus.png" },
+    kasiyer: { resim: "cizimler/calisan/kasiyer.png", konus: "cizimler/calisan/kasiyer-konus.png" },
+    oyuncakci: { resim: "cizimler/calisan/oyuncakci.png", konus: "cizimler/calisan/oyuncakci-konus.png" },
+    kutuphaneci: { resim: "cizimler/calisan/kutuphaneci.png", konus: "cizimler/calisan/kutuphaneci-konus.png" },
+    pastaci: { resim: "cizimler/calisan/pastaci.png", konus: "cizimler/calisan/pastaci-konus.png" },
+    ogretmen: { resim: "cizimler/calisan/ogretmen.png", konus: "cizimler/calisan/ogretmen-konus.png" },
+    bahcivan: { resim: "cizimler/calisan/bahcivan.png", konus: "cizimler/calisan/bahcivan-konus.png" },
+    gorevli: { resim: "cizimler/calisan/gorevli.png", konus: "cizimler/calisan/gorevli-konus.png" },
+  },
+
   // Mekanlar. Her mekanın kimliği anahtarıdır.
   //   ad: tabelada görünen ad. simge: cizimler/simge/<simge>.png. ev: bağlı olduğu ev (varsa).
   //   resim: arka plan. zemin: karakterlerin durduğu bant. giris: haritadan girince karakterin yeri.
@@ -146,6 +170,8 @@ window.OYUN_VERI = {
   //     ocak: tencere ve tava gözlere konur. Göze dokununca ocak yanar ve kırmızı olur.
   //     tv: dokununca açılır. Açıkken odadaki karakterler dans eder. ekran: renkli ışığın yeri.
   //     lamba: dokununca yanar ya da söner. isik: ışığın merkezi.
+  //     bitki: dikili çiçekler. hal: başlangıç hali (0 filiz, 1 tomurcuk, 2 çiçek). Taşınmaz. Sulama kabını tutan karaktere dokununca gider ve en yakın çiçeği sular.
+  //   calisan: mekanın sabit kişisi. Gelen karaktere selam verir. Dokununca sozler'den birini söyler.
   mekanlar: {
     // Mahalle haritası. Geniş bir sokak: kamera sağa sola kayar.
     dunya: {
@@ -302,7 +328,14 @@ window.OYUN_VERI = {
       ],
       noktalar: [
         { tur: "salincak", x: 400, y: 180, w: 240, h: 300, asma: { x: 520, y: 192 }, ip: 200 },
+        { tur: "kaydirak", x: 670, y: 200, w: 360, h: 290, ust: { x: 765, y: 232 }, alt: { x: 1010, y: 470 } },
         { ...sandalye(230, 486) },
+        {
+          tur: "bitki", bitkiler: [
+            { tur: "lale", x: 250, y: 560, hal: 2 }, { tur: "gul", x: 335, y: 575, hal: 1 },
+            { tur: "papatya", x: 850, y: 565 }, { tur: "aycicegi", x: 940, y: 555, hal: 2 }, { tur: "lale", x: 1030, y: 570 },
+          ],
+        },
       ],
     },
 
@@ -341,6 +374,12 @@ window.OYUN_VERI = {
       noktalar: [
         { tur: "kaydirak", x: 350, y: 200, w: 360, h: 290, ust: { x: 445, y: 232 }, alt: { x: 690, y: 470 } },
         sandalye(1010, 486),
+        {
+          tur: "bitki", bitkiler: [
+            { tur: "aycicegi", x: 250, y: 560, hal: 1 }, { tur: "papatya", x: 330, y: 575, hal: 2 },
+            { tur: "gul", x: 800, y: 570, hal: 2 }, { tur: "lale", x: 880, y: 560 }, { tur: "papatya", x: 960, y: 575 },
+          ],
+        },
       ],
     },
 
@@ -361,6 +400,11 @@ window.OYUN_VERI = {
       ad: "Park", simge: "park",
       resim: "cizimler/mekan/park.jpg", zemin: ZEMIN_ACIK, giris: { x: 270, y: 590 },
       kapilar: [{ ...BAHCE_KAPI_SOL, hedef: "dunya", yer: "park" }],
+      calisan: {
+        meslek: "bahcivan", x: 380, y: 500,
+        selam: "Hoş geldiniz! Parkımız bugün çok güzel.",
+        sozler: ["Çiçeklere dikkat edelim, koparmayalım.", "Ağaçları her sabah ben suluyorum.", "Fıskiyenin suyu çok serin!", "Çöpleri çöp kutusuna atalım lütfen.", "Bankta oturup dinlenebilirsiniz."],
+      },
       noktalar: [
         { tur: "fiskiye", x: 600, y: 300, w: 200, h: 180, su: { x: 700, y: 324 }, acik: true },
         { tur: "otur", x: 950, y: 320, w: 100, h: 160, oturma: { x: 1000, y: 474 } },
@@ -371,6 +415,11 @@ window.OYUN_VERI = {
       ad: "Oyun alanı", simge: "oyun",
       resim: "cizimler/mekan/oyun.jpg", zemin: ZEMIN_ACIK, giris: { x: 270, y: 590 },
       kapilar: [{ ...BAHCE_KAPI_SOL, hedef: "dunya", yer: "oyun" }],
+      calisan: {
+        meslek: "gorevli", x: 610, y: 510,
+        selam: "Hoş geldiniz! Hadi oyun oynayalım!",
+        sozler: ["Kaydıraktan sırayla kayalım.", "Salıncakta sıkı tutunun!", "Kumdan kale yapalım mı?", "Koşarken dikkat edin, düşmeyin!", "Su içmeyi unutmayın."],
+      },
       noktalar: [
         { tur: "salincak", x: 300, y: 180, w: 240, h: 300, asma: { x: 420, y: 192 }, ip: 200 },
         { tur: "kaydirak", x: 660, y: 200, w: 360, h: 290, ust: { x: 755, y: 232 }, alt: { x: 1000, y: 470 } },
@@ -380,12 +429,22 @@ window.OYUN_VERI = {
       ad: "Okul", simge: "okul",
       resim: "cizimler/mekan/okul.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "okul" }],
+      calisan: {
+        meslek: "ogretmen", x: 960, y: 500,
+        selam: "Günaydın çocuklar, hoş geldiniz!",
+        sozler: ["Kitaplarınızı açın, bugün okuma yapacağız.", "Bugün resim dersimiz var.", "Aferin, çok güzel cevap!", "Parmak kaldırıp söz alalım.", "Teneffüs zili çaldı!"],
+      },
       noktalar: [sandalye(360, 476), sandalye(620, 476)],
     },
     kafe: {
       ad: "Kafe", simge: "kafe",
       resim: "cizimler/mekan/kafe.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kafe" }],
+      calisan: {
+        meslek: "garson", x: 480, y: 500,
+        selam: "Hoş geldiniz! Ne içersiniz? Çay, kahve ya da sıcak çikolata?",
+        sozler: ["Kurabiyelerimiz fırından yeni çıktı.", "Şekerli mi olsun, şekersiz mi?", "Siparişiniz hemen geliyor.", "Buyurun, masanız hazır.", "Afiyet olsun!"],
+      },
       noktalar: [
         { tur: "musluk", x: 260, y: 230, w: 100, h: 100, su: { x: 310, y: 306, boy: 22, renk: [130, 80, 45] } },
         { tur: "raf", raflar: [{ sablon: "kupa", x: 395, y: 332 }, { sablon: "kurabiye", x: 545, y: 332 }] },
@@ -396,6 +455,11 @@ window.OYUN_VERI = {
       ad: "Market", simge: "market",
       resim: "cizimler/mekan/market.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "market" }],
+      calisan: {
+        meslek: "kasiyer", x: 960, y: 500,
+        selam: "Hoş geldiniz! Aradığınızı bulabildiniz mi?",
+        sozler: ["Meyveler bugün çok taze.", "Poşet ister misiniz?", "Kasaya buyurun, ürünleri okutayım.", "Fişiniz burada. İyi günler!", "Bugün sütte indirim var."],
+      },
       noktalar: [
         {
           tur: "raf", raflar: [
@@ -413,6 +477,11 @@ window.OYUN_VERI = {
       ad: "Oyuncakçı", simge: "oyuncak",
       resim: "cizimler/mekan/oyuncakci.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "oyuncakci" }],
+      calisan: {
+        meslek: "oyuncakci", x: 620, y: 510,
+        selam: "Hoş geldin! Hangi oyuncağa bakmıştın?",
+        sozler: ["Bu top çok yükseğe zıplıyor!", "Yeni oyuncak arabalar geldi.", "Hediye paketi yapalım mı?", "Ayıcığımız çok yumuşak, sarılabilirsin.", "Pilleri de vereyim mi?"],
+      },
       noktalar: [
         {
           tur: "raf", raflar: [
@@ -427,6 +496,11 @@ window.OYUN_VERI = {
       ad: "Hastane", simge: "hastane",
       resim: "cizimler/mekan/hastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "hastane" }],
+      calisan: {
+        meslek: "doktor", x: 760, y: 500,
+        selam: "Hoş geldiniz! Ne rahatsızlığınız vardı?",
+        sozler: ["Ağzınızı açın, aaa deyin.", "Derin nefes alın, verin.", "Ateşiniz var mı? Bir ölçelim.", "Şurubunuzu günde üç kez için.", "Geçmiş olsun! Bol su için, dinlenin."],
+      },
       noktalar: [
         { tur: "yatak", x: 290, y: 280, w: 340, h: 200, yatis: { x: 320, y: 318 }, uzunluk: 270, yorgan: { x: 306, y: 300, w: 190, h: 84 }, renk: [150, 210, 240] },
       ],
@@ -435,6 +509,11 @@ window.OYUN_VERI = {
       ad: "Kuaför", simge: "kuafor",
       resim: "cizimler/mekan/kuafor.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kuafor" }],
+      calisan: {
+        meslek: "kuafor", x: 560, y: 495,
+        selam: "Hoş geldiniz! Saçınızı bugün nasıl kesmemi istersiniz?",
+        sozler: ["Uçlarını mı alalım, kısa mı keselim?", "Önce saçınızı yıkayalım.", "Fön mü çekelim, maşa mı yapalım?", "Kakül ister misiniz?", "Saçınız çok güzel oldu!"],
+      },
       noktalar: [
         { tur: "otur", x: 340, y: 290, w: 160, h: 190, oturma: { x: 420, y: 452 } },
         { tur: "musluk", x: 700, y: 270, w: 160, h: 100, su: { x: 800, y: 288, boy: 24 } },
@@ -444,6 +523,11 @@ window.OYUN_VERI = {
       ad: "Kütüphane", simge: "kutuphane",
       resim: "cizimler/mekan/kutuphane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "kutuphane" }],
+      calisan: {
+        meslek: "kutuphaneci", x: 640, y: 520,
+        selam: "Hoş geldiniz! Hangi kitabı arıyorsunuz?",
+        sozler: ["Kütüphanede sessiz olalım, şşş.", "Masal kitapları şu rafta.", "Kitabı iki hafta sonra geri getirin.", "Kütüphane kartınız var mı?", "Okumak çok güzel, değil mi?"],
+      },
       noktalar: [
         {
           tur: "raf", raflar: [
@@ -458,6 +542,11 @@ window.OYUN_VERI = {
       ad: "Pastane", simge: "pastane",
       resim: "cizimler/mekan/pastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "pastane" }],
+      calisan: {
+        meslek: "pastaci", x: 770, y: 500,
+        selam: "Hoş geldiniz! Bugün taze pastalarımız var.",
+        sozler: ["Doğum günü pastası mı istersiniz?", "Çilekli mi olsun, çikolatalı mı?", "Kurabiyeler fırından yeni çıktı.", "Mumlarını da koyayım mı?", "Afiyet olsun!"],
+      },
       noktalar: [
         {
           tur: "raf", raflar: [
@@ -507,6 +596,7 @@ window.OYUN_VERI = {
       { id: "kup2", tur: "esya", sablon: "kup", mekan: "ev2-cocuk", x: 760, y: 640 },
       { id: "telefon2", tur: "esya", sablon: "telefon", mekan: "ev2-salon", x: 900, y: 640 },
       { id: "top3", tur: "esya", sablon: "top", mekan: "bahce2", x: 860, y: 630 },
+      { id: "sulama2", tur: "esya", sablon: "sulama-kabi", mekan: "bahce2", x: 620, y: 640 },
       { id: "kupa3", tur: "esya", sablon: "kupa", mekan: "ev3-oda", x: 650, y: 620 },
       { id: "ayi1", tur: "karakter", sablon: "ayi", mekan: "park", x: 820, y: 600 },
       { id: "cicek2", tur: "esya", sablon: "cicek", mekan: "park", x: 400, y: 640 },
