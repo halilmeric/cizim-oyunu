@@ -213,19 +213,21 @@ window.OYUN_VERI = {
       ad: "Salon", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/oda.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "dunya", yer: "ev1" },
-        { ...KAPI_SAG, hedef: "mutfak", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "dunya", yer: "ev1" },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "mutfak", giris: GIRIS_SOL },
       ],
       noktalar: [
-        { tur: "tv", x: 790, y: 180, w: 200, h: 185, ekran: { x: 806, y: 232, w: 140, h: 124 } },
+        { tur: "tv", x: 827, y: 180, w: 180, h: 175, ekran: { x: 852, y: 250, w: 125, h: 87 } },
         {
-          tur: "dolap", x: 770, y: 370, w: 230, h: 92,
-          resim: "cizimler/mekan/tv-dolabi-acik.png", x0: 712, y0: 362,
+          tur: "dolap", x: 802, y: 367, w: 240, h: 98,
+          resim: "cizimler/mekan/tv-dolabi-acik.png", x0: 765, y0: 362,
           raflar: [
-            { sablon: "kumanda", x: 815, y: 407 }, { sablon: "kitap", x: 885, y: 407 }, { sablon: "telefon", x: 955, y: 407 },
-            { sablon: "kup", x: 830, y: 441 }, { sablon: "ordek", x: 935, y: 441 },
+            { sablon: "kumanda", x: 860, y: 424 }, { sablon: "kitap", x: 930, y: 424 }, { sablon: "telefon", x: 1000, y: 424 },
+            { sablon: "kup", x: 875, y: 452 }, { sablon: "ordek", x: 985, y: 452 },
           ],
         },
+        // Sağ alttaki kanepe: karakter üstüne bırakılınca oturur.
+        { tur: "otur", x: 1120, y: 490, w: 160, h: 190, oturma: { x: 1205, y: 645 } },
       ],
     },
     mutfak: {
