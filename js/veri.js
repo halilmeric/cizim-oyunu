@@ -97,6 +97,7 @@ window.OYUN_VERI = {
     kova: { resim: "cizimler/esya/kova.png", boy: 52, eylem: "kaz" },
     cicek: { resim: "cizimler/esya/cicek.png", boy: 70, eylem: "kokla" },
     tencere: { resim: "cizimler/esya/tencere.png", boy: 60, eylem: "karistir", ocak: true },
+    "tencere-gri": { resim: "cizimler/esya/tencere-gri.png", boy: 60, eylem: "karistir", ocak: true },
     tava: { resim: "cizimler/esya/tava.png", boy: 34, eylem: "karistir", ocak: true },
     bardak: { resim: "cizimler/esya/bardak.png", boy: 50, eylem: "ic", kirilir: true },
     kumanda: { resim: "cizimler/esya/kumanda.png", boy: 50, eylem: "kumanda" },
@@ -168,6 +169,7 @@ window.OYUN_VERI = {
   //     klozet: karakter oturur, beli piksel sansürle örtülür. Kalkınca sifon çekilir.
   //     otur: sandalye, kanepe, bank. Karakter bırakılınca oturur.
   //     yatak: karakter bırakılınca yatar ve uyur. yatis: ayak ucu. uzunluk: ayaktan yastığa. yorgan: üstünü örten örtü.
+  //            yon: -1 ise yastık soldadır (varsayılan 1, yastık sağda).
   //     salincak: karakter bırakılınca sallanır. asma: ipin bağlı olduğu nokta. ip: ipin boyu.
   //     kaydirak: karakter bırakılınca üstten alta kayar.
   //     tezgah: eşya bırakılınca üstüne konur. ust: eşyaların durduğu çizgi.
@@ -177,60 +179,34 @@ window.OYUN_VERI = {
   //     bitki: dikili çiçekler. hal: başlangıç hali (0 filiz, 1 tomurcuk, 2 çiçek). Taşınmaz. Sulama kabını tutan karaktere dokununca gider ve en yakın çiçeği sular.
   //   calisan: mekanın sabit kişisi. Gelen karaktere selam verir. Dokununca sozler'den birini söyler.
   mekanlar: {
-    // Mahalle haritası. Geniş bir sokak: kamera sağa sola kayar.
+    // Kasaba haritası. Kuşbakışı tek resim: kamera dört yöne kayar.
     dunya: {
       ad: "Meriç Sokağı", simge: "harita", tur: "dunya",
-      genislik: 6520,
-      taban: 472, // binaların oturduğu çizgi
-      zemin: { ust: 482, alt: 705, sol: 30, sag: 6490 },
-      olcek: 0.55, // haritada karakter ve eşyalar küçük görünür
-      zeminResim: "cizimler/dunya/zemin.jpg", // 1280 piksellik parça yan yana tekrar eder
-      // Sokaktan ara sıra geçen araçlar.
-      araclar: ["cizimler/dunya/arac-araba.png", "cizimler/dunya/arac-taksi.png", "cizimler/dunya/arac-mavi.png", "cizimler/dunya/arac-otobus.png"],
-      giris: { x: 420, y: 600 },
-      // Haritadaki yerler. x: resmin sol kenarı, alt kenarı tabana oturur.
-      // kapi: resmin alt kenarından ölçülen kapı (x, w, h). hedef: kapıdan girilen mekan.
+      // Resim iki yarıdır: Kaplay 2048 pikselden geniş tek resim yükleyemez. Yarılar soldan sağa yan yana durur.
+      haritaResim: ["cizimler/dunya/kasaba-1.jpg", "cizimler/dunya/kasaba-2.jpg"],
+      genislik: 2560, yukseklik: 1429,
+      zemin: { ust: 300, alt: 1410, sol: 30, sag: 2530 },
+      olcek: 0.4, // haritada karakter ve eşyalar küçük görünür
+      derinlikUst: 0.8, // en üstte (uzakta) boy bu kadar küçülür
+      giris: { x: 1120, y: 580 },
+      // Haritadaki yerler. alan: dokununca ya da üstüne bırakınca o yere gidilen dikdörtgen.
+      // on: karakterin kapıya yürüdüğü ve dışarı çıkınca durduğu nokta. hedef: girilen mekan.
       yerler: [
-        { id: "ev1", resim: "cizimler/dis/ev1.png", x: 180, kapi: { x: 136, w: 88, h: 176 }, hedef: "oda" },
-        { id: "bahce1", resim: "cizimler/dis/bahce1.png", x: 570, kapi: { x: 118, w: 90, h: 120 }, hedef: "bahce1" },
-        { id: "ev2", resim: "cizimler/dis/ev2.png", x: 920, kapi: { x: 162, w: 96, h: 182 }, hedef: "ev2-salon" },
-        { id: "bahce2", resim: "cizimler/dis/bahce2.png", x: 1370, kapi: { x: 118, w: 90, h: 120 }, hedef: "bahce2" },
-        { id: "ev3", resim: "cizimler/dis/ev3.png", x: 1740, kapi: { x: 146, w: 78, h: 152 }, hedef: "ev3-oda" },
-        { id: "park", resim: "cizimler/dis/park.png", x: 2080, kapi: { x: 196, w: 100, h: 130 }, hedef: "park" },
-        { id: "oyun", resim: "cizimler/dis/oyun.png", x: 2610, kapi: { x: 160, w: 92, h: 120 }, hedef: "oyun" },
-        { id: "okul", resim: "cizimler/dis/okul.png", x: 3090, kapi: { x: 182, w: 116, h: 168 }, hedef: "okul" },
-        { id: "kafe", resim: "cizimler/dis/kafe.png", x: 3630, kapi: { x: 177, w: 108, h: 170 }, hedef: "kafe" },
-        { id: "market", resim: "cizimler/dis/market.png", x: 3990, kapi: { x: 192, w: 123, h: 160 }, hedef: "market" },
-        { id: "oyuncakci", resim: "cizimler/dis/oyuncakci.png", x: 4380, kapi: { x: 182, w: 113, h: 180 }, hedef: "oyuncakci" },
-        { id: "hastane", resim: "cizimler/dis/hastane.png", x: 4760, kapi: { x: 154, w: 112, h: 164 }, hedef: "hastane" },
-        { id: "kuafor", resim: "cizimler/dis/kuafor.png", x: 5240, kapi: { x: 166, w: 99, h: 160 }, hedef: "kuafor" },
-        { id: "kutuphane", resim: "cizimler/dis/kutuphane.png", x: 5590, kapi: { x: 136, w: 108, h: 196 }, hedef: "kutuphane" },
-        { id: "pastane", resim: "cizimler/dis/pastane.png", x: 6030, kapi: { x: 177, w: 108, h: 170 }, hedef: "pastane" },
-      ],
-      // Süsler: dokunulmaz, sadece görünür. x: orta nokta, y: taban. arka: binaların arkasında durur.
-      susler: [
-        { resim: "cizimler/dunya/cam.png", x: 40, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 880, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 1700, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 2580, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 3590, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 4740, y: 430, arka: true },
-        { resim: "cizimler/dunya/cam.png", x: 5990, y: 430, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 90, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 2050, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 3600, y: 474, arka: true },
-        { resim: "cizimler/dunya/agac.png", x: 6430, y: 474, arka: true },
-        { resim: "cizimler/dunya/lamba.png", x: 556, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 1356, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 2585, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 3966, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 4730, y: 486 },
-        { resim: "cizimler/dunya/lamba.png", x: 5562, y: 486 },
-        { resim: "cizimler/dunya/cicek.png", x: 1710, y: 476 },
-        { resim: "cizimler/dunya/cali.png", x: 150, y: 478 },
-        { resim: "cizimler/dunya/cali.png", x: 3570, y: 478 },
-        { resim: "cizimler/dunya/cali.png", x: 5200, y: 478 },
-        { resim: "cizimler/dunya/cicek.png", x: 3060, y: 476 },
+        { id: "ev1", alan: { x: 190, y: 100, w: 420, h: 420 }, on: { x: 525, y: 540 }, hedef: "oda" },
+        { id: "bahce1", alan: { x: 160, y: 520, w: 520, h: 260 }, on: { x: 400, y: 650 }, hedef: "bahce1" },
+        { id: "pastane", alan: { x: 625, y: 120, w: 415, h: 360 }, on: { x: 965, y: 500 }, hedef: "pastane" },
+        { id: "oyun", alan: { x: 1040, y: 160, w: 225, h: 350 }, on: { x: 1160, y: 520 }, hedef: "oyun" },
+        { id: "park", alan: { x: 1265, y: 160, w: 265, h: 350 }, on: { x: 1300, y: 520 }, hedef: "park" },
+        { id: "okul", alan: { x: 1530, y: 80, w: 365, h: 400 }, on: { x: 1712, y: 495 }, hedef: "okul" },
+        { id: "ev2", alan: { x: 2010, y: 120, w: 375, h: 390 }, on: { x: 2120, y: 530 }, hedef: "ev2-salon" },
+        { id: "bahce2", alan: { x: 1880, y: 510, w: 680, h: 260 }, on: { x: 1930, y: 660 }, hedef: "bahce2" },
+        { id: "market", alan: { x: 720, y: 615, w: 350, h: 360 }, on: { x: 1000, y: 965 }, hedef: "market" },
+        { id: "kutuphane", alan: { x: 1130, y: 585, w: 340, h: 375 }, on: { x: 1300, y: 965 }, hedef: "kutuphane" },
+        { id: "oyuncakci", alan: { x: 1512, y: 610, w: 360, h: 270 }, on: { x: 1900, y: 930 }, hedef: "oyuncakci" },
+        { id: "hastane", alan: { x: 1464, y: 880, w: 424, h: 500 }, on: { x: 1640, y: 1395 }, hedef: "hastane" },
+        { id: "kuafor", alan: { x: 720, y: 990, w: 360, h: 390 }, on: { x: 1005, y: 1395 }, hedef: "kuafor" },
+        { id: "kafe", alan: { x: 1085, y: 990, w: 355, h: 390 }, on: { x: 1368, y: 1395 }, hedef: "kafe" },
+        { id: "ev3", alan: { x: 0, y: 800, w: 610, h: 580 }, on: { x: 290, y: 1300 }, hedef: "ev3-oda" },
       ],
     },
 
@@ -239,90 +215,97 @@ window.OYUN_VERI = {
       ad: "Salon", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/oda.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "dunya", yer: "ev1" },
-        { ...KAPI_SAG, hedef: "mutfak", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "dunya", yer: "ev1" },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "mutfak", giris: GIRIS_SOL },
       ],
       noktalar: [
-        { tur: "tv", x: 790, y: 180, w: 200, h: 185, ekran: { x: 806, y: 232, w: 140, h: 124 } },
+        { tur: "tv", x: 827, y: 180, w: 180, h: 175, ekran: { x: 852, y: 250, w: 125, h: 87 } },
         {
-          tur: "dolap", x: 770, y: 370, w: 230, h: 92,
-          resim: "cizimler/mekan/tv-dolabi-acik.png", x0: 712, y0: 362,
+          tur: "dolap", x: 802, y: 367, w: 240, h: 98,
+          resim: "cizimler/mekan/tv-dolabi-acik.png", x0: 765, y0: 362,
           raflar: [
-            { sablon: "kumanda", x: 815, y: 407 }, { sablon: "kitap", x: 885, y: 407 }, { sablon: "telefon", x: 955, y: 407 },
-            { sablon: "kup", x: 830, y: 441 }, { sablon: "ordek", x: 935, y: 441 },
+            { sablon: "kumanda", x: 860, y: 424 }, { sablon: "kitap", x: 930, y: 424 }, { sablon: "telefon", x: 1000, y: 424 },
+            { sablon: "kup", x: 875, y: 452 }, { sablon: "ordek", x: 985, y: 452 },
           ],
         },
+        // Sağ alttaki kanepe: karakter üstüne bırakılınca oturur.
+        { tur: "otur", x: 1120, y: 490, w: 160, h: 190, oturma: { x: 1205, y: 645 } },
       ],
     },
     mutfak: {
       ad: "Mutfak", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/mutfak.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "oda", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "banyo", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "oda", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "banyo", giris: GIRIS_SOL },
       ],
       noktalar: [
         {
-          tur: "dolap", x: 225, y: 140, w: 160, h: 318,
-          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 146, y0: 122,
+          tur: "dolap", x: 225, y: 173, w: 183, h: 314,
+          resim: "cizimler/mekan/buzdolabi-acik.png", x0: 160, y0: 170,
           raflar: [
-            { sablon: "sut", x: 270, y: 214 }, { sablon: "portakal-suyu", x: 335, y: 214 },
-            { sablon: "peynir", x: 265, y: 284 }, { sablon: "cilek", x: 312, y: 284 }, { sablon: "havuc", x: 350, y: 284 },
-            { sablon: "karpuz", x: 270, y: 354 }, { sablon: "dondurma", x: 340, y: 354 },
+            { sablon: "sut", x: 270, y: 251 }, { sablon: "portakal-suyu", x: 340, y: 251 },
+            { sablon: "peynir", x: 262, y: 326 }, { sablon: "cilek", x: 308, y: 326 }, { sablon: "havuc", x: 352, y: 326 },
+            { sablon: "karpuz", x: 275, y: 401 }, { sablon: "dondurma", x: 345, y: 401 },
           ],
         },
-        { tur: "musluk", x: 600, y: 290, w: 130, h: 70, su: { x: 690, y: 318, boy: 26 } },
-        { tur: "ocak", x: 750, y: 300, w: 140, h: 60, gozler: [{ x: 785, y: 345 }, { x: 850, y: 345 }] },
-        { tur: "tezgah", x: 390, y: 250, w: 530, h: 106, ust: 346 },
+        { tur: "musluk", x: 645, y: 318, w: 70, h: 50, su: { x: 690, y: 342, boy: 20 } },
+        { tur: "ocak", x: 755, y: 340, w: 140, h: 48, gozler: [{ x: 793, y: 372 }, { x: 857, y: 372 }] },
+        { tur: "tezgah", x: 395, y: 270, w: 523, h: 115, ust: 372 },
         // Tezgahın altındaki beş dolap. Hepsi aynı açık dolap resmini kullanır.
-        ...[["bardak", "tencere"], ["bardak", "tava"], ["kupa", "tencere"], ["bardak", "tava"], ["kupa", "tencere"]].map(([ust, alt], i) => ({
-          tur: "dolap", x: 410 + i * 100, y: 362, w: 92, h: 86,
-          resim: "cizimler/mekan/mutfak-dolap-acik.png", x0: 358 + i * 100, y0: 350,
-          raflar: [{ sablon: ust, x: 456 + i * 100, y: 401 }, { sablon: alt, x: 456 + i * 100, y: 444 }],
+        ...[["bardak", "tencere"], ["bardak", "tava"], ["kupa", "tencere-gri"], ["bardak", "tava"], ["kupa", "tencere"]].map(([ust, alt], i) => ({
+          tur: "dolap", x: 410 + i * 100, y: 393, w: 90, h: 82,
+          resim: "cizimler/mekan/mutfak-dolap-acik.png", x0: 358 + i * 100, y0: 385,
+          raflar: [{ sablon: ust, x: 455 + i * 100, y: 431 }, { sablon: alt, x: 455 + i * 100, y: 470 }],
         })),
+        // Sağ alttaki tabure: karakter üstüne bırakılınca oturur.
+        sandalye(1200, 662),
       ],
     },
+
     banyo: {
       ad: "Banyo", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/banyo.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "mutfak", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "yatak", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "mutfak", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "yatak", giris: GIRIS_SOL },
       ],
       noktalar: [
-        { tur: "musluk", x: 300, y: 255, w: 150, h: 90, su: { x: 393, y: 270, boy: 30 } },
-        { tur: "musluk", x: 950, y: 235, w: 95, h: 95, su: { x: 985, y: 270, boy: 45 } },
+        { tur: "musluk", x: 330, y: 290, w: 90, h: 55, su: { x: 373, y: 322, boy: 20 } },
+        { tur: "musluk", x: 1000, y: 305, w: 80, h: 50, su: { x: 1021, y: 336, boy: 36 } },
         {
-          tur: "kuvet", x: 640, y: 200, w: 400, h: 260,
-          resim: "cizimler/mekan/kuvet-on.png", x0: 637, y0: 303,
-          su: 326, dip: 442, yerler: [{ x: 765 }, { x: 915 }],
+          tur: "kuvet", x: 720, y: 300, w: 355, h: 200,
+          resim: "cizimler/mekan/kuvet-on.png", x0: 715, y0: 345,
+          su: 372, dip: 492, yerler: [{ x: 825 }, { x: 970 }],
         },
-        { tur: "klozet", x: 460, y: 270, w: 160, h: 200, oturma: { x: 540, y: 448 } },
+        { tur: "klozet", x: 555, y: 320, w: 115, h: 185, oturma: { x: 613, y: 483 } },
       ],
     },
+
     yatak: {
       ad: "Yatak odası", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/yatak.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "banyo", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "bahce1", giris: { x: 250, y: 590 } },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "banyo", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "bahce1", giris: { x: 250, y: 590 } },
       ],
       noktalar: [
-        { tur: "yatak", x: 220, y: 280, w: 350, h: 200, yatis: { x: 250, y: 318 }, uzunluk: 270, yorgan: { x: 236, y: 300, w: 190, h: 84 }, renk: [130, 170, 235] },
-        { tur: "lamba", x: 580, y: 290, w: 90, h: 95, isik: { x: 625, y: 318 } },
+        { tur: "yatak", x: 230, y: 280, w: 350, h: 210, yatis: { x: 535, y: 420 }, uzunluk: 250, yon: -1, yorgan: { x: 335, y: 378, w: 205, h: 66 }, renk: [108, 141, 194] },
+        { tur: "lamba", x: 585, y: 305, w: 85, h: 90, isik: { x: 627, y: 335 } },
         {
-          tur: "dolap", x: 800, y: 140, w: 200, h: 326,
-          resim: "cizimler/mekan/gardirop-acik.png", x0: 736, y0: 124,
+          tur: "dolap", x: 838, y: 192, w: 214, h: 288,
+          resim: "cizimler/mekan/gardirop-acik.png", x0: 796, y0: 190,
           raflar: [
             // sira: biri alınınca rafa sıradaki renk gelir.
-            { sablon: "sapka", x: 900, y: 205 },
-            { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 850, y: 360 },
-            { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 950, y: 330 },
-            { sablon: "pantolon", sira: ["pantolon", "pantolon-pembe", "pantolon-kahve"], x: 900, y: 452 },
+            { sablon: "sapka", x: 953, y: 252 },
+            { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 908, y: 412 },
+            { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 998, y: 378 },
+            { sablon: "pantolon", sira: ["pantolon", "pantolon-pembe", "pantolon-kahve"], x: 953, y: 456 },
           ],
         },
       ],
     },
+
     bahce1: {
       ad: "Bahçe", simge: "bahce", ev: "ev1",
       resim: "cizimler/mekan/bahce1.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
@@ -431,14 +414,23 @@ window.OYUN_VERI = {
     },
     okul: {
       ad: "Okul", simge: "okul",
-      resim: "cizimler/mekan/okul.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "okul" }],
+      // Sınıf resminin kendi perspektifi var: arka duvar daha yukarıda, kapı daha dar.
+      resim: "cizimler/mekan/okul.jpg",
+      zemin: { ust: 380, alt: 705, sol: 30, sag: 1250, ufuk: { x: 660, y: 58 }, arka: { sol: 321, sag: 1000, y: 342 } },
+      olcek: 0.65, // sıralar küçük çizili: karakterler de küçük görünür
+      giris: { x: 240, y: 590 },
+      kapilar: [{ x: 70, y: 200, w: 105, h: 355, hedef: "dunya", yer: "okul" }],
       calisan: {
-        meslek: "ogretmen", x: 960, y: 500,
+        meslek: "ogretmen", x: 1010, y: 480,
         selam: "Günaydın çocuklar, hoş geldiniz!",
         sozler: ["Kitaplarınızı açın, bugün okuma yapacağız.", "Bugün resim dersimiz var.", "Aferin, çok güzel cevap!", "Parmak kaldırıp söz alalım.", "Teneffüs zili çaldı!"],
       },
-      noktalar: [sandalye(360, 476), sandalye(620, 476)],
+      // Öğrenci sıralarının ve öğretmen masasının sandalyeleri.
+      noktalar: [
+        sandalye(395, 460), sandalye(677, 460), sandalye(893, 460),
+        sandalye(316, 609), sandalye(586, 612), sandalye(686, 609),
+        sandalye(1181, 660),
+      ],
     },
     kafe: {
       ad: "Kafe", simge: "kafe",
@@ -566,10 +558,10 @@ window.OYUN_VERI = {
   baslangic: {
     mekan: "dunya",
     varliklar: [
-      { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "dunya", x: 380, y: 600 },
-      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "dunya", x: 470, y: 620 },
-      { id: "kopek1", tur: "karakter", sablon: "kopek", mekan: "dunya", x: 600, y: 660 },
-      { id: "top4", tur: "esya", sablon: "top", mekan: "dunya", x: 640, y: 640 },
+      { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "dunya", x: 1080, y: 570 },
+      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "dunya", x: 1160, y: 585 },
+      { id: "kopek1", tur: "karakter", sablon: "kopek", mekan: "dunya", x: 1250, y: 600 },
+      { id: "top4", tur: "esya", sablon: "top", mekan: "dunya", x: 1320, y: 590 },
       { id: "telefon1", tur: "esya", sablon: "telefon", mekan: "oda", x: 330, y: 650 },
       { id: "kitap1", tur: "esya", sablon: "kitap", mekan: "oda", x: 930, y: 660 },
       { id: "top1", tur: "esya", sablon: "top", mekan: "oda", x: 640, y: 665 },
