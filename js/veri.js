@@ -266,20 +266,21 @@ window.OYUN_VERI = {
       ad: "Banyo", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/banyo.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "mutfak", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "yatak", giris: GIRIS_SOL },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "mutfak", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "yatak", giris: GIRIS_SOL },
       ],
       noktalar: [
-        { tur: "musluk", x: 300, y: 255, w: 150, h: 90, su: { x: 393, y: 270, boy: 30 } },
-        { tur: "musluk", x: 950, y: 235, w: 95, h: 95, su: { x: 985, y: 270, boy: 45 } },
+        { tur: "musluk", x: 330, y: 290, w: 90, h: 55, su: { x: 373, y: 322, boy: 20 } },
+        { tur: "musluk", x: 1000, y: 305, w: 80, h: 50, su: { x: 1021, y: 336, boy: 36 } },
         {
-          tur: "kuvet", x: 640, y: 200, w: 400, h: 260,
-          resim: "cizimler/mekan/kuvet-on.png", x0: 637, y0: 303,
-          su: 326, dip: 442, yerler: [{ x: 765 }, { x: 915 }],
+          tur: "kuvet", x: 720, y: 300, w: 355, h: 200,
+          resim: "cizimler/mekan/kuvet-on.png", x0: 715, y0: 345,
+          su: 372, dip: 492, yerler: [{ x: 825 }, { x: 970 }],
         },
-        { tur: "klozet", x: 460, y: 270, w: 160, h: 200, oturma: { x: 540, y: 448 } },
+        { tur: "klozet", x: 555, y: 320, w: 115, h: 185, oturma: { x: 613, y: 483 } },
       ],
     },
+
     yatak: {
       ad: "Yatak odası", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/yatak.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
