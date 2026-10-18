@@ -1,38 +1,57 @@
 // Dünyanın tüm içeriği burada durur.
 // Yeni çizim eklemek için sadece bu dosya değişir.
+// Resimler araclar/uret.py ile üretilir.
+
+// Odaların ortak perspektif çizgileri (araclar/uret.py ile aynı sayılar).
+const ZEMIN = {
+  ust: 480, alt: 690, sol: 30, sag: 1250,
+  ufuk: { x: 640, y: 120 }, arka: { sol: 200, sag: 1080, y: 440 },
+};
+// Yan duvar kapıları. Dokunma alanı kapının resmini kapsar.
+const KAPI_SOL = { x: 30, y: 185, w: 135, h: 380 };
+const KAPI_SAG = { x: 1115, y: 185, w: 135, h: 380 };
 
 window.OYUN_VERI = {
   // Şablonlar: bir çizim bir kez tanımlanır, dünyada birçok kez kullanılır.
   karakterler: {
-    // resim: temizlenmiş PNG. parcalar: araclar/parcala.py çıktısı. boy: ekranın önündeki piksel boyu.
-    kedi: { resim: "cizimler/kedi.png", parcalar: "kedi", boy: 300 },
+    // resim: hacimli PNG. parcalar: araclar/parcala.py çıktısı. boy: ekranın önündeki piksel boyu.
+    kedi: { resim: "cizimler/hacimli/kedi.png", parcalar: "kedi", boy: 300 },
+    kiz: { resim: "cizimler/hacimli/kiz.png", parcalar: "kiz", boy: 360 },
+    ayi: { resim: "cizimler/hacimli/ayi.png", boy: 310 },
   },
   esyalar: {
-    // sekil: çizim gelene kadar kodla çizilen geçici şekil. Çizim gelince "resim" eklenir.
-    top: { sekil: "top", boy: 56 },
-    elma: { sekil: "elma", boy: 50 },
-    ordek: { sekil: "ordek", boy: 60 },
+    // resim: eşyanın PNG dosyası. boy: ekranın önündeki piksel boyu.
+    top: { resim: "cizimler/esya/top.png", boy: 74 },
+    telefon: { resim: "cizimler/esya/telefon.png", boy: 62 },
+    kitap: { resim: "cizimler/esya/kitap.png", boy: 58 },
+    tahin: { resim: "cizimler/esya/tahin.png", boy: 70 },
+    elma: { resim: "cizimler/esya/elma.png", boy: 50 },
+    sut: { resim: "cizimler/esya/sut.png", boy: 84 },
+    kupa: { resim: "cizimler/esya/kupa.png", boy: 48 },
+    ordek: { resim: "cizimler/esya/ordek.png", boy: 60 },
+    sabun: { resim: "cizimler/esya/sabun.png", boy: 34 },
+    sampuan: { resim: "cizimler/esya/sampuan.png", boy: 82 },
   },
 
-  // Mekanlar. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
+  // Mekanlar. resim: arka plan. zemin: karakterlerin durduğu bant. kapilar: başka mekana geçiş.
   mekanlar: {
     oda: {
-      gecici: "oda",
-      zemin: { ust: 470, alt: 690, sol: 60, sag: 1220 },
-      kapilar: [{ x: 1080, y: 200, w: 140, h: 270, hedef: "mutfak", giris: { x: 220, y: 560 } }],
+      resim: "cizimler/mekan/oda.jpg",
+      zemin: ZEMIN,
+      kapilar: [{ ...KAPI_SAG, hedef: "mutfak", giris: { x: 260, y: 580 } }],
     },
     mutfak: {
-      gecici: "mutfak",
-      zemin: { ust: 470, alt: 690, sol: 60, sag: 1220 },
+      resim: "cizimler/mekan/mutfak.jpg",
+      zemin: ZEMIN,
       kapilar: [
-        { x: 60, y: 200, w: 140, h: 270, hedef: "oda", giris: { x: 1060, y: 560 } },
-        { x: 1080, y: 200, w: 140, h: 270, hedef: "banyo", giris: { x: 220, y: 560 } },
+        { ...KAPI_SOL, hedef: "oda", giris: { x: 1020, y: 580 } },
+        { ...KAPI_SAG, hedef: "banyo", giris: { x: 260, y: 580 } },
       ],
     },
     banyo: {
-      gecici: "banyo",
-      zemin: { ust: 470, alt: 690, sol: 60, sag: 1220 },
-      kapilar: [{ x: 60, y: 200, w: 140, h: 270, hedef: "mutfak", giris: { x: 1060, y: 560 } }],
+      resim: "cizimler/mekan/banyo.jpg",
+      zemin: ZEMIN,
+      kapilar: [{ ...KAPI_SOL, hedef: "mutfak", giris: { x: 1020, y: 580 } }],
     },
   },
 
@@ -40,12 +59,20 @@ window.OYUN_VERI = {
   baslangic: {
     mekan: "oda",
     varliklar: [
-      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "oda", x: 480, y: 600 },
-      { id: "kedi2", tur: "karakter", sablon: "kedi", renk: [255, 205, 225], mekan: "oda", x: 800, y: 560 },
-      { id: "top1", tur: "esya", sablon: "top", mekan: "oda", x: 650, y: 660 },
-      { id: "elma1", tur: "esya", sablon: "elma", mekan: "mutfak", x: 700, y: 620 },
-      { id: "elma2", tur: "esya", sablon: "elma", mekan: "mutfak", x: 760, y: 600 },
-      { id: "ordek1", tur: "esya", sablon: "ordek", mekan: "banyo", x: 640, y: 640 },
+      { id: "kiz1", tur: "karakter", sablon: "kiz", mekan: "oda", x: 470, y: 600 },
+      { id: "kedi1", tur: "karakter", sablon: "kedi", mekan: "oda", x: 780, y: 580 },
+      { id: "top1", tur: "esya", sablon: "top", mekan: "oda", x: 640, y: 665 },
+      { id: "telefon1", tur: "esya", sablon: "telefon", mekan: "oda", x: 330, y: 650 },
+      { id: "kitap1", tur: "esya", sablon: "kitap", mekan: "oda", x: 930, y: 660 },
+      { id: "ayi1", tur: "karakter", sablon: "ayi", mekan: "mutfak", x: 700, y: 590 },
+      { id: "elma1", tur: "esya", sablon: "elma", mekan: "mutfak", x: 500, y: 640 },
+      { id: "elma2", tur: "esya", sablon: "elma", mekan: "mutfak", x: 545, y: 670 },
+      { id: "tahin1", tur: "esya", sablon: "tahin", mekan: "mutfak", x: 880, y: 650 },
+      { id: "sut1", tur: "esya", sablon: "sut", mekan: "mutfak", x: 960, y: 610 },
+      { id: "kupa1", tur: "esya", sablon: "kupa", mekan: "mutfak", x: 400, y: 600 },
+      { id: "ordek1", tur: "esya", sablon: "ordek", mekan: "banyo", x: 720, y: 650 },
+      { id: "sabun1", tur: "esya", sablon: "sabun", mekan: "banyo", x: 520, y: 640 },
+      { id: "sampuan1", tur: "esya", sablon: "sampuan", mekan: "banyo", x: 420, y: 610 },
     ],
   },
 };
