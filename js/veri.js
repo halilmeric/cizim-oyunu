@@ -449,26 +449,30 @@ window.OYUN_VERI = {
     },
     market: {
       ad: "Market", simge: "market",
-      resim: "cizimler/mekan/market.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "market" }],
+      resim: "cizimler/mekan/market.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 715, y: 290 }, arka: { sol: 300, sag: 1090, y: 465 } },
+      giris: { x: 230, y: 600 },
+      kapilar: [{ x: 40, y: 200, w: 110, h: 345, hedef: "dunya", yer: "market" }],
       calisan: {
-        meslek: "kasiyer", x: 960, y: 500,
+        meslek: "kasiyer", x: 975, y: 520,
         selam: "Hoş geldiniz! Aradığınızı bulabildiniz mi?",
         sozler: ["Meyveler bugün çok taze.", "Poşet ister misiniz?", "Kasaya buyurun, ürünleri okutayım.", "Fişiniz burada. İyi günler!", "Bugün sütte indirim var."],
       },
       noktalar: [
+        // İki mavi rafın üç katı. Raftan alınan ürünün yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "elma", x: 270, y: 230 }, { sablon: "muz", x: 345, y: 230 }, { sablon: "portakal", x: 420, y: 230 }, { sablon: "cilek", x: 495, y: 230 },
-            { sablon: "ekmek", x: 285, y: 330 }, { sablon: "peynir", x: 390, y: 330 }, { sablon: "havuc", x: 480, y: 330 },
-            { sablon: "sut", x: 275, y: 430 }, { sablon: "portakal-suyu", x: 370, y: 430 }, { sablon: "karpuz", x: 470, y: 430 },
-            { sablon: "tahin", x: 650, y: 230 }, { sablon: "kurabiye", x: 730, y: 230 }, { sablon: "dondurma", x: 810, y: 230 },
-            { sablon: "sabun", x: 650, y: 330 }, { sablon: "sampuan", x: 730, y: 330 }, { sablon: "dis-macunu", x: 810, y: 330 },
-            { sablon: "muz", x: 650, y: 430 }, { sablon: "elma", x: 730, y: 430 }, { sablon: "ekmek", x: 810, y: 430 },
+            { sablon: "elma", x: 362, y: 278 }, { sablon: "muz", x: 427, y: 278 }, { sablon: "portakal", x: 492, y: 278 }, { sablon: "cilek", x: 557, y: 278 },
+            { sablon: "ekmek", x: 375, y: 356 }, { sablon: "peynir", x: 460, y: 356 }, { sablon: "havuc", x: 545, y: 356 },
+            { sablon: "sut", x: 370, y: 434 }, { sablon: "portakal-suyu", x: 455, y: 434 }, { sablon: "karpuz", x: 545, y: 434 },
+            { sablon: "tahin", x: 685, y: 278 }, { sablon: "kurabiye", x: 765, y: 278 }, { sablon: "dondurma", x: 845, y: 278 },
+            { sablon: "sabun", x: 685, y: 356 }, { sablon: "sampuan", x: 765, y: 356 }, { sablon: "dis-macunu", x: 845, y: 356 },
+            { sablon: "muz", x: 685, y: 434 }, { sablon: "elma", x: 765, y: 434 }, { sablon: "ekmek", x: 845, y: 434 },
           ],
         },
       ],
     },
+
     oyuncakci: {
       ad: "Oyuncakçı", simge: "oyuncak",
       resim: "cizimler/mekan/oyuncakci.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
