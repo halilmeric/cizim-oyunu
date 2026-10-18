@@ -23,6 +23,15 @@ Oyunun kodu değişmez. Sadece resim dosyası eklenir ve `js/veri.js` dosyasına
    ```
    Eski kayıtlar da yeni karakteri alır. `id` benzersiz olmalı.
 
+Evcil hayvan için `evcil: true` yaz: kendi kendine gezer. `eller: 1` tek eli olduğunu söyler.
+Ağız ve el yeri farklıysa `agizX`, `agiz` ve `el: [x, y]` ile verilir (genişlik ve yükseklik oranı).
+Simgede başın görünmesi için `portre: [x, y, en, boy]` oranları verilir.
+Kıyafet yeri farklıysa `giyim: { govde: [x, omuz, en], bas: [x, tepe, en] }` yazılır.
+
+Karakterin kendi kıyafeti boyanabilir. Önce `araclar/kiyafet.py` içine karakterin renk aralıklarını yazın ve çalıştırın.
+Program `cizimler/<karakter>/<parça>-ust.png` ve `-alt.png` dosyalarını üretir. Bu dosyaları karaktere `kiyafet: { ust: { govde: "cizimler/.../govde-ust.png" }, alt: {...} }` olarak yazın.
+Karakter tişört giyince `ust` bölgesi tişörtün rengine boyanır. Pantolon `alt` bölgesini, elbise ikisini boyar.
+
 Tek parça karakter de yürür, oturur, yatar, salıncağa biner, eşya tutar ve yer.
 Kolları ve bacakları ayrı oynasın istenirse:
 `python3 araclar/parcala.py cizimler/hacimli/tavsan.png cizimler/tavsan`.
@@ -34,7 +43,10 @@ Sonra `index.html` dosyasına `cizimler/tavsan/parcalar.js` satırı ve karakter
 2. `js/veri.js` içinde `esyalar` bölümüne ekle. Her eşyanın bir işi olmalı:
    - Yiyecek: `yenir: [r, g, b]` (kırıntı rengi).
    - Oyuncak ya da araç: `eylem: "..."`. Seçenekler: at, sur, konus, oku, ic, fircala, yaz,
-     yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla.
+     yika, kurula, sik, dinle, tara, kurut, sula, kaz, kokla, karistir, kumanda.
+   - Kıyafet: `eylem: "giy", giy: "govde"`, `giy: "alt"` (pantolon) ya da `giy: "bas"`. Karaktere bırakılınca giyilir.
+     `boya: ["ust"]` ve `renk: [r, g, b]` yazılırsa karakterin kendi kıyafeti bu renge boyanır.
+   - Tencere gibi ocağa konan eşya: `ocak: true`.
 3. Yeni bir eylem gerekirse `js/oyun.js` içinde `EYLEM_SURE` ve `eylemKaresi` bölümüne eklenir.
 
 ## 4. Mekan ekle
@@ -44,6 +56,15 @@ Sonra `index.html` dosyasına `cizimler/tavsan/parcalar.js` satırı ve karakter
 3. Haritadan girilecekse dış görünümü `cizimler/dis/<id>.png` olarak koy ve `dunya.yerler` listesine ekle.
    `kapi`: resmin alt kenarından ölçülen kapı alanı. `hedef`: girilen mekan.
 4. Mekandan haritaya çıkış kapısı: `{ ...KAPI_SOL, hedef: "dunya", yer: "<yer id>" }`.
+5. Çalışan kişi: `calisan: { meslek, x, y, selam, sozler }`. `meslek` için `calisanlar` bölümünde resim olmalı.
+   Karakter gelince `selam` söylenir. Kişiye dokununca `sozler` sırayla söylenir.
+6. Bahçe çiçekleri: `{ tur: "bitki", bitkiler: [{ tur: "lale", x, y, hal }] }`. Türler `bitkiler` bölümündedir.
+   `hal`: 0 filiz, 1 tomurcuk, 2 çiçek. Sulama kabıyla sulanınca bir sonraki hale geçer.
+
+## Çalışan kişiye çizim koymak
+Çalışanlar `araclar/calisanlar.py` ile çizildi. Kızın çizdiği bir doktor gelince iki resim hazırlanır:
+ağzı kapalı (`doktor.png`) ve ağzı açık (`doktor-konus.png`). İkisi aynı boyda olmalı.
+`js/veri.js` içinde `calisanlar.doktor` satırındaki yollar yeni resimlere çevrilir.
 
 ## Kızın çizdiği mekanlar
 Şu an mekan resimleri `araclar/` içindeki programlarla çizildi. Kızın çizdiği bir oda, bahçe ya da bina

@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw
 sys.path.insert(0, os.path.dirname(__file__))
 from uret import (ARKA, KALEM, SS, W, H, Tuval, golge_birak, kapi, karo, oda_iskeleti, parke,  # noqa: E402
                   pencere, yol, zemin_isigi, duvar_deseni)
-from dunya import simge, yazi, salincak_ciz, citler, bahce_kapisi  # noqa: E402
+from dunya import simge, yazi, salincak_ciz, citler, bahce_kapisi, bulut_ciz, agac_tam, cam_ciz, tac_ciz, GOK  # noqa: E402
 
 BEYAZ = (255, 255, 255, 255)
 
@@ -389,31 +389,31 @@ def acik_hava(cim=(140, 205, 110), arka_ciz=None):
     t = Tuval(W, H)
     a = np.zeros((H * SS, W * SS, 4), np.float32)
     yy, xx = np.mgrid[0:H * SS, 0:W * SS] / SS
-    g = np.clip(yy / 330, 0, 1)[..., None]
-    a[..., :3] = np.array([120, 195, 245]) * (1 - g) + np.array([210, 238, 255]) * g
+    a[..., :3] = np.array(GOK)
     a[..., 3] = 255
     ust = 330 - 30 * np.sin(xx / 120) - 18 * np.sin(xx / 47)
-    a[yy > ust, :3] = np.array([165, 215, 150])
-    # Çim: öne doğru açılan şeritler
-    m = yy > 400
-    serit = ((xx - 640) / (yy - 300 + 1e-3) * 4).astype(int) % 2
-    renk = np.array(cim)[None, None, :] * np.where(serit[..., None] == 0, 1.0, 0.94)
-    a[m, :3] = renk[m]
+    a[yy > ust, :3] = np.array([150, 205, 110])
+    # Çim düz yeşil. Ortada açık yeşil, kıvrık bir patika gibi bant var.
+    a[yy > 400, :3] = np.array(cim)
+    yol_ = (np.abs(yy - (560 + 40 * np.sin(xx / 210))) < 26 + (yy - 400) * 0.12) & (yy > 430)
+    a[yol_, :3] = np.minimum(255, np.array(cim) * 1.12)
     t.im = Image.fromarray(a.astype(np.uint8), "RGBA")
+    d = ImageDraw.Draw(t.im)
+    d.line([(x * SS, (330 - 30 * np.sin(x / 120) - 18 * np.sin(x / 47)) * SS) for x in range(0, W + 1, 4)], fill=(80, 140, 60, 255), width=2 * SS)
+    d.line([(0, 400 * SS), (W * SS, 400 * SS)], fill=(80, 140, 60, 255), width=2 * SS)
     for x, y, s in [(200, 80, 1.0), (900, 60, 0.8)]:
-        for dx, dy, r in [(-50, 10, 34), (0, 0, 46), (50, 12, 32), (20, 22, 30)]:
-            t.elips(x + (dx - r) * s, y + (dy - r) * s, x + (dx + r) * s, y + (dy + r) * s, BEYAZ, cizgi=0, guc=0.25)
+        bulut_ciz(t, x, y, s)
+    # Ufukta çamlar ve ağaç tepeleri
+    for x, h in [(120, 150), (560, 130), (1180, 160)]:
+        cam_ciz(t, x, 402, h)
     if arka_ciz:
         arka_ciz(t)
-    zemin_isigi(t)
     return t
 
 
-def agac_ciz(t, x, alt, r=80):
+def agac_ciz(t, x, alt, r=80, elma=True):
     golge_birak(t, x, alt, r * 0.8, 12)
-    t.kutu(x - 16, alt - 2 * r, x + 16, alt, (150, 100, 60, 255), r=8)
-    for dx, dy, rr in [(0, -2.6, 1.0), (-0.7, -2.0, 0.66), (0.7, -2.0, 0.66), (0, -3.3, 0.7)]:
-        t.elips(x + dx * r - rr * r, alt + dy * r - rr * r, x + dx * r + rr * r, alt + dy * r + rr * r, (95, 180, 85, 255), kure=True)
+    agac_tam(t, x, alt, r * 1.15, elma=elma)
 
 
 def cicek_tarhi(t, x0, x1, y, rng):
@@ -459,10 +459,14 @@ def bahce1():
     t.cokgen([(390, 470), (410, 190), (426, 190), (408, 470)], (230, 90, 80, 255), cizgi=3, guc=0.5)
     t.cokgen([(650, 470), (630, 190), (614, 190), (632, 470)], (230, 90, 80, 255), cizgi=3, guc=0.5)
     t.kutu(396, 178, 644, 196, (240, 180, 60, 255), r=6)
-    # Kum havuzu
-    golge_birak(t, 860, 480, 150, 12)
-    t.kutu(720, 430, 1000, 480, (200, 150, 100, 255), r=14)
-    t.elips(732, 436, 988, 470, (245, 215, 150, 255), cizgi=2, guc=0.4)
+    # Kaydırak: merdiven solda, kayma yolu sağa iner (js/veri.js bahce1 kaydırak noktası)
+    golge_birak(t, 840, 480, 170, 12)
+    t.kutu(690, 230, 704, 480, (130, 200, 120, 255), r=4, cizgi=2)
+    t.kutu(736, 230, 750, 480, (130, 200, 120, 255), r=4, cizgi=2)
+    for y in range(254, 470, 28):
+        t.kutu(698, y, 742, y + 8, (130, 200, 120, 255), r=3, cizgi=2, guc=0.3)
+    t.kutu(680, 216, 772, 236, (130, 200, 120, 255), r=6)
+    t.cokgen([(750, 222), (776, 222), (980, 452), (1010, 452), (1010, 478), (960, 478)], (160, 120, 230, 255))
     # Bahçe masası ve sandalye
     masa(t, 250, 360, 400, 480, (250, 250, 250), yuvarlak=True)
     sandalye(t, 230, 486, (90, 160, 230))

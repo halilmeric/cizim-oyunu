@@ -3,7 +3,7 @@
 Kullanım: python3 araclar/uret.py
 Girdi: cizimler/<ad>.png (kızın temizlenmiş çizimleri).
 Çıktı:
-  cizimler/hacimli/<karakter>.png  ışık verilmiş karakterler (parcala.py bunları böler)
+  cizimler/hacimli/<karakter>.png  düz tarza uydurulmuş karakterler: kalem çizgisi ve gölge şeridi (parcala.py bunları böler)
   cizimler/esya/<ad>.png           taşınan eşyalar
   cizimler/mekan/<ad>.png          oda, mutfak ve banyo arka planları
 """
@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
-from hacim import hacim  # noqa: E402
+from hacim import hacim  # noqa: E402,F401  (araclar/hacim.py elle de kullanılabilir)
 
 KOK = os.path.join(os.path.dirname(__file__), "..")
 CIZ = os.path.join(KOK, "cizimler")
@@ -37,7 +37,56 @@ def koy(alt, ust, x, y):
         alt.alpha_composite(ust.crop((sx, sy, sx + w, sy + h)), (max(0, x), max(0, y)))
 
 
-# --- Tuval: düz şekiller çizer. Her şekil kendi ışığını alır, böylece kabartma gibi durur. ---
+# --- Düz çizgi film gölgesi ---
+# Her şeklin sağ alt kenarı boyunca keskin, biraz koyu bir şerit olur. Parlama ve geçiş yoktur.
+# Kızın çizimleri duz_cizim() ile aynı tarza uydurulur: kenarına kalem çizgisi çekilir.
+def duz(L, kure=False, guc=1.0):
+    a = np.array(L).astype(np.float32)
+    al = a[..., 3] > 128
+    ys, xs = np.nonzero(al)
+    if len(ys) == 0:
+        return L
+    H_, W_ = al.shape
+    bw, bh = xs.max() - xs.min() + 1, ys.max() - ys.min() + 1
+    g = min(1.0, guc * 1.4)
+    d = int(np.clip(min(bw, bh) * 0.14, 3 * SS, 18 * SS) * (0.5 + 0.5 * g))
+    dx, dy = max(1, int(d * 0.55)), d
+    kay = np.zeros_like(al)
+    kay[:H_ - dy, :W_ - dx] = al[dy:, dx:]
+    cizgi = a[..., :3].sum(axis=2) < 230  # kalem çizgisi koyulaşmaz
+    golge = al & ~kay & ~cizgi
+    a[golge, :3] *= 1 - 0.17 * g
+    im = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGBA")
+    if kure:
+        # Yuvarlak eşyada sol üstte küçük beyaz parıltı.
+        x0, y0 = xs.min(), ys.min()
+        p = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(p).ellipse([x0 + bw * 0.2, y0 + bh * 0.16, x0 + bw * 0.38, y0 + bh * 0.3], fill=(255, 255, 255, 170))
+        p.putalpha(Image.fromarray(np.minimum(np.array(p)[..., 3], al.astype(np.uint8) * 255)))
+        im.alpha_composite(p)
+    return im
+
+
+def duz_cizim(im):
+    """Kızın çizimini düz tarza uydurur: renkler biraz canlanır, kenarına koyu kalem çizgisi
+    çekilir, sağ altta gölge şeridi olur. Resmin boyu değişmez (parcala.py aynı koordinatları kullanır)."""
+    import cv2
+    from PIL import ImageEnhance
+    im = im.convert("RGBA")
+    rgb = ImageEnhance.Contrast(ImageEnhance.Color(im.convert("RGB")).enhance(1.3)).enhance(1.1)
+    a = np.array(rgb.convert("RGBA"))
+    al = np.array(im)[..., 3]
+    a[..., 3] = al
+    ic = (al > 128).astype(np.uint8)
+    k = max(3, int(max(im.size) * 0.007))
+    oz = cv2.erode(ic, np.ones((2 * k + 1, 2 * k + 1), np.uint8))
+    halka = (ic > 0) & (oz == 0)
+    a[halka, :3] = KALEM[:3]
+    a[halka, 3] = 255
+    return duz(Image.fromarray(a, "RGBA"), guc=0.4)
+
+
+# --- Tuval: düz şekiller çizer. Her şekil düz renklidir, kalın kalem çizgisi ve sağ altta gölge şeridi vardır. ---
 class Tuval:
     def __init__(self, w, h):
         self.w, self.h = w, h
@@ -49,7 +98,7 @@ class Tuval:
         L = Image.new("RGBA", (x1 - x0 + 2 * bos, y1 - y0 + 2 * bos), (0, 0, 0, 0))
         ciz(ImageDraw.Draw(L), lambda x, y: (x * SS - x0 + bos, y * SS - y0 + bos))
         if guc:
-            L = hacim(L, kure, guc)
+            L = duz(L, kure, guc)
         koy(self.im, L, x0 - bos, y0 - bos)
 
     def kutu(self, x0, y0, x1, y1, renk, r=8, cizgi=3, guc=1.0):
@@ -71,6 +120,18 @@ class Tuval:
             if cizgi:
                 d.line(pts + [pts[0]], fill=KALEM, width=cizgi * SS, joint="curve")
         self._katman((min(xs), min(ys), max(xs), max(ys)), c, guc, False)
+
+    def birlesik(self, daireler, renk, cizgi=3, guc=1.0):
+        """Dairelerin birleşimi tek bir şekil olur: dışında tek kalem çizgisi. Ağaç tacı, çalı, bulut için."""
+        x0 = min(x - r for x, y, r in daireler); y0 = min(y - r for x, y, r in daireler)
+        x1 = max(x + r for x, y, r in daireler); y1 = max(y + r for x, y, r in daireler)
+
+        def c(d, p):
+            for x, y, r in daireler:
+                d.ellipse([*p(x - r - cizgi / 2, y - r - cizgi / 2), *p(x + r + cizgi / 2, y + r + cizgi / 2)], fill=KALEM if cizgi else renk)
+            for x, y, r in daireler:
+                d.ellipse([*p(x - r + cizgi / 2, y - r + cizgi / 2), *p(x + r - cizgi / 2, y + r - cizgi / 2)], fill=renk)
+        self._katman((x0 - cizgi, y0 - cizgi, x1 + cizgi, y1 + cizgi), c, guc, False)
 
     def cizgi(self, noktalar, renk=KALEM, k=3):
         d = ImageDraw.Draw(self.im)
@@ -500,8 +561,8 @@ def zemin_isigi(t):
     """Zemin arkaya doğru kararır, ön taraf aydınlık. Kenarlarda hafif gölge (vinyet)."""
     a = np.array(t.im).astype(np.float32)
     yy, xx = np.mgrid[0:H * SS, 0:W * SS] / SS
-    k = 1 - 0.18 * np.clip((ARKA[3] + 60 - yy) / 400, 0, 1) * (yy > ARKA[3])
-    v = 1 - 0.22 * np.clip(((xx - 640) / 700) ** 2 + ((yy - 380) / 520) ** 2 - 0.35, 0, 1)
+    k = 1 - 0.07 * np.clip((ARKA[3] + 60 - yy) / 400, 0, 1) * (yy > ARKA[3])
+    v = 1 - 0.08 * np.clip(((xx - 640) / 700) ** 2 + ((yy - 380) / 520) ** 2 - 0.35, 0, 1)
     a[..., :3] *= (k * v)[..., None]
     t.im = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGBA")
 
@@ -736,7 +797,7 @@ def main():
     os.makedirs(yol("mekan"), exist_ok=True)
     ciz = {}
     for ad in ["kedi", "kiz", "ayi", "top", "telefon", "kitap", "tahin", "somine", "tv", "gokkusagi", "ev"]:
-        ciz[ad] = hacim(Image.open(yol(ad + ".png")), kure=(ad == "top"))
+        ciz[ad] = duz_cizim(Image.open(yol(ad + ".png")))
     for ad in ["kedi", "kiz", "ayi"]:
         ciz[ad].save(yol("hacimli", ad + ".png"))
     for ad in ["top", "telefon", "kitap", "tahin"]:
