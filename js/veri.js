@@ -489,21 +489,28 @@ window.OYUN_VERI = {
 
     oyuncakci: {
       ad: "Oyuncakçı", simge: "oyuncak",
-      resim: "cizimler/mekan/oyuncakci.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "oyuncakci" }],
+      resim: "cizimler/mekan/oyuncakci.jpg",
+      zemin: { ust: 470, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 200 }, arka: { sol: 235, sag: 1050, y: 440 } },
+      giris: { x: 240, y: 610 },
+      kapilar: [{ x: 40, y: 215, w: 110, h: 330, hedef: "dunya", yer: "oyuncakci" }],
       calisan: {
-        meslek: "oyuncakci", x: 620, y: 510,
+        meslek: "oyuncakci", x: 880, y: 565,
         selam: "Hoş geldin! Hangi oyuncağa bakmıştın?",
         sozler: ["Bu top çok yükseğe zıplıyor!", "Yeni oyuncak arabalar geldi.", "Hediye paketi yapalım mı?", "Ayıcığımız çok yumuşak, sarılabilirsin.", "Pilleri de vereyim mi?"],
       },
       noktalar: [
+        // Arkadaki büyük raf ve öndeki raf. Alınan oyuncağın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "top", x: 285, y: 230 }, { sablon: "kup", x: 385, y: 230 }, { sablon: "ordek", x: 480, y: 230 },
-            { sablon: "araba", x: 300, y: 330 }, { sablon: "boya", x: 420, y: 330 }, { sablon: "kitap", x: 520, y: 330 },
-            { sablon: "top", x: 290, y: 430 }, { sablon: "kova", x: 410, y: 430 }, { sablon: "telefon", x: 525, y: 430 },
+            { sablon: "ordek", x: 335, y: 263 }, { sablon: "araba", x: 452, y: 263 }, { sablon: "kup", x: 612, y: 263 },
+            { sablon: "top", x: 605, y: 350 },
+            { sablon: "boya", x: 400, y: 503 }, { sablon: "araba", x: 490, y: 503 }, { sablon: "kup", x: 570, y: 503 },
+            { sablon: "kitap", x: 400, y: 600 }, { sablon: "kova", x: 490, y: 600 }, { sablon: "top", x: 620, y: 600 },
           ],
         },
+        { tur: "tezgah", x: 918, y: 340, w: 215, h: 45, ust: 378 },
+        // Kırmızı tabure.
+        { tur: "otur", x: 1075, y: 425, w: 75, h: 80, oturma: { x: 1112, y: 495 } },
       ],
     },
     hastane: {
