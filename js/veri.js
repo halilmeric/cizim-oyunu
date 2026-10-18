@@ -603,20 +603,32 @@ window.OYUN_VERI = {
     },
     pastane: {
       ad: "Pastane", simge: "pastane",
-      resim: "cizimler/mekan/pastane.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
-      kapilar: [{ ...KAPI_SOL, hedef: "dunya", yer: "pastane" }],
+      resim: "cizimler/mekan/pastane.jpg",
+      zemin: { ust: 490, alt: 705, sol: 30, sag: 1250, ufuk: { x: 640, y: 200 }, arka: { sol: 230, sag: 1080, y: 440 } },
+      giris: { x: 240, y: 600 },
+      kapilar: [{ x: 40, y: 215, w: 110, h: 330, hedef: "dunya", yer: "pastane" }],
       calisan: {
-        meslek: "pastaci", x: 770, y: 500,
+        meslek: "pastaci", x: 820, y: 560,
         selam: "Hoş geldiniz! Bugün taze pastalarımız var.",
         sozler: ["Doğum günü pastası mı istersiniz?", "Çilekli mi olsun, çikolatalı mı?", "Kurabiyeler fırından yeni çıktı.", "Mumlarını da koyayım mı?", "Afiyet olsun!"],
       },
       noktalar: [
+        // İki camlı vitrinin iki katı. Alınanın yerine yenisi gelir.
         {
           tur: "raf", raflar: [
-            { sablon: "pasta", x: 300, y: 300 }, { sablon: "kurabiye", x: 420, y: 300 }, { sablon: "dondurma", x: 540, y: 300 }, { sablon: "pasta", x: 660, y: 300 },
-            { sablon: "ekmek", x: 300, y: 390 }, { sablon: "kurabiye", x: 420, y: 390 }, { sablon: "cilek", x: 540, y: 390 }, { sablon: "kurabiye", x: 660, y: 390 },
+            { sablon: "pasta", x: 295, y: 370 }, { sablon: "kurabiye", x: 365, y: 370 }, { sablon: "dondurma", x: 435, y: 370 },
+            { sablon: "pasta", x: 550, y: 370 }, { sablon: "cilek", x: 620, y: 370 }, { sablon: "kurabiye", x: 690, y: 370 },
+            { sablon: "ekmek", x: 300, y: 432 }, { sablon: "kurabiye", x: 370, y: 432 }, { sablon: "ekmek", x: 440, y: 432 },
+            { sablon: "kurabiye", x: 555, y: 432 }, { sablon: "pasta", x: 625, y: 432 }, { sablon: "ekmek", x: 695, y: 432 },
           ],
         },
+        { tur: "tezgah", x: 250, y: 270, w: 505, h: 40, ust: 298 },
+        // Taş fırın: dokununca ateş yanar. Tencere ve tava ateşe konur.
+        { tur: "ocak", x: 880, y: 250, w: 165, h: 140, gozler: [{ x: 960, y: 380 }] },
+        // Sağdaki tahta masa ve bank, soldaki ön masa.
+        { tur: "tezgah", x: 905, y: 395, w: 280, h: 40, ust: 418 },
+        { tur: "otur", x: 1120, y: 450, w: 160, h: 180, oturma: { x: 1195, y: 610 } },
+        { tur: "tezgah", x: 140, y: 560, w: 215, h: 40, ust: 582 },
       ],
     },
   },
