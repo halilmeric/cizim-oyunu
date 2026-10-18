@@ -395,7 +395,8 @@ k.scene("mekan", (mekanId) => {
     const s = olcek(o), ay = o.kok.pos.y;
     if (o.oturak && o.oturak.tur === "yatak") {
       const y = o.oturak.yatis;
-      return p.x > y.x - 20 && p.x < y.x + o.oturak.uzunluk && Math.abs(p.y - y.y) < 70;
+      const uc = y.x + (o.oturak.yon || 1) * o.oturak.uzunluk;
+      return p.x > Math.min(y.x, uc) - 20 && p.x < Math.max(y.x, uc) + 20 && Math.abs(p.y - y.y) < 70;
     }
     const alt = o.kuvet ? o.kuvet.kv.su + 10 : ay + 10;
     return Math.abs(p.x - o.kok.pos.x) < (o.kr.genislik * s) / 2 && p.y < alt && p.y > ay - o.kr.yukseklik * s;
@@ -1256,11 +1257,11 @@ k.scene("mekan", (mekanId) => {
         // Boyu yatağa sığar: ayaklar yatis noktasında, baş yastıkta. Yandan bakılınca ince görünür.
         const sy = n.uzunluk / o.kr.yukseklik;
         o.kok.pos = k.vec2(n.yatis.x, n.yatis.y);
-        o.kok.angle = 90;
+        o.kok.angle = 90 * (n.yon || 1); // yon -1: yastık solda
         o.kok.scale = k.vec2(sy * 0.55 * (1 + Math.sin(t * 1.8) * 0.03), sy);
         K.canlandir(o.kr, t, "uyu");
         o.uyku -= dt;
-        if (o.uyku <= 0) { o.uyku = 1.1; G.zzz(n.yatis.x + n.uzunluk * 0.95, n.yatis.y - 60); }
+        if (o.uyku <= 0) { o.uyku = 1.1; G.zzz(n.yatis.x + (n.yon || 1) * n.uzunluk * 0.95, n.yatis.y - 60); }
         return;
       }
       const bas = 0.85;
@@ -1333,7 +1334,7 @@ k.scene("mekan", (mekanId) => {
       const s = olcek(secili);
       const yatiyor = secili.oturak && secili.oturak.tur === "yatak";
       const ust = yatiyor ? secili.kok.pos.y - 60 : secili.kok.pos.y - secili.kr.yukseklik * s * (secili.oturak || secili.kayiyor ? 0.85 : 1);
-      const x = yatiyor ? secili.kok.pos.x + secili.oturak.uzunluk * 0.5 : secili.kok.pos.x;
+      const x = yatiyor ? secili.kok.pos.x + (secili.oturak.yon || 1) * secili.oturak.uzunluk * 0.5 : secili.kok.pos.x;
       isaret.pos = k.vec2(x, ust - 18 + Math.sin(t * 4) * 5);
       isaret.scale = k.vec2(harita ? 0.8 : 1);
     }

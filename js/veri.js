@@ -169,6 +169,7 @@ window.OYUN_VERI = {
   //     klozet: karakter oturur, beli piksel sansürle örtülür. Kalkınca sifon çekilir.
   //     otur: sandalye, kanepe, bank. Karakter bırakılınca oturur.
   //     yatak: karakter bırakılınca yatar ve uyur. yatis: ayak ucu. uzunluk: ayaktan yastığa. yorgan: üstünü örten örtü.
+  //            yon: -1 ise yastık soldadır (varsayılan 1, yastık sağda).
   //     salincak: karakter bırakılınca sallanır. asma: ipin bağlı olduğu nokta. ip: ipin boyu.
   //     kaydirak: karakter bırakılınca üstten alta kayar.
   //     tezgah: eşya bırakılınca üstüne konur. ust: eşyaların durduğu çizgi.
@@ -285,25 +286,26 @@ window.OYUN_VERI = {
       ad: "Yatak odası", simge: "ev", ev: "ev1",
       resim: "cizimler/mekan/yatak.jpg", zemin: ZEMIN, giris: GIRIS_SOL,
       kapilar: [
-        { ...KAPI_SOL, hedef: "banyo", giris: GIRIS_SAG },
-        { ...KAPI_SAG, hedef: "bahce1", giris: { x: 250, y: 590 } },
+        { x: 48, y: 210, w: 110, h: 345, hedef: "banyo", giris: GIRIS_SAG },
+        { x: 1130, y: 210, w: 112, h: 300, hedef: "bahce1", giris: { x: 250, y: 590 } },
       ],
       noktalar: [
-        { tur: "yatak", x: 220, y: 280, w: 350, h: 200, yatis: { x: 250, y: 318 }, uzunluk: 270, yorgan: { x: 236, y: 300, w: 190, h: 84 }, renk: [130, 170, 235] },
-        { tur: "lamba", x: 580, y: 290, w: 90, h: 95, isik: { x: 625, y: 318 } },
+        { tur: "yatak", x: 230, y: 280, w: 350, h: 210, yatis: { x: 535, y: 420 }, uzunluk: 250, yon: -1, yorgan: { x: 335, y: 378, w: 205, h: 66 }, renk: [108, 141, 194] },
+        { tur: "lamba", x: 585, y: 305, w: 85, h: 90, isik: { x: 627, y: 335 } },
         {
-          tur: "dolap", x: 800, y: 140, w: 200, h: 326,
-          resim: "cizimler/mekan/gardirop-acik.png", x0: 736, y0: 124,
+          tur: "dolap", x: 838, y: 192, w: 214, h: 288,
+          resim: "cizimler/mekan/gardirop-acik.png", x0: 796, y0: 190,
           raflar: [
             // sira: biri alınınca rafa sıradaki renk gelir.
-            { sablon: "sapka", x: 900, y: 205 },
-            { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 850, y: 360 },
-            { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 950, y: 330 },
-            { sablon: "pantolon", sira: ["pantolon", "pantolon-pembe", "pantolon-kahve"], x: 900, y: 452 },
+            { sablon: "sapka", x: 953, y: 252 },
+            { sablon: "elbise", sira: ["elbise", "elbise-mor"], x: 908, y: 412 },
+            { sablon: "tisort", sira: ["tisort", "tisort-sari", "tisort-yesil"], x: 998, y: 378 },
+            { sablon: "pantolon", sira: ["pantolon", "pantolon-pembe", "pantolon-kahve"], x: 953, y: 456 },
           ],
         },
       ],
     },
+
     bahce1: {
       ad: "Bahçe", simge: "bahce", ev: "ev1",
       resim: "cizimler/mekan/bahce1.jpg", zemin: ZEMIN_ACIK, giris: GIRIS_SAG,
