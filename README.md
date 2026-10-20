@@ -1,4 +1,4 @@
-# cizim-oyunu
+# Hatice World
 
 Kızımın çizdiği karakterler ve mekanlarla Toca Boca World tarzı serbest bir tarayıcı oyunu.
 
